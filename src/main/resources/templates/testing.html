@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>做样页</title>
+<link rel="stylesheet" href="/script/lab-admin.css" />
+<link rel="stylesheet" href="/script/lab-testing.css" />
+ <script  th:src="@{script/jQuery3.7.1.js}"></script>
+ <script src="/script/lab-auth-nav.js"></script>
+ <style>
+ .manualOperationReveal {
+   width: 28px;
+   height: 28px;
+   margin-right: 8px;
+   border: 1px solid #9cc7d8;
+   border-radius: 50%;
+   background: #eef9fc;
+   color: #126d86;
+   font-weight: 800;
+   cursor: pointer;
+ }
+ .manualOperationReveal:hover {
+   background: #d7f0f6;
+ }
+ 
+ /* ===== 称样表格：保留表格形式 + 小屏适配 ===== */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-container > div {
+  width: 100%;
+}
+
+.table-container table {
+  width: 100%;
+  border-collapse: collapse;
+ table-layout: fixed;
+}
+
+.table-container td {
+  padding: 3px 4px;
+  font-size: 8px;
+  line-height: 1.35;
+  vertical-align: middle;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* td 不要 display:-webkit-box，夹断效果放到内部 span */
+.table-container .cell-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 30;      /* 最多显示三行 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+/* 表头稍微紧凑一点 */
+.table-container tr:first-child td {
+  font-weight: 100;
+  text-align: center;
+  background: #E0FFFF;
+}
+
+/* 操作列很窄 */
+.table-container .operationColumn {
+  width: 1px;
+  text-align: center;
+}
+
+/* 样品短号 */
+.table-container .col-daily-order {
+  width: 2px;
+  text-align: center;
+  
+}
+
+.table-container .col-number {
+  width:1px;
+}
+
+.sample-number-cell {
+  position: relative;
+  border-radius: 2px;
+  text-align: center;
+}
+
+.sample-number-cell.isBF {
+  background: rgba(255,84,112,.18) !important;
+  border: 1px solid rgba(255,84,112,.35) !important;
+  color: #102a43 !important;
+  box-shadow: 0 0 0 3px rgba(255,84,112,.10) !important;
+}
+
+.sample-number-cell.isBF::after {
+  content: "复测";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,84,112,.25);
+  border: 1px solid rgba(255,84,112,.35);
+}
+
+/* 样品名称 */
+.table-container .col-name {
+  width: 5px;
+}
+
+/* 报告抬头 */
+.table-container .col-company {
+  width: 5px;
+}
+
+/* 检测项目 */
+.table-container .col-item {
+  width: 5px;
+}
+
+/* 报告单位 */
+.table-container .col-unit {
+  width: 2px;
+}
+
+/* 检测方法可以稍微宽一点，但不再固定400px */
+.table-container .col-method {
+  width: 8px;
+}
+
+/* 备注 */
+.table-container .col-tip {
+  width: 10px;
+}
+
+/* 小屏幕进一步压缩 */
+@media (max-width: 768px) {
+  .table-container table {
+    min-width: 520px; /* 保留表格形式，小屏可以横向滑动 */
+  }
+
+  .table-container td {
+    padding: 5px 6px;
+    font-size: 13px;
+  }
+
+  .table-container .col-number {
+    width: 10px;
+  }
+
+  .table-container .col-name,
+  .table-container .col-company,
+  .table-container .col-item {
+    width: 80px;
+  }
+
+  .table-container .col-method {
+    width: 150px;
+  }
+
+  .table-container .col-tip {
+    width: 100px;
+  }
+  
+  
+/* 多值字段：每个值单独成行，不做三行截断 */
+.table-container .multi-line-list {
+  display: block;
+  white-space: normal;
+  word-break: break-word;
+  overflow: visible;
+  text-overflow: unset;
+}
+
+/* 单个值 */
+.table-container .multi-line-item {
+  display: block;
+  line-height: 1.45;
+  padding: 1px 0;
+}
+
+}
+
+.embedded-task-panel {
+  margin-top: 14px;
+  border: 1px solid #d7e2ee;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 16px 35px rgba(16, 24, 40, 0.12);
+  overflow: hidden;
+}
+
+.embedded-task-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #edf1f6;
+  background: #f6f9fc;
+}
+
+.embedded-task-header h2 {
+  margin: 0 0 4px;
+  font-size: 18px;
+}
+
+.embedded-task-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.embedded-task-header button,
+.mpn-batch-btn {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid #2f80a0;
+  border-radius: 6px;
+  background: #2f80a0;
+  color: #fff;
+  cursor: pointer;
+}
+
+.mpn-workspace {
+  display: grid;
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 12px;
+  padding: 12px;
+}
+
+.mpn-batch-panel {
+  border: 1px solid #edf1f6;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfdff;
+}
+
+#mpnBatchList {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mpn-batch-btn {
+  width: 100%;
+  background: #fff;
+  color: #174f6d;
+}
+
+.mpn-batch-btn.is-active {
+  background: #2f80a0;
+  color: #fff;
+}
+
+#donelabel.is-active,
+#writeMPNlabel.is-active {
+  border-color: #2f80a0 !important;
+  background: #eaf4f8;
+  color: #11435b;
+}
+
+.embedded-table-wrap {
+  overflow: auto;
+}
+
+.embedded-table-wrap table {
+  width: 100%;
+  min-width: 980px;
+  border-collapse: collapse;
+}
+
+.embedded-table-wrap th,
+.embedded-table-wrap td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #edf1f6;
+  text-align: left;
+  vertical-align: top;
+}
+
+.embedded-table-wrap th {
+  background: #f8fafc;
+  color: #64748b;
+}
+
+.embedded-table-wrap tr.is-done td {
+  background: #f3e8ff;
+}
+
+.embedded-empty {
+  color: #64748b;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .mpn-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== 强制控制主表格字体大小：放在 style 最后 ===== */
+/* 只改样品短号文字，不改按钮 */
+/* 样品短号内容 */
+.table-container .col-number .cell-clamp {
+  font-size: 30px !important;
+  line-height: 1.2 !important;
+}
+
+/* 检测项目内容 */
+.table-container tr:not(:first-child) .col-item,
+.table-container tr:not(:first-child) .col-item span,
+.table-container tr:not(:first-child) .col-item .multi-line-list,
+.table-container tr:not(:first-child) .col-item .multi-line-item {
+  font-size: 30px !important;
+  line-height: 1.2 !important;
+}
+ </style>
+</head>
+<body>
+<div class="lab-shell">
+  <aside class="lab-sidebar" aria-label="主导航">
+    <a class="lab-brand" href="/" title="首页仪表盘">
+      <span class="lab-brand-mark">MB</span>
+      <span class="lab-brand-text">微生物</span>
+    </a>
+    <nav class="lab-nav">
+      <a class="lab-nav-item" href="/" title="首页仪表盘">
+        <span class="lab-nav-icon lab-icon-dashboard" aria-hidden="true"></span>
+        <span class="lab-nav-copy">
+          <strong>首页仪表盘</strong>
+          <small>系统动态概览</small>
+        </span>
+      </a>
+      <a class="lab-nav-item" href="/sample-receive.html" title="样品接收">
+        <span class="lab-nav-icon lab-icon-receive" aria-hidden="true"></span>
+        <span class="lab-nav-copy">
+          <strong>样品接收</strong>
+          <small>上传 Excel 清单</small>
+        </span>
+      </a>
+      <a class="lab-nav-item is-active" href="/testing" title="样品处理">
+        <span class="lab-nav-icon lab-icon-process" aria-hidden="true"></span>
+        <span class="lab-nav-copy">
+          <strong>样品处理</strong>
+          <small>做样与写管入口</small>
+        </span>
+      </a>
+      <a class="lab-nav-item" href="/recordingbeta" title="结果记录">
+        <span class="lab-nav-icon lab-icon-record" aria-hidden="true"></span>
+        <span class="lab-nav-copy">
+          <strong>结果记录</strong>
+          <small>培养与判读记录</small>
+        </span>
+      </a>
+      <a class="lab-nav-item" href="/getTestDatabeta" title="样品查询">
+        <span class="lab-nav-icon lab-icon-query" aria-hidden="true"></span>
+        <span class="lab-nav-copy">
+          <strong>样品查询</strong>
+          <small>历史数据检索</small>
+        </span>
+      </a>
+      <a class="lab-nav-item" href="/standard" title="标准方法管理">
+        <span class="lab-nav-icon lab-icon-standard" aria-hidden="true"></span>
+        <span class="lab-nav-copy">
+          <strong>标准方法管理</strong>
+          <small>项目与方法配置</small>
+        </span>
+      </a>
+    </nav>
+  </aside>
+  <main class="lab-main lab-testing-page">
+    <header class="lab-topbar">
+      <div>
+        <strong>样品处理中心</strong>
+        <span>扫码确认、任务领取、样品做样与复测入口</span>
+      </div>
+      <div class="lab-user-area" data-auth-user>
+        <button
+          id="labSidebarToggle"
+          class="lab-sidebar-toggle"
+          type="button"
+          aria-label="收起或展开导航栏"
+          aria-expanded="true"
+          title="收起导航"
+        >
+          <span aria-hidden="true"></span>
+        </button>
+        <span>处理页面</span>
+      </div>
+    </header>
+    <section class="lab-page-header">
+      <div>
+        <h1>样品处理</h1>
+        <p>保持现有后端接口和脚本逻辑不变，页面改为更清晰的操作布局，减少误触和视觉混乱。</p>
+      </div>
+    </section>
+	<!-- 中控台容器 -->
+<div id="controlPanel">
+	<!-- 进度条组件（放在上方） -->
+  <div id="progressContainer">
+    <div id="progressBarWrapper">
+      <div id="progressBar">0/0 (0%)</div>
+    </div>
+  </div>
+    <!-- 领取任务按钮部分 -->
+    <div id="taskSection">
+        <button id="receiveTaskBtn" onclick="openTaskModal()">领取任务</button>
+         <!-- 提示文字：初始隐藏 -->
+        <span id="newSampleAlert">有新样品待领取</span>   
+       
+    </div>
+    
+    <!-- 样品名称输入部分 -->
+    <div id="sampleInputSection" >
+        <label for="inputQRD" id="QRDLabel">
+            样品标签扫描处
+            <input id="inputQRD" type="text" value=""  />
+        </label>
+    </div>
+    
+   <!-- 为便于JS获取总样品数与已做样品数（可隐藏） -->
+  <p id="allSimpleNum" th:text="${allSimpleNum}">100</p>
+  <p id="doneSimpleNum" th:text="${doneSimpleNum}">30</p>
+  <input id="canOperateFlag" type="hidden" th:value="${canOperate}" value="false">
+  <input id="currentUserName" type="hidden" th:value="${currentUser}" value="">
+</div>
+
+    <!-- 任务领取模态对话框 -->
+    <div id="modalBg">
+		<div id="taskModal">
+        <h3>请选择批次</h3>
+        <form id="batchForm" action="/testing" method="get">
+  <select name="batch" id="batchSelect">
+    <option value="">全部</option>
+    <option th:each="b : ${batchList}" th:value="${b}" th:text="${b}"></option>
+  </select>
+  <br/><br/>
+  <input type="submit" value="确定">
+  <input type="button" value="关闭" onclick="closeTaskModal()">
+</form>
+    </div>
+	</div>
+	
+	<script>
+  // 拦截表单提交事件
+  $('#batchForm').submit(function(e) {
+      e.preventDefault();  // 阻止默认提交行为
+      var url = $(this).attr('action');
+      var data = $(this).serialize();  // 序列化表单数据，比如 batch=2
+      var selectedBatch = $("#batchSelect").val();
+      var currentUser = $("#currentUserName").val() || "当前账号";
+      if (!selectedBatch) {
+          alert("请选择要领取的批次");
+          return;
+      }
+      if (!confirm("当前账号：" + currentUser + "\n确认将第 " + selectedBatch + " 批样品领取到该账号下吗？")) {
+          return;
+      }
+      
+      // 先发送带参数的 AJAX GET 请求
+      $.get(url, data, function(response) {
+          // 处理完服务器逻辑后，再重定向到 /testing（不带参数）
+          window.location.href = "/testing";
+      }).fail(function() {
+          alert("请求出错！");
+      });
+  });
+</script>
+    
+
+
+<!-- 登录/注册模态对话框 -->
+<div id="loginModal">
+  <h3>用户登录</h3>
+  <form id="loginForm">
+    <label for="username">用户名</label>
+    <input type="text" id="username" name="username" placeholder="请输入用户名" required>
+    <br/><br/>
+    <label for="password">口令</label>
+    <input type="password" id="password" name="password" placeholder="请输入口令" required>
+    <br/><br/>
+    <input type="submit" value="登录">
+  </form>
+  <br/>
+  <button onclick="showRegister()">注册新用户</button>
+  <button onclick="closeLoginModal()">关闭</button>
+</div>
+
+<!-- 注册模态对话框 -->
+<div id="registerModal">
+  <h3>用户注册</h3>
+  <form id="registerForm">
+    <label for="regUsername">用户名</label>
+    <input type="text" id="regUsername" name="username" placeholder="请输入用户名" required>
+    <br/><br/>
+    <label for="regPassword">口令</label>
+    <input type="password" id="regPassword" name="password" placeholder="请输入口令" required>
+    <br/><br/>
+    <input type="submit" value="注册">
+  </form>
+  <br/>
+  <button onclick="closeRegisterModal()">关闭</button>
+</div>
+
+<!-- 登录状态按钮 -->
+<div id="loginStatus">
+  <button id="loginButton" onclick="openloginUserModal()">登录状态</button>
+</div>
+<!-- 弹出对话框 -->
+<div id="loginUserModal">
+    <h3>提示</h3>
+    <p id="ipAddress">正在获取客户端 IP...</p> <!-- 显示 IP 地址 -->
+   
+    <!-- 新增的确定按钮，初始隐藏 -->
+    <button id="loginuserButton" onclick="openLoginModal()">
+		登录
+    </button>
+    <button id="closeModal">
+        关闭
+    </button>
+    <button id="quiteuserModal">
+        退出登录
+    </button>
+</div>
+
+<script>
+	// 打开登录信息模态对话框
+  function openloginUserModal() {
+    document.getElementById("loginUserModal").style.display = "block";
+  }
+  // 打开登录模态对话框
+  function openLoginModal() {
+	  document.getElementById("loginUserModal").style.display = "none";
+    document.getElementById("loginModal").style.display = "block";
+  }
+  // 关闭登录模态对话框
+  function closeLoginModal() {
+    document.getElementById("loginModal").style.display = "none";
+  }
+  // 打开注册模态对话框
+  function showRegister() {
+    closeLoginModal();
+    document.getElementById("registerModal").style.display = "block";
+  }
+  // 关闭注册模态对话框
+  function closeRegisterModal() {
+    document.getElementById("registerModal").style.display = "none";
+  }
+
+  // 登录表单提交
+  document.getElementById("loginForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var username = document.getElementById("username").value;
+    var password = document.getElementById("password").value;
+
+    $.ajax({
+      url: "/api/auth/login",
+      type: "POST",
+      data: { username: username, password: password },
+      success: function(data) {
+        if (data.status === "已登录") {
+          $("#loginButton").text("已登录");
+          alert("登录成功！");
+          closeLoginModal();
+          window.location.reload();
+        }else if(data.status === "duo"){
+             if (confirm("检测到重复登录，是否退出当前登录状态？")) {
+				 username=data.username;
+                $.ajax({
+                    url: "/api/logout", // 后端退出登录接口       
+                    type: "POST",
+                    data:{deleteusername: username},
+                    success: function (data) {
+						$("#loginButton").text("未登录");
+                        $("#loginUserModal").fadeIn();
+                         $("#ipAddress").text(data.status);
+                         
+                    },
+                    error: function () {
+                        $("#ipAddress").text("退出登录失败！");
+                    }
+                });
+            }
+            
+        } else {
+          alert("登录失败：" + data.status);
+        }
+      },
+      error: function() {
+        alert("登录出错！");
+      }
+    });
+  });
+
+  // 注册表单提交
+  document.getElementById("registerForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    var username = document.getElementById("regUsername").value;
+    var password = document.getElementById("regPassword").value;
+
+    $.ajax({
+      url: "/api/auth/register",
+      type: "POST",
+      data: { username: username, password: password },
+      success: function(data) {
+        if (data.status === "注册成功") {
+          alert("注册成功，请登录！");
+          closeRegisterModal();
+          openLoginModal();
+        } else {
+          alert("注册失败：" + data.status);
+        }
+      },
+      error: function() {
+        alert("注册出错！");
+      }
+    });
+  });
+</script>
+
+<!-- 示例：模态对话框（可选） -->
+<div id="dologinModal">
+    <h3>提示</h3>
+    <p id="chi">请先登录！</p> <!-- 显示 IP 地址 -->
+    
+    <button id="docloseModal" onclick="closeModal()">
+        关闭
+    </button>
+</div>
+
+	<div id="home" >		
+		<div id="selectapp">
+			<label for="backToHome" id="backToHomeLabel">返回主页</label>
+			<button id="backToHome" onclick="window.location.href='/'" hidden></button>
+			<button id="weightModeBtn" type="button" onclick="activateWeightMode()">
+	        <span>样品称量</span>
+	      </button>
+				<button id="dolabel" type="button" onclick="showAllTasksMode()">
+        <span>未做</span>
+      </button>		
+		<button id="donelabel" type="button" onclick="showDoneMode()">
+        <span>已做</span>
+      </button>		
+		<button id="writeMPNlabel" type="button" onclick="showMpnMode()">
+        <span>写管</span>
+      </button>		
+		<!--<a  id="tipLabelc" href="/load" download="biaoqian.txt"  >标签下载</a>-->
+		<button id="tipLabelcBETA" onclick="openpanTaskModal()">
+        <span>标签下载BETA</span>
+      </button>
+		<a id="tipLabelF" href="/loadF" download="Fbiaoqian.txt" >
+        <span>复测标签下载</span>
+      </a>	
+		<div id="selmonlable">
+	
+	
+	 <!-- 显示的标签和按钮 -->
+    <label for="tipLabelsel" id="importResultLabel">
+      <span>定性标签</span>
+    </label>
+    <!-- 此处 type="button"，当点击时触发弹出模态对话框 -->
+    <input id="tipLabelsel" type="button" value="打开表单" onclick="openModal()" hidden>
+	</div>
+		</div>
+
+		</div>
+		
+		<!-- 样品打板模态对话框 -->
+    <div id="panmodalBg">
+		<div id="pantaskModal">
+        <h3>请选择批次</h3>
+        <form action="/loadBETA" method="get">
+            <!-- 传入原页面其他参数（例如当前日期等） -->
+            <select name="allbatch" id="allbatchSelect">
+                <option value="">全部</option>
+                <!-- 使用 Thymeleaf 渲染批次列表 -->
+                <option th:each="a : ${recordPanel}" th:value="${a}" th:text="${a}"></option>
+            </select>
+            <h5>输入做的遍数（只有做五遍的才会生效）</h5>
+            <input id="positiveIntInput" type="number" name="dup" value="0" placeholder="请输入正整数" />
+            <br/><br/>
+            <input type="submit" value="下载所选批次" >
+            <input type="button" value="查询所选批次" onclick="questpanTaskModal(document.getElementById('allbatchSelect').value)">
+            <input type="button" value="关闭" onclick="closepanTaskModal()">
+        </form>
+    </div>
+	</div>
+		
+		<!-- 模态背景（可选，让对话框外部背景半透明） -->
+    <div id="modalBackground">
+		
+		<!-- 弹出对话框 -->
+    <div id="myModal">
+        <form action="#" th:action="@{/loadSelomenLable}" method="get" enctype="text/plain">
+            <!-- 输入框区域 -->
+            <div>
+                <label for="projectInput">输入需打印标签的检测项目</label>
+                <input type="text" id="projectInput" name="checkItem" placeholder="请输入检测项目" required>
+            </div>
+            <br>
+            <!-- 下拉选择区域 -->
+            <div>
+                <label for="tableSelect">选择账号日期</label>
+                <select id="tableSelect" name="table_name">
+                    <option value=" " selected>选择日期</option>
+                    <option th:each="dateTable : ${nameList}" 
+                            th:value="${dateTable.toString()}" 
+                            th:text="${currentUser + ' ' + dateTable.toString()}">
+                    </option>
+                </select>
+            </div>
+            <br>
+            <!-- 按钮区域 -->
+            <div>
+                <input type="submit" value="提交">
+                <input type="button" value="关闭" onclick="closemyModal()">
+            </div>
+        </form>
+    </div>
+	</div>
+
+    
+		<div id="weightModeHint" class="lab-weight-hint">
+    样品称量模式已开启：默认不显示全量任务，扫码后仅展示匹配样品信息。
+  </div>
+		<div class="table-container">
+<div>
+	<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td class="operationColumn" style="width: 2%;">操作</td>
+		<td class="col-daily-order"  style="width: 3%;">当天样品序号</td>
+		<td class="col-number" style="width: 10%;">样品短号</td>
+<td class="col-name" style="width: 10%;">样品名称</td>
+<td class="col-company" style="width: 10%;">报告抬头</td>
+<td class="col-item" style="width: 8%;">检测项目</td>
+<td class="col-unit" style="width: 9%;">报告单位</td>
+<td class="col-method" style="width: 12%;">检测方法</td>
+<td class="col-tip" style="width: 10%;">备注</td>
+   </tr>
+	<tr id="trid" th:each="simple:${presentList}" >
+		
+		
+
+    <td class="operationColumn"><label id="F" th:value="${simple.getIfF()}" hidden></label><img src="image/doneRight.png" id="btid" class="subbut" onclick="changeColor(this.id) " th:value="${simple.getNumber()}" th:testName="${simple.getTestItem()}" ></img></td>
+	<!--<td th:text="${simple.getId()}"></td>-->
+	<td class="col-daily-order" th:text="${simple.getDailySampleOrder()}"></td>
+	<td id="queryNum" class="col-number sample-number-cell" th:classappend="${simple.getIfF() == 'BF' || simple.getIfF() == 'RBF'} ? ' isBF'" th:value="${simple.getNumber()}">
+  <button class="manualOperationReveal" type="button" onclick="confirmManualOperation()">◀</button>
+  <span class="cell-clamp" th:text="${simple.getNumber()}"></span>
+</td>
+
+<td class="col-name">
+  <span class="cell-clamp" th:text="${simple.getName()}"></span>
+</td>
+
+<td class="col-company">
+  <span class="cell-clamp" th:text="${simple.getCompany()}"></span>
+</td>
+
+<td class="col-item lab-test-item-cell multi-line-cell" th:attr="data-multi-value=${simple.getTestItem()}">
+  <span class="multi-line-list" th:text="${simple.getTestItem()}"></span>
+</td>
+
+<td class="col-unit multi-line-cell" th:attr="data-multi-value=${simple.getUnit()}">
+  <span class="multi-line-list" th:text="${simple.getUnit()}"></span>
+</td>
+
+<td class="col-method multi-line-cell" th:attr="data-multi-value=${simple.getTestMethod()}">
+  <span class="multi-line-list" th:text="${simple.getTestMethod()}"></span>
+</td>
+
+<td class="col-tip">
+  <span class="cell-clamp-cancel" th:text="${simple.getTip()}"></span>
+</td>
+	</tr>
+	
+</table>
+</div>
+</div>
+
+<section id="donePanel" class="embedded-task-panel" hidden>
+  <div class="embedded-task-header">
+    <div>
+      <h2>已做样品</h2>
+      <p>显示当前账号已完成的样品任务。</p>
+    </div>
+    <button type="button" onclick="loadDoneSamples()">刷新</button>
+  </div>
+  <div class="embedded-table-wrap">
+    <table id="doneTable">
+      <thead>
+        <tr>
+          <th>当天样品序号</th>
+          <th>样品短号</th>
+          <th>样品名称</th>
+          <th>报告抬头</th>
+          <th>检测项目</th>
+          <th>报告单位</th>
+          <th>检测方法</th>
+          <th>备注</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>
+
+<section id="mpnPanel" class="embedded-task-panel" hidden>
+  <div class="embedded-task-header">
+    <div>
+      <h2>写管</h2>
+      <p>按批次查看当天写管样品。</p>
+    </div>
+    <button type="button" onclick="loadMpnBatches()">刷新批次</button>
+  </div>
+  <div class="mpn-workspace">
+    <aside class="mpn-batch-panel">
+      <strong>批次</strong>
+      <div id="mpnBatchList"></div>
+    </aside>
+    <div class="embedded-table-wrap">
+      <table id="mpnTable">
+        <thead>
+          <tr>
+            <th>当天样品序号</th>
+            <th>样品短号</th>
+            <th>样品名称</th>
+            <th>报告抬头</th>
+            <th>检测项目</th>
+            <th>报告单位</th>
+            <th>检测方法</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colspan="8">请选择批次</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<script>
+	// 页面加载完成后更新进度条
+	 document.addEventListener("DOMContentLoaded", function () {
+    updateProgress();
+    formatExistingMultiLineCells();
+    initWeightMode();
+});
+	
+	 function formatExistingMultiLineCells() {
+		    var cells = document.querySelectorAll(".multi-line-cell");
+
+		    cells.forEach(function (cell) {
+		        var value = cell.getAttribute("data-multi-value") || cell.textContent || "";
+		        cell.innerHTML = renderMultiValueLines(value);
+		    });
+		}
+
+  // 计算并更新进度条显示
+  function updateProgress() {
+    // 获取总样品数和已做样品数（从隐藏的元素中获取）
+    var total = parseInt(document.getElementById("allSimpleNum").textContent);
+    var done = parseInt(document.getElementById("doneSimpleNum").textContent);
+    if (total === 0) total = 1; // 防止除以零
+    var percent = Math.min(100, Math.round((done / total) * 100));
+    
+    // 更新进度条宽度和显示文本格式："已做数/总数 (百分比%)"
+    var progressBar = document.getElementById("progressBar");
+    progressBar.style.width = percent + "%";
+    progressBar.textContent = done + "/" + total + " (" + percent + "%)";
+  }
+</script>
+
+
+<script>
+$(document).ready(function(){
+    // 假设默认选项 value 为 "" 或 "全部"，检测是否有其他选项
+    var optionCount = $("#batchSelect option").length;
+    var $receiveBtn = $("#receiveTaskBtn");
+    // 如果 select 中选项数量大于1，则认为有新样品（批次）可领取
+    if(optionCount > 1) {
+        $("#newSampleAlert").hide();
+        $receiveBtn.addClass("lab-task-highlight");
+    } else {
+        $("#newSampleAlert").hide();
+        $receiveBtn.removeClass("lab-task-highlight");
+    }
+});
+</script>
+ <script>
+        function openTaskModal(){
+			
+			// 判断是否为已登录状态
+    // 这里假设登录状态按钮文本为"已登录"时表示已经登录
+    var loginStatus = document.getElementById('loginButton').textContent.trim();
+    if (loginStatus !== "已登录") {
+        // 如果没有登录，可使用 alert 或显示自定义对话框
+        // alert("请先登录！");
+        document.getElementById('dologinModal').style.display = 'block';
+        return; // 未登录则退出函数
+    }
+		
+		
+		// 通过 AJAX 向后端检查 Session 是否有效
+    $.ajax({
+        url: "/api/checkLogin", // 后端接口，根据 Session 状态返回 "已登录" 或其它信息
+        type: "GET",
+        success: function(data) {
+            if (data.status !== "已登录") {
+                // 如果后端判断 Session 失效或未登录，弹出提示框
+                document.getElementById('dologinModal').style.display = 'block';
+                document.getElementById('chi').innerText = "登录已失效";
+                return;
+            } else {
+               
+			  document.getElementById("taskModal").style.display = "block";
+            document.getElementById("modalBg").style.display = "block";
+		 
+            }
+        },
+        error: function() {
+            // 请求出错，也视为未登录
+            document.getElementById('dologinModal').style.display = 'block';
+        }
+    });
+			   
+        }
+        function closeTaskModal(){
+            document.getElementById("taskModal").style.display = "none";
+            document.getElementById("modalBg").style.display = "none";
+            window.location.reload();
+        }
+        
+         function openpanTaskModal(){
+			 
+               
+			   document.getElementById("pantaskModal").style.display = "block";
+            document.getElementById("panmodalBg").style.display = "block";
+		 
+           
+           
+        }
+        function questpanTaskModal(batch){
+			window.open("/questTesting?batch=" + batch, "_blank");
+            document.getElementById("pantaskModal").style.display = "none";
+            document.getElementById("panmodalBg").style.display = "none";
+        }
+        function closepanTaskModal(){
+            document.getElementById("pantaskModal").style.display = "none";
+            document.getElementById("panmodalBg").style.display = "none";
+        }
+    </script>
+
+<script>
+        function openModal() {
+            document.getElementById("myModal").style.display = "block";
+            document.getElementById("modalBackground").style.display = "block";
+        }
+
+        function closemyModal() {
+            document.getElementById("myModal").style.display = "none";
+            document.getElementById("modalBackground").style.display = "none";
+            
+        }
+    </script>
+<script>
+	$(document).ready(function () {
+		$.ajax({
+    url: "/api/checkLogin",
+    type: "GET",
+    success: function(data) {
+        if (data.status === "已登录") {
+            $("#loginButton").text("已登录");
+        } else {
+            $("#loginButton").text(data.status);
+            
+        }
+    },
+    error: function() {
+        $("#loginButton").text("登录状态");
+    }
+});
+    
+	 });
+	// 点击登录状态按钮，获取 IP 并显示弹出对话框
+$("#loginStatus").on("click", function () {
+	
+    // 弹出对话框并清除上次状态
+    $("#ipAddress").text("正在获取客户端 IP...");
+    document.getElementById("quiteuserModal").style.display = "none";   
+    document.getElementById("loginuserButton").style.display = "none";
+    //$("#loginModal").fadeIn();
+
+    // 获取客户端 IP 地址及状态
+    $.ajax({
+        url: "/api/checkLogin", // 后端接口地址
+        type: "GET",
+        success: function (data) {
+            if (data.status === "已登录") {
+				
+                // 如果返回已登录，更新按钮文本
+                $("#loginButton").text("已登录");
+                $("#ipAddress").text( data.username+" 已就绪");
+                
+            document.getElementById("quiteuserModal").style.display = "block";
+                
+            }else if(data.status === "未登录"){
+				 $("#ipAddress").text("登录后做样");				  
+                 document.getElementById("loginuserButton").style.display = "block";
+                
+			} 
+            
+        },
+        error: function () {
+            $("#ipAddress").text("获取客户端 IP 失败！");
+        }
+    });
+});
+
+
+// 点击关闭按钮，隐藏弹出对话框
+$("#closeModal").on("click", function () {
+    $("#loginModal").fadeOut();
+    window.location.reload();
+});
+$("#quiteuserModal").on("click", function () {
+   $.ajax({
+        url: "/api/quitLogin", // 后端新增 IP 接口       
+        type: "GET",
+        success: function (data) {
+            if (data.status === "已退出") {
+                // 更新登录状态
+                $("#loginButton").text("未登录");
+               
+                // 隐藏确定按钮
+                $("#confirmAdd").hide();
+            } else {
+                // 可根据需要处理其他返回值
+                $("#ipAddress").text(data);
+            }
+        },
+        error: function () {
+            $("#ipAddress").text("添加 IP 失败！");
+        }
+    });
+    
+});
+	var btn = document.querySelectorAll('#btid');
+	var tr = document.querySelectorAll('#trid');
+	var fl = document.querySelectorAll('#F');
+	var queryNumbertd=document.querySelectorAll("#queryNum");
+	hideManualOperationColumn();
+	 for(var i=0;i<btn.length;i++){
+		  var trid="tr"+i;
+		  var btid="bt"+i;
+		  var qntdid="qntd"+i;
+		  btn[i].setAttribute('id',btid);
+		  
+			   tr[i].setAttribute('id',trid);
+			   queryNumbertd[i].setAttribute('id',qntdid);
+			   //if(i%2==0){
+				 //  tr[i].style.backgroundColor = "#b9d5b9";
+			  //}
+			    if(fl[i].getAttribute('value')==="BF"){
+					 queryNumbertd[i].classList.add("isBF");
+				}else if(fl[i].getAttribute('value')==="RBF"){
+					queryNumbertd[i].classList.add("isBF");
+				}
+			  
+	  }
+
+function hideManualOperationColumn() {
+    var columns = document.querySelectorAll(".operationColumn");
+    columns.forEach(function (column) {
+        column.style.display = "none";
+    });
+}
+
+function showManualOperationColumn() {
+    var columns = document.querySelectorAll(".operationColumn");
+    columns.forEach(function (column) {
+        column.style.display = "";
+    });
+}
+
+function confirmManualOperation() {
+    var currentUser = document.getElementById("currentUserName").value || "未登录账号";
+    if (!canCurrentUserOperate()) {
+        showNoClaimMessage();
+        return;
+    }
+    if (confirm("当前账号为：" + currentUser + "\n你希望进行手动点击操作吗？")) {
+        showManualOperationColumn();
+    }
+}
+	  
+	  function a1(id){
+        if (!canCurrentUserOperate()) {
+            showNoClaimMessage();
+            return;
+        }
+        var modeljson={
+            "name": document.getElementById(id).getAttribute('value'),
+            
+        }
+        $.ajax({
+            url:'/ajax/a',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+                console.log(modeljson)
+            }
+        })
+    }
+     function a1forQRidTransfer(value){
+        if (!canCurrentUserOperate()) {
+            showNoClaimMessage();
+            return;
+        }
+        var modeljson={
+            "name": value
+        }
+        $.ajax({
+            url:'/ajax/a',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+                console.log(modeljson)
+            }
+        })
+    }
+	// 示例：关闭对话框的函数
+function closeModal(){
+	
+    document.getElementById('dologinModal').style.display = 'none';
+     
+}
+function canCurrentUserOperate() {
+    return String(document.getElementById("canOperateFlag").value).toLowerCase() === "true";
+}
+function showNoClaimMessage() {
+    document.getElementById('dologinModal').style.display = 'block';
+    document.getElementById('chi').innerText = "当前账号尚未领取批次，请先领取后做样";
+}
+//点击做样或扫描后执行的进度加一
+ // 示例：点击“已做”按钮时增加已做数并更新进度条
+  function incrementDone() {
+    var doneElem = document.getElementById("doneSimpleNum");
+    var total = parseInt(document.getElementById("allSimpleNum").textContent);
+    var done = parseInt(doneElem.textContent);
+    if (done < total) {
+      done++;
+      doneElem.textContent = done;
+      updateProgress();
+    } 
+  }
+
+// changeColor函数示例
+function changeColor(id) {
+    if (!canCurrentUserOperate()) {
+        showNoClaimMessage();
+        return;
+    }
+    // 判断是否为已登录状态
+    // 这里假设登录状态按钮文本为"已登录"时表示已经登录
+    var loginStatus = document.getElementById('loginButton').textContent.trim();
+    if (loginStatus !== "已登录") {
+        // 如果没有登录，可使用 alert 或显示自定义对话框
+        // alert("请先登录！");
+        document.getElementById('dologinModal').style.display = 'block';
+        return; // 未登录则退出函数
+    }
+    
+     // 通过 AJAX 向后端检查 Session 是否有效
+    $.ajax({
+        url: "/api/checkLogin", // 后端接口，根据 Session 状态返回 "已登录" 或其它信息
+        type: "GET",
+        success: function(data) {
+            if (data.status !== "已登录") {
+                // 如果后端判断 Session 失效或未登录，弹出提示框
+                document.getElementById('dologinModal').style.display = 'block';
+                document.getElementById('chi').innerText = "登录已失效";
+                return;
+            } else {
+                // 前后端均判定已登录，执行后续操作
+                // 如果已登录，则继续执行后续代码
+    // 例如：根据传入的id，查找对应按钮所在行，并改变该行的颜色
+
+    // 获取所有按钮（或根据实际情况定位元素）
+    var btid;
+       var trnum;
+      for(var i=0;i<btn.length;i++){
+		  btid= btn[i].getAttribute('id');
+		  if(btid===id){
+			  trnum=i;
+			  break;
+		  }
+		 
+	  }
+	  var button = document.getElementById(btid);
+	  var trid="tr"+trnum;
+	  var tr=document.getElementById(trid);
+	 
+	a1(btid);
+	tr.parentNode.removeChild(tr);
+	incrementDone();
+            }
+        },
+        error: function() {
+            // 请求出错，也视为未登录
+            document.getElementById('dologinModal').style.display = 'block';
+        }
+    });
+
+
+    
+}
+
+
+	// 全局变量，用于保存上一次匹配的行（如你之前的代码中已有）
+var previousMatchedRow = null;
+var isWeightModeActive = false;
+
+function getMainTableRows() {
+    var table = document.querySelector(".table-container table");
+    if (!table) {
+        return [];
+    }
+    return Array.from(table.querySelectorAll("tr")).slice(1);
+}
+
+function resetTableVisibility() {
+    var rows = getMainTableRows();
+    rows.forEach(function (row) {
+        row.style.display = "";
+        row.style.opacity = "";
+        row.style.backgroundColor = "";
+    });
+}
+
+function initWeightMode() {
+    activateWeightMode();
+}
+
+function escapeHtml(value) {
+    if (value === null || value === undefined) {
+        return "";
+    }
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+function splitMultiValue(value) {
+    if (value === null || value === undefined) {
+        return [];
+    }
+
+    return String(value)
+        .split(/[、,，;；]+/)
+        .map(function (item) {
+            return item.trim();
+        })
+        .filter(function (item) {
+            return item.length > 0;
+        });
+}
+
+function renderMultiValueLines(value) {
+    var items = splitMultiValue(value);
+
+    if (items.length === 0) {
+        return "";
+    }
+
+    return '<span class="multi-line-list">' +
+        items.map(function (item) {
+            return '<span class="multi-line-item">' + escapeHtml(item) + '</span>';
+        }).join("") +
+        '</span>';
+}
+
+function renderBatchOptions(selectId, values) {
+    var select = document.getElementById(selectId);
+    if (!select) {
+        return;
+    }
+    var html = '<option value="">全部</option>';
+    (values || []).forEach(function (value) {
+        html += '<option value="' + escapeHtml(value) + '">' + escapeHtml(value) + '</option>';
+    });
+    select.innerHTML = html;
+}
+
+function isRetestSample(ifF) {
+    return ifF === "BF" || ifF === "RBF";
+}
+
+function renderTestingRows(samples) {
+    var table = document.querySelector(".table-container table");
+    if (!table) {
+        return;
+    }
+    var header = table.querySelector("tr");
+    table.innerHTML = "";
+    if (header) {
+        table.appendChild(header);
+    }
+    (samples || []).forEach(function (simple) {
+        var row = document.createElement("tr");
+        row.id = "trid";
+        var numberCellClass = "col-number sample-number-cell" + (isRetestSample(simple.ifF) ? " isBF" : "");
+        row.innerHTML = [
+            '<td class="operationColumn"><label id="F" value="' + escapeHtml(simple.ifF) + '" hidden></label>',
+            '<img src="image/doneRight.png" id="btid" class="subbut" onclick="changeColor(this.id)" value="' + escapeHtml(simple.number) + '" testName="' + escapeHtml(simple.testItem) + '"></td>',
+
+            '<td class="col-daily-order">' + escapeHtml(simple.dailySampleOrder) + '</td>',
+
+            '<td id="queryNum" class="' + numberCellClass + '" value="' + escapeHtml(simple.number) + '">' +
+            '<button class="manualOperationReveal" type="button" onclick="confirmManualOperation()">◀</button>' +
+            '<span class="cell-clamp">' + escapeHtml(simple.number) + '</span></td>',
+
+            '<td class="col-name"><span class="cell-clamp">' + escapeHtml(simple.name) + '</span></td>',
+            '<td class="col-company"><span class="cell-clamp">' + escapeHtml(simple.company) + '</span></td>',
+
+            '<td class="col-item lab-test-item-cell multi-line-cell" data-multi-value="' + escapeHtml(simple.testItem) + '">' +
+            renderMultiValueLines(simple.testItem) +
+            '</td>',
+
+            '<td class="col-unit multi-line-cell" data-multi-value="' + escapeHtml(simple.unit) + '">' +
+            renderMultiValueLines(simple.unit) +
+            '</td>',
+
+            '<td class="col-method multi-line-cell" data-multi-value="' + escapeHtml(simple.testMethod) + '">' +
+            renderMultiValueLines(simple.testMethod) +
+            '</td>',
+
+            '<td class="col-tip"><span class="cell-clamp-cancel">' + escapeHtml(simple.tip) + '</span></td>'
+        ].join("");
+        table.appendChild(row);
+    });
+}
+
+function refreshTestingSamples() {
+    if (!window.location.pathname || window.location.pathname.indexOf("/testing") !== 0) {
+        return;
+    }
+    $.ajax({
+        url: "/testing/data",
+        type: "GET",
+        success: function (data) {
+            if (!data || data.success === false) {
+                return;
+            }
+            renderTestingRows(data.presentList || []);
+            renderBatchOptions("batchSelect", data.batchList || []);
+            renderBatchOptions("allbatchSelect", data.recordPanel || []);
+            document.getElementById("allSimpleNum").textContent = data.allSimpleNum || 0;
+            document.getElementById("doneSimpleNum").textContent = data.doneSimpleNum || 0;
+            document.getElementById("canOperateFlag").value = String(!!data.canOperate);
+            if (data.currentUser !== undefined && data.currentUser !== null) {
+                document.getElementById("currentUserName").value = data.currentUser;
+            }
+            previousMatchedRow = null;
+            if (typeof updateProgress === "function") {
+                updateProgress();
+            }
+            if (isWeightModeActive) {
+                activateWeightMode();
+            }
+        }
+    });
+}
+
+window.addEventListener("lims:samples-imported", refreshTestingSamples);
+
+function activateWeightMode() {
+    isWeightModeActive = true;
+    var page = document.querySelector(".lab-testing-page");
+    var tableContainer = document.querySelector(".table-container");
+    var donePanel = document.getElementById("donePanel");
+    var mpnPanel = document.getElementById("mpnPanel");
+    var weightBtn = document.getElementById("weightModeBtn");
+    var pendingBtn = document.getElementById("dolabel");
+    var doneBtn = document.getElementById("donelabel");
+    var mpnBtn = document.getElementById("writeMPNlabel");
+    var hint = document.getElementById("weightModeHint");
+    if (page) {
+        page.classList.add("is-weight-mode");
+    }
+    if (weightBtn) {
+        weightBtn.classList.add("is-active");
+    }
+    if (pendingBtn) {
+        pendingBtn.classList.remove("is-active");
+    }
+    if (doneBtn) {
+        doneBtn.classList.remove("is-active");
+    }
+    if (mpnBtn) {
+        mpnBtn.classList.remove("is-active");
+    }
+    if (hint) {
+        hint.style.display = "block";
+    }
+    if (donePanel) {
+        donePanel.hidden = true;
+    }
+    if (mpnPanel) {
+        mpnPanel.hidden = true;
+    }
+    resetTableVisibility();
+    if (tableContainer) {
+        tableContainer.style.display = "none";
+    }
+}
+
+function showAllTasksMode() {
+    isWeightModeActive = false;
+    var page = document.querySelector(".lab-testing-page");
+    var tableContainer = document.querySelector(".table-container");
+    var donePanel = document.getElementById("donePanel");
+    var mpnPanel = document.getElementById("mpnPanel");
+    var weightBtn = document.getElementById("weightModeBtn");
+    var pendingBtn = document.getElementById("dolabel");
+    var doneBtn = document.getElementById("donelabel");
+    var mpnBtn = document.getElementById("writeMPNlabel");
+    var hint = document.getElementById("weightModeHint");
+    if (page) {
+        page.classList.remove("is-weight-mode");
+    }
+    if (weightBtn) {
+        weightBtn.classList.remove("is-active");
+    }
+    if (pendingBtn) {
+        pendingBtn.classList.add("is-active");
+    }
+    if (doneBtn) {
+        doneBtn.classList.remove("is-active");
+    }
+    if (mpnBtn) {
+        mpnBtn.classList.remove("is-active");
+    }
+    if (hint) {
+        hint.style.display = "none";
+    }
+    if (donePanel) {
+        donePanel.hidden = true;
+    }
+    if (mpnPanel) {
+        mpnPanel.hidden = true;
+    }
+    resetTableVisibility();
+    if (tableContainer) {
+        tableContainer.style.display = "block";
+    }
+}
+
+function renderSimpleRows(tbody, samples, emptyText) {
+    if (!tbody) {
+        return;
+    }
+    tbody.innerHTML = "";
+    if (!samples || samples.length === 0) {
+        tbody.innerHTML = '<tr><td class="embedded-empty" colspan="8">' + escapeHtml(emptyText || "暂无数据") + '</td></tr>';
+        return;
+    }
+    samples.forEach(function (simple) {
+        var row = document.createElement("tr");
+        if (Number(simple.done) === 1) {
+            row.classList.add("is-done");
+        }
+        var numberCellClass = "sample-number-cell" + (isRetestSample(simple.ifF) ? " isBF" : "");
+        row.innerHTML = [
+            '<td>' + escapeHtml(simple.dailySampleOrder) + '</td>',
+            '<td class="' + numberCellClass + '">' + escapeHtml(simple.number) + '</td>',
+            '<td>' + escapeHtml(simple.name) + '</td>',
+            '<td>' + escapeHtml(simple.company) + '</td>',
+            '<td>' + renderMultiValueLines(simple.testItem) + '</td>',
+            '<td>' + renderMultiValueLines(simple.unit) + '</td>',
+            '<td>' + renderMultiValueLines(simple.testMethod) + '</td>',
+            '<td>' + escapeHtml(simple.tip) + '</td>'
+        ].join("");
+        tbody.appendChild(row);
+    });
+}
+
+function showDoneMode() {
+    isWeightModeActive = false;
+    var tableContainer = document.querySelector(".table-container");
+    var hint = document.getElementById("weightModeHint");
+    var donePanel = document.getElementById("donePanel");
+    var mpnPanel = document.getElementById("mpnPanel");
+    document.getElementById("weightModeBtn").classList.remove("is-active");
+    document.getElementById("dolabel").classList.remove("is-active");
+    document.getElementById("writeMPNlabel").classList.remove("is-active");
+    document.getElementById("donelabel").classList.add("is-active");
+    if (tableContainer) {
+        tableContainer.style.display = "none";
+    }
+    if (hint) {
+        hint.style.display = "none";
+    }
+    if (mpnPanel) {
+        mpnPanel.hidden = true;
+    }
+    if (donePanel) {
+        donePanel.hidden = false;
+    }
+    loadDoneSamples();
+}
+
+function loadDoneSamples() {
+    var tbody = document.querySelector("#doneTable tbody");
+    renderSimpleRows(tbody, [], "加载中...");
+    $.ajax({
+        url: "/check/data",
+        type: "GET",
+        success: function (data) {
+            renderSimpleRows(tbody, data && data.presentList ? data.presentList : [], "暂无已做样品");
+        },
+        error: function () {
+            renderSimpleRows(tbody, [], "已做样品加载失败");
+        }
+    });
+}
+
+function showMpnMode() {
+    isWeightModeActive = false;
+    var tableContainer = document.querySelector(".table-container");
+    var hint = document.getElementById("weightModeHint");
+    var donePanel = document.getElementById("donePanel");
+    var mpnPanel = document.getElementById("mpnPanel");
+    document.getElementById("weightModeBtn").classList.remove("is-active");
+    document.getElementById("dolabel").classList.remove("is-active");
+    document.getElementById("donelabel").classList.remove("is-active");
+    document.getElementById("writeMPNlabel").classList.add("is-active");
+    if (tableContainer) {
+        tableContainer.style.display = "none";
+    }
+    if (hint) {
+        hint.style.display = "none";
+    }
+    if (donePanel) {
+        donePanel.hidden = true;
+    }
+    if (mpnPanel) {
+        mpnPanel.hidden = false;
+    }
+    loadMpnBatches();
+}
+
+function loadMpnBatches() {
+    var list = document.getElementById("mpnBatchList");
+    if (list) {
+        list.innerHTML = '<div class="embedded-empty">加载中...</div>';
+    }
+    $.ajax({
+        url: "/batches",
+        type: "GET",
+        success: function (batches) {
+            renderMpnBatches(batches || []);
+        },
+        error: function () {
+            if (list) {
+                list.innerHTML = '<div class="embedded-empty">批次加载失败</div>';
+            }
+        }
+    });
+}
+
+function renderMpnBatches(batches) {
+    var list = document.getElementById("mpnBatchList");
+    if (!list) {
+        return;
+    }
+    list.innerHTML = "";
+    if (!batches || batches.length === 0) {
+        list.innerHTML = '<div class="embedded-empty">暂无批次</div>';
+        renderSimpleRows(document.querySelector("#mpnTable tbody"), [], "暂无写管样品");
+        return;
+    }
+    batches.forEach(function (batch, index) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "mpn-batch-btn";
+        button.textContent = batch;
+        button.onclick = function () {
+            loadMpnSamples(batch, button);
+        };
+        list.appendChild(button);
+        if (index === 0) {
+            loadMpnSamples(batch, button);
+        }
+    });
+}
+
+function loadMpnSamples(batch, activeButton) {
+    Array.from(document.querySelectorAll(".mpn-batch-btn")).forEach(function (button) {
+        button.classList.toggle("is-active", button === activeButton);
+    });
+    var tbody = document.querySelector("#mpnTable tbody");
+    renderSimpleRows(tbody, [], "加载中...");
+    $.ajax({
+        url: "/simples",
+        type: "GET",
+        data: { batch: batch },
+        success: function (samples) {
+            renderSimpleRows(tbody, samples || [], "当前批次暂无写管样品");
+        },
+        error: function () {
+            renderSimpleRows(tbody, [], "写管样品加载失败");
+        }
+    });
+}
+
+function showMatchedRowOnly(matchedRow) {
+    var tableContainer = document.querySelector(".table-container");
+    var rows = getMainTableRows();
+    rows.forEach(function (row) {
+        row.style.display = row === matchedRow ? "" : "none";
+        row.style.opacity = "";
+        row.style.backgroundColor = "";
+    });
+    if (tableContainer) {
+        tableContainer.style.display = "block";
+    }
+}
+
+let qrInputTimer = null;
+
+document.getElementById("inputQRD").addEventListener("input", function () {
+    // 每次输入都先清除上一次定时器
+    clearTimeout(qrInputTimer);
+    
+    var FoundingDiv = document.getElementById("FoundingMessage");
+                    if (!FoundingDiv) {
+						
+                        // 如果提示 DIV 不存在，则创建它
+                        FoundingDiv = document.createElement("div");
+                        FoundingDiv.id = "FoundingMessage";
+                        FoundingDiv.style.position = "fixed";
+                        FoundingDiv.style.top = "50%";
+                        FoundingDiv.style.left = "50%";
+                        FoundingDiv.style.transform = "translate(-50%, -50%)";
+                        FoundingDiv.style.backgroundColor = "#f22558";
+                        FoundingDiv.style.color = "#fff";
+                        FoundingDiv.style.padding = "20px";
+                        FoundingDiv.style.borderRadius = "4px";
+                        FoundingDiv.style.zIndex = "1100";
+                        FoundingDiv.innerText = "查找中，勿扫";
+                        document.body.appendChild(FoundingDiv);
+                        }else{
+							FoundingDiv.style.display = "block";
+						}
+
+    // 设置新的定时器（例如 500ms 后才执行）
+    
+    qrInputTimer = setTimeout(() => {
+		FoundingDiv.style.display = "none";
+        const value = this.value;
+        scanQRmethord(value); // 执行你的方法
+    }, 500); // 500ms 内无输入则触发
+});
+function scanQRmethord(value) {
+    if (!canCurrentUserOperate()) {
+        showNoClaimMessage();
+        var QRinput = document.getElementById("inputQRD");
+        if (QRinput) {
+            QRinput.value = "";
+        }
+        return;
+    }
+    // 检查是否为已登录状态
+    var loginStatus = document.getElementById('loginButton').textContent.trim();
+    if (loginStatus !== "已登录") {
+        document.getElementById('dologinModal').style.display = 'block';
+        return; // 未登录则退出函数
+    }
+    
+    // 通过 AJAX 向后端检查 Session 是否有效
+    $.ajax({
+        url: "/api/checkLogin", // 后端接口
+        type: "GET",
+        success: function(data) {
+            if (data.status !== "已登录") {
+                document.getElementById('dologinModal').style.display = 'block';
+                document.getElementById('chi').innerText = "登录已失效";
+                return;
+            } else {
+                var QRinput = document.getElementById("inputQRD");
+                // 获取所有表格行（假设这些 tr 是需要匹配的行）
+	                var rows = getMainTableRows();
+                var matchedRow = null;
+                var QRvalue = value.toLowerCase();
+                
+                for (var i = 0; i < rows.length; i++) {
+                    var tds = rows[i].getElementsByTagName("td");
+                    if (tds.length >= 1) {
+                        var cellVal = tds[2].getAttribute("value");
+                        if (cellVal) {
+                            var cellValLower = cellVal.toLowerCase();
+                            if (QRvalue.includes(cellValLower)) {
+								//scanningDiv.style.display = "none";
+                                matchedRow = rows[i];
+                                // 恢复匹配行样式
+                                matchedRow.style.opacity = "1";
+                                matchedRow.style.backgroundColor = "";
+                                // 调用其他业务函数
+                                a1forQRidTransfer(cellVal);
+                                QRinput.value = "";
+                                incrementDone();
+                            } else {
+								
+                                // 对不匹配的行设置浅色背景和低透明度
+	                                if (!isWeightModeActive) {
+	                                    rows[i].style.opacity = "0.2";
+	                                    rows[i].style.backgroundColor = "#f0f0f0";
+	                                }
+                            }
+                        }
+                    }
+                    
+                }
+                
+                // 如果匹配到了某一行
+	                if (matchedRow) {
+	                    if (isWeightModeActive) {
+	                        showMatchedRowOnly(matchedRow);
+	                    }
+                    // 删除上一个匹配的行（如果存在且不同于当前匹配行）
+	                    if (!isWeightModeActive && previousMatchedRow && previousMatchedRow !== matchedRow) {
+                        previousMatchedRow.parentNode.removeChild(previousMatchedRow);
+                    }
+                    previousMatchedRow = matchedRow;
+                    // 滚动到匹配行，使其位于屏幕中央
+                     $(matchedRow).animate({
+        scrollTop: $(matchedRow).offset().top - ($(window).height()/2) + ($(matchedRow).height()/2)
+    }, 800, function() {
+        $(matchedRow).addClass('highlight-fast');
+        // 2秒后移除闪烁效果（可根据需要调整时间）
+        setTimeout(function() {
+            $(matchedRow).removeClass('highlight-fast');
+        }, 2000);
+    });
+                    matchedRow.scrollIntoView({ behavior: "smooth", block: "center" });
+	                } else {
+						if (isWeightModeActive) {
+							var tableContainer = document.querySelector(".table-container");
+							if (tableContainer) {
+								tableContainer.style.display = "none";
+							}
+						}
+						
+						if(QRinput.value !== ""){
+						
+             // 如果未匹配到任何行，则显示提示 DIV
+                    var notFoundDiv = document.getElementById("notFoundMessage");
+                    if (!notFoundDiv) {
+						
+                        // 如果提示 DIV 不存在，则创建它
+                        notFoundDiv = document.createElement("div");
+                        notFoundDiv.id = "notFoundMessage";
+                        notFoundDiv.style.position = "fixed";
+                        notFoundDiv.style.top = "50%";
+                        notFoundDiv.style.left = "50%";
+                        notFoundDiv.style.transform = "translate(-50%, -50%)";
+                        notFoundDiv.style.backgroundColor = "#f44336";
+                        notFoundDiv.style.color = "#fff";
+                        notFoundDiv.style.padding = "20px";
+                        notFoundDiv.style.borderRadius = "4px";
+                        notFoundDiv.style.zIndex = "1100";
+                        notFoundDiv.innerText = "没这样品";
+                        document.body.appendChild(notFoundDiv);
+                    }  else {
+                        notFoundDiv.style.display = "block";
+                    }
+									   setTimeout(function() {
+                        notFoundDiv.style.display = "none";
+                    }, 2000);
+       
+					}
+                    
+					
+
+					
+                }
+            }
+        },
+        error: function() {
+            document.getElementById('dologinModal').style.display = 'block';
+        }
+    });
+}
+	
+(function initLabSidebarToggle() {
+    var shell = document.querySelector('.lab-shell');
+    var toggleBtn = document.getElementById('labSidebarToggle');
+    if (!shell || !toggleBtn) {
+        return;
+    }
+    var storageKey = 'labSidebarCollapsed';
+    function applyState(collapsed) {
+        shell.classList.toggle('is-sidebar-collapsed', collapsed);
+        toggleBtn.setAttribute('aria-label', 'Toggle Sidebar');
+        toggleBtn.setAttribute('aria-expanded', String(!collapsed));
+        toggleBtn.setAttribute('title', collapsed ? '展开导航' : '收起导航');
+    }
+    applyState(localStorage.getItem(storageKey) === '1');
+    toggleBtn.addEventListener('click', function () {
+        var nextCollapsed = !shell.classList.contains('is-sidebar-collapsed');
+        applyState(nextCollapsed);
+        localStorage.setItem(storageKey, nextCollapsed ? '1' : '0');
+    });
+})();
+
+function setEnglishInput() {
+        let inputField = document.getElementById("inputQRD");
+        
+        // 强制使用英文输入法（针对部分浏览器有效）
+        inputField.setAttribute("lang", "en");
+        inputField.setAttribute("inputmode", "latin"); 
+        
+        // 兼容部分浏览器，主动清除中文输入法的影响
+        inputField.addEventListener("compositionstart", function(event) {
+            event.target.blur();  // 失去焦点
+            event.target.focus(); // 重新聚焦，阻止中文输入
+        });
+    }
+</script>
+  </main>
+</div>
+</body>
+</html>

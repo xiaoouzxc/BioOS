@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+</head>
+<body>
+	<form action="#" th:action="@{/getFData}" method="get" enctype="text/plain">	
+	<label  id="datalabel">查询<input  type="text" name="date"  /><label for="quest"  >提交</label><input id="quest" type="submit"  hidden></label>
+	</form>
+		<button id="setFdata" onclick="window.location.href='/getFData'" hidden></button>
+	<label id="con" name="table_name" th:text="${tablename}" th:value="${tablename}" ></label>复测结果
+<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>检测项目</td>
+		<td>检测方法</td>		
+		<td>结果</td>
+   </tr>
+	<tr  th:each="simple:${simpleList}" >
+								
+	
+	<td id="num" name="simpleNum" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td  th:text="${simple.getName()}" width="50px" ></td>
+	
+	<td id="name" name="simpleName" th:text="${simple.getTestItem()}" th:value="${simple.getTestItem()}" style="font-size: 30px;"></td>
+		
+	<td th:text="${simple.getTestMethod()}" width="400px"></td>	
+			
+		<td th:text="${simple.getResult()}" width="100px"></td>	
+	</tr>
+	<button hidden></button>
+</table>
+
+</body>
+</html>

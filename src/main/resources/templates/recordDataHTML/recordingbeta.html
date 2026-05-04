@@ -1,0 +1,2991 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="script/recordSelectplus.css"/>
+<link rel="stylesheet" href="/script/lab-admin.css" />
+<link rel="stylesheet" href="/script/lab-recording.css" />
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+<script src="/script/lab-auth-nav.js"></script>
+
+<style>
+	:root{
+      --bg0:#070A12;
+      --bg1:#0B1224;
+
+      --text:#EAF0FF;
+      --muted: rgba(234,240,255,.70);
+
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.04);
+      --stroke: rgba(255,255,255,.12);
+
+      /* enterprise highlight */
+      --accent:#7AA7FF;
+      --accent2:#A78BFA;
+
+      --good:#7CFFB2;
+      --warn:#FFD84D;
+      --danger:#FF5470;
+
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(122,167,255,.12), transparent 58%),
+        radial-gradient(1100px 700px at 85% 35%, rgba(167,139,250,.10), transparent 62%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+      padding-bottom: 90px; /* space for dock */
+    }
+    a{ color:inherit; text-decoration:none; }
+
+    .wrap{
+      width:min(1200px, 92vw);
+      margin: 30px auto;
+    }
+	
+	
+	#mbut{
+	display: inline-block;
+	position:absolute;
+	left: 56%;
+     top:0%;
+	border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+    width:10%;
+  height: 5%;
+    background-color: aqua;	
+	}	
+
+	#manualPanel{
+		position:absolute;
+  left: 25%;
+  top:20%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:800px;
+  height: 100px;
+  z-index: 99;
+  background-color: rgb(255, 255, 255);
+	}
+	#queryTable{
+		border-collapse: collapse;
+		padding: 0px;
+		margin: 0px;
+  
+  z-index: 99;
+  background-color:  rgb(255, 255, 255);
+	}
+	
+	#lclose{
+		position: absolute;
+		left:96%;
+		top: -2px;
+		
+	}
+	
+	#selectDatePanel{
+		position:absolute;
+  left: 20%;
+  top:0%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:10%;
+  height: 5%;
+  z-index: 99;
+  background-color: rgb(255, 255, 128);
+	}
+	
+	
+	
+	
+	td{
+		
+		 border:2px solid ;
+	}
+	#selomenlabel{
+		position:absolute;
+		display: inline-block;	
+		left: 32%;
+         top:0%;	 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(0, 255, 0);
+	}
+	#setFlabel{
+		position:absolute;
+		display: inline-block;	
+		left: 44%;
+         top:0%;	 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(255, 128, 0);
+	}
+	
+	/* 设置按钮容器的样式 */
+#buttonContainer {
+    position: sticky; /* 固定在滚动时相对表格的顶部位置 */
+    top: 50%;
+   left:14.5%;
+    background-color: #f9f9f9; /* 背景色，确保可见 */
+    z-index: 10; /* 确保在其他元素上方 */
+    padding: 10px; /* 内边距 */
+    border-right: 1px solid #ccc; /* 右侧边框 */
+    width: 100px; /* 固定宽度 */
+}
+/* 表格部分设置 */
+#mainTable {
+    margin-left: 0px; /* 确保表格与按钮容器不重叠 */
+    width: calc(100% - 0px); /* 表格宽度 */
+    border-collapse: collapse; /* 表格边框合并 */
+}
+
+#mainTable th, #mainTable td {
+    padding: 8px; /* 表格单元格内边距 */
+    text-align: left; /* 左对齐 */
+    border: 1px solid #ddd; /* 表格边框 */
+}
+
+#mainTable thead th {
+    background-color: #f1f1f1; /* 表头背景色 */
+}
+/* 设置滚动条 */
+#tableDiv {
+    overflow-y: auto; /* 垂直滚动 */
+    overflow-x: hidden; /* 水平滚动隐藏 */
+}
+#progressBarContainer {
+    position: fixed; /* 固定在页面上 */
+    top: 0;          /* 距离页面顶部 0 */
+    left: 0;         /* 距离页面左侧 0 */
+    z-index: 9999;   /* 确保位于其他内容的上方 */
+}
+/* 定义环绕光束的动画 */
+@keyframes glow {
+  0%   { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 18px 55px rgba(255,84,112,.10); }
+  50%  { box-shadow: 0 0 0 1px rgba(255,84,112,.22), 0 18px 55px rgba(255,84,112,.18); }
+  100% { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 18px 55px rgba(255,84,112,.10); }
+}
+.tr-glow[data-attr-result*="检出"] {
+  animation: glow 1.6s ease-in-out infinite;
+  border-radius: 14px;
+}
+.tr-glow:hover { transform: translateY(-1px) scale(1.01); }
+#manualPanel.panel{
+  position: fixed !important;
+  left: 50% !important;
+  top: 14% !important;
+  transform: translateX(-50%) !important;
+  width: min(1100px, 92vw) !important;
+  height: auto !important;            /* ✅ 不要固定100px */
+  max-height: 72vh !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(16px) !important;
+  z-index: 9999 !important;
+  color: #EAF0FF !important;
+}
+
+/* 2) 面板内部滚动区域 */
+#manualPanel .panel__body{
+  padding: 14px 16px 16px !important;
+}
+#manualPanel .tableWrap{
+  margin-top: 12px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.03) !important;
+  overflow: auto !important;
+  max-height: 48vh !important;   /* ✅ 表格区域可滚动 */
+}
+
+/* 3) 关键：把 queryTable 彻底改成深色表格，强制字体颜色可见 */
+#manualPanel #queryTable{
+  width: 100% !important;
+  min-width: 1040px !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  background: transparent !important; /* ✅ 不要白底 */
+}
+#manualPanel #queryTable thead th{
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+  text-align: left !important;
+  padding: 12px 12px !important;
+  background: rgba(0,0,0,.22) !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+  color: #EAF0FF !important;
+  font-weight: 900 !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  vertical-align: top !important;
+}
+#manualPanel #queryTable td{
+  padding: 12px 12px !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  color: rgba(234,240,255,.86) !important; /* ✅ 强制可见 */
+  font-size: 12px !important;
+  background: transparent !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  vertical-align: top !important;
+  line-height: 1.35 !important;
+}
+#manualPanel #queryTable th:nth-child(1),
+#manualPanel #queryTable td:nth-child(1){ width: 112px !important; white-space: nowrap !important; }
+#manualPanel #queryTable th:nth-child(2),
+#manualPanel #queryTable td:nth-child(2){ width: 160px !important; }
+#manualPanel #queryTable th:nth-child(3),
+#manualPanel #queryTable td:nth-child(3){ width: 120px !important; }
+#manualPanel #queryTable th:nth-child(4),
+#manualPanel #queryTable td:nth-child(4){ width: 190px !important; }
+#manualPanel #queryTable th:nth-child(5),
+#manualPanel #queryTable td:nth-child(5){ width: 260px !important; }
+#manualPanel #queryTable th:nth-child(6),
+#manualPanel #queryTable td:nth-child(6){ width: 150px !important; }
+#manualPanel #queryTable th:nth-child(7),
+#manualPanel #queryTable td:nth-child(7){ width: 130px !important; }
+#manualPanel #queryTable th:nth-child(8),
+#manualPanel #queryTable td:nth-child(8){ width: 86px !important; white-space: nowrap !important; }
+#manualPanel #queryTable td:nth-child(5){
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+#manualPanel #queryTable tr:hover td:nth-child(5),
+#manualPanel #queryTable tr:focus-within td:nth-child(5){
+  display: table-cell !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
+#manualPanel #queryTable tbody tr:hover td{
+  background: rgba(122,167,255,.06) !important;
+}
+
+/* 4) 避免你全局 td{border:2px solid;} 影响面板表格观感 */
+#manualPanel #queryTable td{
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* 5) 让“查询数据”按钮变企业风（你现在有两种：.mbut 和 #mbut） */
+.mbut, #mbut{
+  border: 1px solid rgba(255,255,255,.14) !important;
+  background: rgba(255,255,255,.06) !important;
+  color: #EAF0FF !important;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+  cursor: pointer !important;
+  font-weight: 900 !important;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease !important;
+}
+.mbut:hover, #mbut:hover{
+  transform: translateY(-2px) !important;
+  border-color: rgba(122,167,255,.26) !important;
+  background: rgba(255,255,255,.08) !important;
+}
+
+/* 6) Spotlight 微动效（你 queryTheme.css 有也没关系，重复不会坏） */
+.glassSpotlight{
+  position: relative;
+  overflow: hidden;
+}
+.glassSpotlight::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events:none;
+  background:
+    radial-gradient(240px 240px at var(--mx, 50%) var(--my, 50%),
+      rgba(255,255,255,.14),
+      rgba(122,167,255,.10) 35%,
+      rgba(167,139,250,.06) 55%,
+      transparent 70%);
+}
+.glassSpotlight:hover::after{ opacity: 1; }
+/* =====================================================
+   Enterprise Upgrade: Main Table + Left Button Panel
+   Paste at END of your <style>
+===================================================== */
+
+/* 全局：让主区域更像“控制台” */
+#displayTable{
+  left: 0 !important;                 /* 你原来 absolute left:20% 会导致布局奇怪 */
+  position: relative !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+/* 主表外层：卡片容器 */
+#tableDiv{
+  width: min(1400px, 94vw) !important;
+  margin: 18px auto !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(14px) !important;
+
+  overflow: auto !important;          /* ✅ 主表能滚动 */
+  max-height: 78vh !important;        /* ✅ 防止无限长 */
+}
+
+/* 你顶部 condisplay 很大很挤：改成顶部条 */
+#condisplay{
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  left: 0 !important;
+  margin: 0 0 12px 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(0,0,0,.18) !important;
+  color: rgba(234,240,255,.86) !important;
+  text-align: left !important;
+}
+
+/* 主表：企业深色 */
+#mainTable{
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: transparent !important;
+  margin: 0 !important;
+}
+
+/* 表头 sticky + 深色 */
+#mainTable thead th{
+  position: sticky !important;
+  top: 52px !important; /* 因为 #condisplay sticky 占了高度 */
+  z-index: 40 !important;
+
+  padding: 12px 12px !important;
+  text-align: left !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: .2px !important;
+
+  background: rgba(0,0,0,.22) !important;
+  color: rgba(234,240,255,.92) !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+}
+
+/* 表格单元格 */
+#mainTable tbody td{
+  padding: 12px 12px !important;
+  font-size: 12px !important;
+  color: rgba(234,240,255,.86) !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  background: transparent !important;
+}
+
+/* 行 hover 高亮 */
+#mainTable tbody tr:hover td{
+  background: rgba(122,167,255,.06) !important;
+}
+
+/* 取消你旧的 #mainTable th/td border:1px #ddd 的“白底表格感” */
+#mainTable th, #mainTable td{
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* 下拉框企业化（表头的筛选 select） */
+#mainTable select, #chuselectDate{
+  border-radius: 10px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(0,0,0,.20) !important;
+  color: rgba(234,240,255,.90) !important;
+  padding: 6px 10px !important;
+  outline: none !important;
+}
+#mainTable select:focus, #chuselectDate:focus{
+  border-color: rgba(122,167,255,.30) !important;
+}
+
+/* ===== 左侧按钮栏：从“白块按钮”升级成企业浮层 ===== */
+#buttonContainer{
+  position: sticky !important;
+  top: 18px !important;
+  left: auto !important;
+
+  width: 150px !important;
+  padding: 12px !important;
+
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.06) !important;
+  color: rgba(234,240,255,.90) !important;
+
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(14px) !important;
+  z-index: 60 !important;
+}
+
+/* 按钮统一企业风 */
+#buttonContainer button{
+  width: 100%;
+  height: 42px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.20);
+  color: rgba(234,240,255,.92);
+  font-weight: 900;
+  cursor: pointer;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+  margin-top: 10px;
+}
+#buttonContainer button:hover{
+  transform: translateY(-2px);
+  border-color: rgba(122,167,255,.26);
+  background: rgba(255,255,255,.06);
+}
+#buttonContainer button:active{
+  transform: translateY(0) scale(.99);
+}
+#buttonContainer button:disabled{
+  opacity: .45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 当前值显示变成信息卡 */
+#buttonContainer p{
+  margin-top: 10px;
+  font-size: 12px;
+  color: rgba(234,240,255,.70);
+  line-height: 1.35;
+}
+#buttonContainer #currentValue{
+  display: inline-flex;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: #102a43;
+  font-weight: 900;
+}
+
+/* ===== Spotlight：给主卡片也加一点鼠标跟随光效（不用改HTML） ===== */
+#tableDiv, #buttonContainer{
+  position: relative;
+  overflow: hidden;
+}
+#tableDiv::after, #buttonContainer::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events:none;
+  background:
+    radial-gradient(300px 300px at var(--mx, 50%) var(--my, 50%),
+      rgba(255,255,255,.14),
+      rgba(122,167,255,.10) 35%,
+      rgba(167,139,250,.06) 55%,
+      transparent 70%);
+}
+#tableDiv:hover::after, #buttonContainer:hover::after{ opacity: 1; }
+
+/* ===== 布局：让左侧栏 + 主表在一个“企业栅格”里更稳定 ===== */
+#displayTable{
+  width: min(1600px, 96vw) !important;
+  margin: 0 auto !important;
+}
+
+/* 你外层是 display:flex；这里给一点间距 */
+#displayTable{
+  gap: 14px !important;
+}
+
+/* 小屏适配：左侧栏变顶部 */
+@media (max-width: 980px){
+  #buttonContainer{
+    position: relative !important;
+    width: 100% !important;
+    margin: 0 auto 12px auto !important;
+  }
+  #tableDiv{
+    width: 100% !important;
+    max-height: none !important;
+  }
+  #mainTable thead th{
+    top: 0 !important;
+  }
+}
+/* 顶部导航条 */
+.topNav{
+  position: sticky;
+  top: 0;
+  z-index: 9000;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+
+  width: min(1600px, 96vw);
+  margin: 14px auto 10px auto;
+  padding: 12px 12px;
+
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 18px 55px rgba(0,0,0,.55);
+  backdrop-filter: blur(16px);
+}
+
+.topNav__left{ display:flex; align-items:flex-start; gap:14px; min-width:0; }
+.topNav__right{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+
+.brandPill{
+  display:flex; align-items:center; gap:10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+  min-width: 210px;
+}
+.brandDot{
+  width: 10px; height: 10px; border-radius: 999px;
+  background: rgba(122,167,255,.9);
+  box-shadow: 0 0 0 6px rgba(122,167,255,.10);
+}
+.brandTitle{ font-weight: 900; font-size: 13px; }
+.brandSub{ font-size: 12px; color: var(--muted); margin-top:2px; }
+
+.navActions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0; }
+.navGroup{ display:flex; align-items:center; gap:8px; }
+.navLabel{ font-size: 12px; color: var(--muted); font-weight: 800; }
+
+.navBtn{
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.05);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 900;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+  white-space: nowrap;
+}
+.navBtn:hover{ transform: translateY(-2px); border-color: rgba(122,167,255,.26); background: rgba(255,255,255,.08); }
+.navBtn:active{ transform: translateY(0) scale(.99); }
+.navBtn.primary{
+  background: linear-gradient(135deg, rgba(122,167,255,.16), rgba(167,139,250,.12));
+  border-color: rgba(122,167,255,.26);
+}
+.navBtn.warn{
+  background: rgba(255,216,77,.10);
+  border-color: rgba(255,216,77,.22);
+}
+.inlineForm{ display:inline-flex; align-items:center; gap:8px; }
+
+.navSelect{
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.20);
+  color: rgba(234,240,255,.90);
+  padding: 8px 10px;
+  outline:none;
+}
+.navSelect:focus{ border-color: rgba(122,167,255,.30); }
+
+/* 页面 Grid：左侧工具 + 主表 */
+.pageGrid{
+  width: min(1600px, 96vw);
+  margin: 0 auto 24px auto;
+  display:grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  align-items:start;
+}
+
+/* 分页控件：放在顶部 console 内 */
+.pagerControls{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: rgba(234,240,255,.86) !important;
+}
+.pagerControls button{
+  width: auto !important;
+  min-width: 62px !important;
+  height: 34px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border-radius: 12px !important;
+}
+.pagerControls #currentValue{
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+#buttonContainer{
+  position: relative !important;
+  top: auto !important;
+}
+
+/* 主区域：不要 absolute 漂移 */
+.mainArea, #displayTable{
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* 主表卡片（你之前企业化的 tableDiv 可以保留，这里只补齐布局） */
+#tableDiv{
+  width: 100% !important;
+  margin: 0 !important;
+}
+
+/* condisplay 顶部提示条：更克制一点 */
+#condisplay{
+  font-size: 13px !important;
+  line-height: 1.2 !important;
+}
+
+/* 小屏：侧栏变顶部 */
+@media (max-width: 980px){
+  .pageGrid{ grid-template-columns: 1fr; }
+  #buttonContainer{ top: 0 !important; position: relative !important; }
+}
+/* ===== Filter Collapse ===== */
+.navBtn.ghost{
+  background: rgba(0,0,0,.18);
+  border-color: rgba(255,255,255,.12);
+}
+.navBtn.ghost:hover{
+  border-color: rgba(122,167,255,.26);
+  background: rgba(255,255,255,.06);
+}
+
+.filterToggle{
+  display:none; /* 大屏默认不显示，下面媒体查询会打开 */
+  min-width: 92px;
+}
+
+/* filters 容器的展开/收起动画 */
+.filtersRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+
+  overflow: hidden;
+  max-height: 300px; /* 展开状态上限 */
+  transition: max-height .22s ease, opacity .18s ease, transform .18s ease;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* 收起状态（通过 topNav 加 class 控制） */
+.topNav.isCollapsed .filtersRow{
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+
+/* 小屏：默认显示折叠按钮 + 默认收起 filters */
+@media (max-width: 980px){
+  .filterToggle{ display:inline-flex; align-items:center; justify-content:center; }
+  .topNav{ align-items: flex-start; }
+  .topNav__left{ flex: 1; }
+  .topNav__right{ width: auto; }
+
+  /* 小屏默认收起（如果你想默认展开，把这行删掉） */
+  .topNav:not(.expandedOnMobile) .filtersRow{
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+  }
+}
+/* ===============================
+   Table Row States (Enterprise)
+================================ */
+
+/* 默认行 */
+#mainTable tbody tr{
+  transition:
+    background-color .18s ease,
+    box-shadow .18s ease,
+    transform .18s ease;
+}
+
+/* hover：非常克制，只是轻微提亮 */
+#mainTable tbody tr:hover td{
+  background: rgba(122,167,255,.06);
+}
+
+/* JS 控制的“当前选中行” */
+#mainTable tbody tr.tr-active td{
+  background: linear-gradient(
+    90deg,
+    rgba(122,167,255,.18),
+    rgba(122,167,255,.08)
+  );
+}
+
+/* 当前选中行 hover 时，略微加强，但不突兀 */
+#mainTable tbody tr.tr-active:hover td{
+  background: linear-gradient(
+    90deg,
+    rgba(122,167,255,.24),
+    rgba(122,167,255,.12)
+  );
+}
+
+/* 选中行加一点立体感（企业感很重要） */
+#mainTable tbody tr.tr-active{
+  box-shadow:
+    inset 0 0 0 1px rgba(122,167,255,.25),
+    0 6px 18px rgba(0,0,0,.25);
+}
+/* ===============================
+   mainTable words States (Enterprise)
+================================ */
+#mainTable{
+  table-layout: fixed;
+  width: 100%;
+  min-width: 1100px;
+}
+/* 所有单元格的基础行为 */
+#mainTable th,
+#mainTable td{
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  vertical-align: top;
+  line-height: 1.35;
+}
+
+/* 检测方法：默认最多三行，悬停/聚焦展开 */
+#mainTable th:nth-child(7),
+#mainTable td:nth-child(7){
+  width: 280px;
+}
+#mainTable td:nth-child(7){
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+#mainTable tr:hover td:nth-child(7),
+#mainTable tr:focus-within td:nth-child(7){
+  display: table-cell;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+/* 结果 */
+#mainTable th:nth-child(2),
+#mainTable td:nth-child(2){
+  width: 190px;
+}
+
+/* 报告抬头 */
+#mainTable th:nth-child(4),
+#mainTable td:nth-child(4){
+  width: 210px;
+}
+
+/* 检测项目 */
+#mainTable th:nth-child(6),
+#mainTable td:nth-child(6){
+  width: 150px;
+}
+
+/* 样品短号列极窄 */
+#mainTable th:nth-child(1),
+#mainTable td:nth-child(1){
+  width: 140px;
+  white-space: nowrap;
+  text-align: center;
+}
+/* ===============================
+   Enterprise Inputs (CFU / MPN / ATTR)
+   Paste at END of <style>
+================================ */
+
+/* 统一输入框基础（深色玻璃 + 柔和边框） */
+.recorddatacss,
+#mainTable input[type="text"],
+#manualPanel input[type="text"],
+#manualPanel select,
+.dynamic-menu select,
+.method-inputs input[type="text"]{
+  width: 100%;
+  min-height: 1px;
+  padding: 2px 10px;
+  border-radius: 12px;
+
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.22);
+  color: rgba(234,240,255,.92);
+
+  outline: none;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.10);
+  transition: border-color .18s ease, background .18s ease, transform .12s ease;
+}
+
+/* hover & focus */
+.recorddatacss:hover,
+#mainTable input[type="text"]:hover,
+.method-inputs input[type="text"]:hover{
+  border-color: rgba(122,167,255,.22);
+  background: rgba(0,0,0,.26);
+}
+
+.recorddatacss:focus,
+#mainTable input[type="text"]:focus,
+.method-inputs input[type="text"]:focus{
+  border-color: rgba(122,167,255,.40);
+  background: rgba(0,0,0,.30);
+  box-shadow:
+    0 0 0 3px rgba(122,167,255,.12),
+    inset 0 0 0 1px rgba(0,0,0,.10);
+}
+
+/* placeholder 颜色 */
+.recorddatacss::placeholder,
+#mainTable input[type="text"]::placeholder,
+.method-inputs input[type="text"]::placeholder{
+  color: rgba(234,240,255,.45);
+}
+
+/* 录入框的 "逗号占位" / 空值 更弱一点 */
+.recorddatacss[value=","],
+.method-inputs input[value=" "]{
+  color: rgba(234,240,255,.55);
+}
+
+/* ===============================
+   MPN/ATTR 的 proceedDiv 行排版
+   让 "ProceedName + input" 一行对齐
+================================ */
+.method-inputs > div{
+  display: grid;
+  grid-template-columns: 100px 1fr; /* 左侧字段名固定宽度 */
+  gap: 10px;
+  align-items: center;
+
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+  align-items: start;
+}
+.method-inputs > div:last-child{
+  border-bottom: none;
+}
+
+/* 左侧 Proceed 名字（div 文本）更像 label */
+.method-inputs > div{
+  color: rgb(105,105,105);
+  font-weight: 800;
+  font-size: 12px;
+}
+.method-inputs > div input{
+  font-weight: 900;
+  letter-spacing: .2px;
+}
+
+/* ===============================
+   ATTR checkbox 企业化
+================================ */
+.attrrecorddatacss{
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #7AA7FF; /* 现代浏览器会生效 */
+  transform: translateY(2px);
+}
+
+/* checkbox 外面如果你想要更像按钮，可加容器样式（可选） */
+.attrCheckWrap{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+}
+
+/* ===============================
+   Dynamic menu（你点击 input 弹出来的白色菜单）也统一深色
+================================ */
+.dynamic-menu{
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  background: rgba(10,14,28,.92) !important;
+  color: rgba(234,240,255,.92) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+/* dynamic-menu 里的 label 更清晰 */
+.dynamic-menu label{
+  color: rgba(234,240,255,.78);
+  font-weight: 800;
+  font-size: 12px;
+}
+
+/* dynamic-menu 里的按钮（如“添加”） */
+.dynamic-menu button{
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: rgba(234,240,255,.92);
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.dynamic-menu button:hover{
+  border-color: rgba(122,167,255,.26);
+  background: rgba(255,255,255,.08);
+}
+/* ====== Num Cell State Badges (override) ====== */
+#mainTable td.numCell{
+  position: relative;
+  border-radius: 12px;
+  font-weight: 200;
+  text-align: center;
+}
+
+/* 复测 BF：红色提示 */
+#mainTable td.numCell.isBF{
+  background: rgba(255,84,112,.18) !important;
+  border: 1px solid rgba(255,84,112,.35) !important;
+  color: #102a43 !important;
+  box-shadow: 0 0 0 3px rgba(255,84,112,.10) !important;
+}
+
+/* 未做 done=0：黄色提示 */
+#mainTable td.numCell.isTodo{
+  background: rgba(255,216,77,.16) !important;
+  border: 1px solid rgba(255,216,77,.32) !important;
+  color: #102a43 !important;
+  box-shadow: 0 0 0 3px rgba(255,216,77,.10) !important;
+}
+
+/* 如果同时满足 BF + 未做，优先显示红（你也可以反过来） */
+#mainTable td.numCell.isBF.isTodo{
+  background: rgba(255,84,112,.18) !important;
+  border-color: rgba(255,84,112,.40) !important;
+}
+
+/* 可选：在角上加一个小标识 */
+#mainTable td.numCell.isBF::after{
+  content: "复测";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,84,112,.25);
+  border: 1px solid rgba(255,84,112,.35);
+}
+#mainTable td.numCell.isTodo::after{
+  content: "未做";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,216,77,.18);
+  border: 1px solid rgba(255,216,77,.30);
+}
+#mainTable td.numCell.isBF.isTodo::after{
+  content: "未做";
+}
+</style>
+<link rel="stylesheet" href="script/queryTheme.css?v=1.0.0">
+<link rel="stylesheet" href="script/dockStyle.css?v=1.0.0">
+</head>
+<body class="lab-recording-page">
+  <div class="lab-shell">
+    <aside class="lab-sidebar" aria-label="主导航">
+      <a class="lab-brand" href="/" title="首页仪表盘">
+        <span class="lab-brand-mark">MB</span>
+        <span class="lab-brand-text">微生物</span>
+      </a>
+      <nav class="lab-nav">
+        <a class="lab-nav-item" href="/" title="首页仪表盘">
+          <span class="lab-nav-icon lab-icon-dashboard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>首页仪表盘</strong>
+            <small>系统动态概览</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/sample-receive.html" title="样品接收">
+          <span class="lab-nav-icon lab-icon-receive" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品接收</strong>
+            <small>上传 Excel 清单</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/testing" title="样品处理">
+          <span class="lab-nav-icon lab-icon-process" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品处理</strong>
+            <small>做样与写管入口</small>
+          </span>
+        </a>
+        <a class="lab-nav-item is-active" href="/recordingbeta" title="结果记录">
+          <span class="lab-nav-icon lab-icon-record" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>结果记录</strong>
+            <small>培养与判读记录</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/getTestDatabeta" title="样品查询">
+          <span class="lab-nav-icon lab-icon-query" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品查询</strong>
+            <small>历史数据检索</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/standard" title="标准方法管理">
+          <span class="lab-nav-icon lab-icon-standard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>标准方法管理</strong>
+            <small>项目与方法配置</small>
+          </span>
+        </a>
+      </nav>
+    </aside>
+    <main class="lab-main lab-recording-main">
+    <header class="lab-topbar">
+      <div>
+        <strong>结果记录中心</strong>
+        <span>培养结果录入、复测标记与历史判读查询</span>
+      </div>
+      <div class="lab-user-area" data-auth-user>
+        <span>结果记录</span>
+      </div>
+    </header>
+	<header class="topNav">
+  <div class="topNav__left">
+    <div class="brandPill">
+      <span class="brandDot"></span>
+      <div class="brandText">
+        <div class="brandTitle">Data Console</div>
+        <div class="brandSub" th:text="${tablename}">table</div>
+      </div>
+    </div>
+
+    <nav class="navActions">
+		<div class="filtersRow" id="filtersRow">
+      <button class="navBtn" type="button" onclick="window.location.href='/getData'">返回查询页</button>
+      <button class="navBtn" type="button" onclick="window.location.href='/'">返回主页</button>
+
+      <div class="navGroup">
+        <label class="navLabel" for="chuselectDate">选择日期</label>
+        <input id="chuselectDate" name="date" class="navSelect" type="date" />
+      </div>
+
+      <div class="navGroup">
+        <label class="navLabel" for="slectedUnit">单位/限值</label>
+        <select id="slectedUnit" class="navSelect">
+          <option value="CFU">CFU</option>
+          <option value="MPN">MPN</option>
+          <option value="/">/</option>
+          <option value="none">无方法</option>
+        </select>
+      </div>
+
+      <div class="navGroup">
+        <label class="navLabel" for="filterSelect">检测项目</label>
+        <select id="filterSelect" class="navSelect">
+          <option value="">全部</option>
+        </select>
+      </div>
+
+      <div id="buttonContainer" class="pagerControls">
+        <button id="upBtn" type="button">向下</button>
+        <button id="downBtn" type="button" disabled>向上</button>
+        <span id="currentValue">第0~500条数据</span>
+      </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="topNav__right">
+	  <button class="navBtn ghost filterToggle" type="button" id="filterToggleBtn" aria-expanded="true">
+  Filters
+</button>
+   
+    <button class="navBtn primary" type="button" onclick="openmanualPanel()">查询数据</button>
+  </div>
+</header>
+<!-- ✅ 面板（默认隐藏） -->
+<div id="manualPanel" class="panel" style="display:none;">
+  <div class="panel__top">
+    <div class="panel__title">
+      <div class="panel__badge">Query</div>
+      <div>
+        <h3>样品数据查询</h3>
+        <p>输入短号或名称，自动查询旧日表、旧年表与年度总表</p>
+      </div>
+    </div>
+
+    <button class="iconBtn" type="button" onclick="closemanualPanel()" aria-label="Close">✕</button>
+  </div>
+
+  <div class="panel__body">
+    <div class="searchRow glassSpotlight" id="searchCard">
+      <div class="searchRow__left">
+        <div class="searchIcon">🔎</div>
+        <input
+          id="queryInput"
+          type="text"
+          placeholder="输入数字按短号查询，输入文字按样品名称查询，输入文字后接co按公司查询"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="searchRow__right">
+        <label class="toggle" style="display:none;">
+          <input id="historyToggle" type="checkbox" />
+          <span class="toggle__ui"></span>
+          <span class="toggle__text">历史</span>
+        </label>
+
+        <button id="queryBtn" class="btn primary glassSpotlight" type="button" onclick="runQuery()">
+          查询
+        </button>
+      </div>
+    </div>
+
+    <div class="statusLine" id="statusLine">
+      <span class="dot idle" id="statusDot"></span>
+      <span id="statusText">就绪：回车或点击“查询”</span>
+      <span class="hintRight">数字=短号｜文字=名称| 文字+co=按公司搜索</span>
+    </div>
+
+    <div class="tableWrap glassSpotlight" id="tableCard">
+      <table class="table" id="queryTable">
+        <thead>
+          <tr>
+            <th style="width:110px;">样品短号</th>
+            <th style="width:220px;">样品名称</th>
+            <th style="width:140px;">检测项目</th>
+            <th style="width:180px;">报告抬头</th>
+            <th>检测方法</th>
+            <th style="width:120px;">信息</th>
+            <th style="width:120px;">结果</th>
+            <th style="width:90px;">状态</th>
+          </tr>
+        </thead>
+        <tbody id="context">
+          <tr class="emptyRow">
+            <td colspan="8">请输入短号或样品名称开始查询</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+	<div id="progressBarContainer" style="display: none; width: 100%; height: 20px; background-color: #f3f3f3; border: 1px solid #ccc; border-radius: 5px; overflow: hidden;">
+    <div id="progressBar" style="width: 0%; height: 100%; background-color: #4caf50; transition: width 0.3s;"></div>
+</div>
+  <div class="pageGrid">
+  <!-- 主表区 -->
+  <main class="mainArea">
+    <div id="displayTable">
+      <div id="tagContainer"></div>
+
+      <div id="tableDiv">
+        <div id="condisplay">
+          <label id="con" name="table_name"></label>
+        </div>
+
+        <table id="mainTable">
+          <thead>
+            <tr>
+              <th>样品短号</th>
+              <th>结果</th>             
+              <th>样品名称</th>
+              <th>报告抬头</th>
+              <th>单位/限值</th>
+              <th>检测项目</th>
+              <th>检测方法</th>
+            </tr>
+          </thead>
+          <div id="recorded"></div>
+          <tbody id="dataBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Bottom dock -->
+  <div class="dock">
+    <div class="dockLeft">
+      <strong>Console</strong>
+      <!--<span id="newSampleAlert">NEW • 样品待领取</span>-->
+     <!-- <button id="openCompare" class="btn" onclick="">〽️数据比对</button>-->
+    </div>
+    <div class="dockRight">
+      <input type="text" placeholder="快速搜索（后续接入）..." />
+      <button class="btn" onclick="window.scrollTo({top:0, behavior:'smooth'})">⬆️ 回到顶部</button>
+    </div>
+  </div>
+  
+  
+
+<script>
+	
+	let mySQLquestid = 500;// 全局声明 id
+	let cfusimple = []; // 全局声明 simpleList
+	let mpnsimple = []; // 全局声明 simpleList
+	let attrsimple= []; // 全局声明 simpleList
+	
+	// 设置按钮事件监听
+    $('#upBtn').on('click', function () {
+		
+        mySQLquestid += 500;
+        $('#currentValue').text("第"+(mySQLquestid-500)+"~"+mySQLquestid+"条数据");
+        toggleDownButton();
+     const selectedValue =  document.getElementById('con').textContent;
+            fetch500record(selectedValue,mySQLquestid);
+            tagdisable(this);
+    });
+
+    $('#downBtn').on('click', function () {
+        if (mySQLquestid > 500) {
+            mySQLquestid -= 500;
+             $('#currentValue').text("第"+(mySQLquestid-500)+"~"+mySQLquestid+"条数据");
+            toggleDownButton();
+           
+       
+        const selectedValue =  document.getElementById('con').textContent;
+            fetch500record(selectedValue,mySQLquestid);
+            tagdisable(this);
+        }
+    });
+
+    function toggleDownButton() {
+        if (mySQLquestid <= 500) {
+            $('#downBtn').prop('disabled', true);
+        } else {
+            $('#downBtn').prop('disabled', false);
+        }
+    }
+	 $(document).ready(function () {
+		tableDespict();
+		$("#slectedUnit").off("change.recordUnit").on("change.recordUnit", function() {
+			const selectedValue = document.getElementById('con').textContent;
+			if(!selectedValue){
+				return;
+			}
+			dateLableAjax(selectedValue);
+		});
+    
+	 });
+	 function tagdisable(element){
+		 const tagElement = $(element);
+
+    // 检查是否已被禁用
+    if (tagElement.data("disabled")) {
+        alert("请稍等片刻后再点击！");
+        return;
+    }
+
+    // 添加点击反馈样式
+    tagElement.css({
+        background: "#d1e7dd",
+        borderColor: "#91c9a9",
+        cursor: "not-allowed"
+    });
+    tagElement.data("disabled", true); // 设置禁用状态
+
+    // 冷却计时器：5秒后恢复可点击状态
+    setTimeout(() => {
+        tagElement.css({
+            background: "#e3e3e3",
+            borderColor: "#ccc",
+            cursor: "pointer"
+        });
+        tagElement.data("disabled", false); // 恢复可点击状态
+    }, 5000); 
+	 }
+	function formatDateForLegacyTable(rawValue){
+		if(!rawValue || rawValue.trim()===""){
+			return "";
+		}
+		return rawValue.replaceAll("-", "/");
+	}
+	function tableDespict(){
+		 
+		 document.getElementById('chuselectDate').addEventListener('change', function() {
+        // 获取选中的值
+        const selectedValue = formatDateForLegacyTable(this.value);
+        if(!selectedValue){
+			return;
+		}
+        // 设置到 label 中
+        document.getElementById('con').textContent = selectedValue;
+         
+         // 动态获取标准数据
+    $.ajax({
+        url: '/record/api/samples',
+        type: 'GET',
+        data:{ "date": selectedValue,
+        "id":"500",
+        "unit":$("#slectedUnit").val() || "CFU"
+        },
+         beforeSend: function () {
+         // 显示进度条容器
+        const progressBarContainer = $("#progressBarContainer");
+        const progressBar = $("#progressBar");
+progressBar.css("width", "0%");
+        progressBarContainer.show();
+        
+
+        // 启动进度条动画
+        animateProgressBar(() => {
+            // 当动画到 90% 时等待成功回调
+           progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        });
+    },
+    
+        success: function (list) {
+			mySQLquestid = 500;
+     $('#currentValue').text("第"+(mySQLquestid-500)+"~"+mySQLquestid+"条数据");
+			 // 动态创建标签
+                createTableTag(selectedValue);
+             const progressBar = $("#progressBar");
+
+        // 平滑完成到 100%
+        progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        
+        setTimeout(() => {
+            // 隐藏进度条容器
+            $("#progressBarContainer").fadeOut();
+        }, 500);
+			  const cfusimpleList = list.cfusimpleList;
+			  cfusimple=cfusimpleList;
+			  const mpnsimpleList = list.mpnsimpleList;
+			  mpnsimple=mpnsimpleList;
+			   const attrsimpleList = list.attrsimpleList;
+			   attrsimple=attrsimpleList;
+			    const nonesimpleList = list.nonesimpleList;
+        const cfumethodProceedList = list.cfumethodProceedList;
+        const mpnmethodProceedList = list.mpnmethodProceedList;
+        const attrmethodProceedList = list.attrmethodProceedList;
+        const nonemethodProceedList = list.nonemethodProceedList;
+        const defaultValue = $("#slectedUnit").val() || "CFU";
+
+ 
+    // 手动触发逻辑
+    if (defaultValue === "CFU") {
+        console.log(list.cfusimpleList); // 检查返回的内容
+        renderCFUData(cfusimpleList, cfumethodProceedList); // 调用渲染函数
+        loadNormalizedFilterOptions(selectedValue, "CFU", cfusimpleList); // 初始化下拉菜单选项
+    }else if(defaultValue==="MPN"){
+		renderMPNData(mpnsimpleList,mpnmethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, mpnsimpleList);
+	}else if(defaultValue==="/"){
+		renderattrData(attrsimpleList,attrmethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, attrsimpleList);
+	}else if(defaultValue==="none"){
+		rendernoneData(nonesimpleList,nonemethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, nonesimpleList);
+    }
+        },
+        error: function () {
+            alert('无法加载标准数据');
+            $("#progressBarContainer").fadeOut(); // 请求失败时隐藏进度条
+        }
+        
+    });
+     // 动态创建标签
+function createTableTag(selectedValue) {
+    const tagContainer = $("#tagContainer"); // 假设标签容器的 ID 是 tagContainer
+    //tagContainer.empty(); // 确保每次只生成一个标签
+
+   const tag = $(`
+    <div id="tag-${selectedValue}" class="table-tag" 
+         style="display: inline-flex;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: rgba(234,240,255,.86);
+  font-weight: 900;">
+        <span style="margin-right: 5px;">${selectedValue}</span>
+        <button class="close-tag" style="background: red; color: white; 
+                border: none; cursor: pointer; padding: 0 5px;">X</button>
+    </div>
+`);
+
+    // 点击标签切换表格显示状态
+    tag.on("click", function () {
+		 const tagElement = $(this);
+
+    // 检查是否已被禁用
+    if (tagElement.data("disabled")) {
+        alert("请稍等片刻后再点击！");
+        return;
+    }
+
+    // 添加点击反馈样式
+    tagElement.css({
+        background: "#d1e7dd",
+        borderColor: "#91c9a9",
+        cursor: "not-allowed"
+    });
+    tagElement.data("disabled", true); // 设置禁用状态
+
+    // 冷却计时器：5秒后恢复可点击状态
+    setTimeout(() => {
+        tagElement.css({
+            background: "rgba(255,255,255,.05)",
+            color: "rgba(234,240,255,.86)",
+            border: "1px solid rgba(255,255,255,.12)",
+            cursor: "pointer"
+        });
+        tagElement.data("disabled", false); // 恢复可点击状态
+    }, 5000);
+        // 设置到 label 中
+        document.getElementById('con').textContent = selectedValue;
+        
+		 
+      dateLableAjax(selectedValue);
+        mySQLquestid=500;
+        $('#currentValue').text("第"+(mySQLquestid-500)+"~"+mySQLquestid+"条数据");
+    });
+
+    // 阻止点击关闭按钮触发标签的点击事件
+    tag.find(".close-tag").on("click", function (e) {
+        e.stopPropagation(); // 阻止冒泡
+        $("#dataTableContainer").hide(); // 隐藏表格
+        //$("#mainTable").hide(); // 隐藏表格
+       
+        tag.remove(); // 移除标签
+    });
+
+    tagContainer.append(tag);
+}
+    });
+    
+	}
+	function dateLableAjax(selectedValue){
+		 // 动态获取标准数据
+    $.ajax({
+        url: '/record/api/samples',
+        type: 'GET',
+        data:{ "date": selectedValue,
+        "id":"500",
+        "unit":$("#slectedUnit").val() || "CFU"},
+         beforeSend: function () {
+         // 显示进度条容器
+        const progressBarContainer = $("#progressBarContainer");
+        const progressBar = $("#progressBar");
+progressBar.css("width", "0%");
+        progressBarContainer.show();
+        
+
+        // 启动进度条动画
+        animateProgressBar(() => {
+            // 当动画到 90% 时等待成功回调
+           progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        });
+    },
+        success: function (list) {
+			const progressBar = $("#progressBar");
+
+        // 平滑完成到 100%
+        progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        
+        setTimeout(() => {
+            // 隐藏进度条容器
+            $("#progressBarContainer").fadeOut();
+        }, 500);
+			  const cfusimpleList = list.cfusimpleList;
+			  cfusimple=cfusimpleList;
+			  const mpnsimpleList = list.mpnsimpleList;
+			  mpnsimple=mpnsimpleList;
+			   const attrsimpleList = list.attrsimpleList;
+			   attrsimple=attrsimpleList;
+			    const nonesimpleList = list.nonesimpleList;
+        const cfumethodProceedList = list.cfumethodProceedList;
+        const mpnmethodProceedList = list.mpnmethodProceedList;
+        const attrmethodProceedList = list.attrmethodProceedList;
+        const nonemethodProceedList = list.nonemethodProceedList;
+        const defaultValue = $("#slectedUnit").val() || "CFU";
+
+ 
+    // 手动触发逻辑
+    if (defaultValue === "CFU") {
+        console.log(list.cfusimpleList); // 检查返回的内容
+        renderCFUData(cfusimpleList, cfumethodProceedList); // 调用渲染函数
+        loadNormalizedFilterOptions(selectedValue, "CFU", cfusimpleList); // 初始化下拉菜单选项
+    }else if(defaultValue==="MPN"){
+		renderMPNData(mpnsimpleList,mpnmethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, mpnsimpleList);
+	}else if(defaultValue==="/"){
+		renderattrData(attrsimpleList,attrmethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, attrsimpleList);
+	}else if(defaultValue==="none"){
+		rendernoneData(nonesimpleList,nonemethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, nonesimpleList);
+    }
+        },
+        error: function () {
+            alert('无法加载标准数据');
+        }
+    });
+	}
+	//动态模拟加载动画的函数
+	function animateProgressBar(onComplete) {
+    const progressBar = $("#progressBar");
+    let progress = 0;
+
+    // 每隔 100ms 增加宽度，最多到 90%
+    const interval = setInterval(() => {
+        progress += Math.random() * 5; // 随机增加进度，模拟动态效果
+        if (progress >= 90) {
+            clearInterval(interval); // 达到 90% 停止
+            if (typeof onComplete === "function") {
+                onComplete(); // 执行完成的回调函数
+            }
+        }
+        progressBar.css("width", `${Math.min(progress, 90)}%`); // 限制最大值为 90%
+    }, 100);
+   
+}
+function fetch500record(selectedValue,mySQLquestid){
+		 // 动态获取标准数据
+    $.ajax({
+        url: '/record/api/samples',
+        type: 'GET',
+        data:{ "date": selectedValue
+        ,"id":mySQLquestid,
+        "unit":$("#slectedUnit").val() || "CFU"},
+         beforeSend: function () {
+         // 显示进度条容器
+        const progressBarContainer = $("#progressBarContainer");
+        const progressBar = $("#progressBar");
+progressBar.css("width", "0%");
+        progressBarContainer.show();
+        
+
+        // 启动进度条动画
+        animateProgressBar(() => {
+            // 当动画到 90% 时等待成功回调
+           progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        });
+    },
+        success: function (list) {
+			const progressBar = $("#progressBar");
+
+        // 平滑完成到 100%
+        progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        
+        setTimeout(() => {
+            // 隐藏进度条容器
+            $("#progressBarContainer").fadeOut();
+        }, 500);
+			  const cfusimpleList = list.cfusimpleList;
+			  cfusimple=cfusimpleList;
+			  const mpnsimpleList = list.mpnsimpleList;
+			  mpnsimple=mpnsimpleList;
+			   const attrsimpleList = list.attrsimpleList;
+			   attrsimple=attrsimpleList;
+			    const nonesimpleList = list.nonesimpleList;
+        const cfumethodProceedList = list.cfumethodProceedList;
+        const mpnmethodProceedList = list.mpnmethodProceedList;
+        const attrmethodProceedList = list.attrmethodProceedList;
+        const nonemethodProceedList = list.nonemethodProceedList;
+        const defaultValue = $("#slectedUnit").val() || "CFU";
+
+ 
+    // 手动触发逻辑
+    if (defaultValue === "CFU") {
+        console.log(list.cfusimpleList); // 检查返回的内容
+        renderCFUData(cfusimpleList, cfumethodProceedList); // 调用渲染函数
+        loadNormalizedFilterOptions(selectedValue, "CFU", cfusimpleList); // 初始化下拉菜单选项
+    }else if(defaultValue==="MPN"){
+		renderMPNData(mpnsimpleList,mpnmethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, mpnsimpleList);
+	}else if(defaultValue==="/"){
+		renderattrData(attrsimpleList,attrmethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, attrsimpleList);
+	}else if(defaultValue==="none"){
+		rendernoneData(nonesimpleList,nonemethodProceedList);
+        loadNormalizedFilterOptions(selectedValue, defaultValue, nonesimpleList);
+    }
+        },
+        error: function () {
+            alert('无法加载标准数据');
+        }
+    });
+	}
+	//动态模拟加载动画的函数
+	function animateProgressBar(onComplete) {
+    const progressBar = $("#progressBar");
+    let progress = 0;
+
+    // 每隔 100ms 增加宽度，最多到 90%
+    const interval = setInterval(() => {
+        progress += Math.random() * 5; // 随机增加进度，模拟动态效果
+        if (progress >= 90) {
+            clearInterval(interval); // 达到 90% 停止
+            if (typeof onComplete === "function") {
+                onComplete(); // 执行完成的回调函数
+            }
+        }
+        progressBar.css("width", `${Math.min(progress, 90)}%`); // 限制最大值为 90%
+    }, 100);
+   
+}
+</script>
+<!--渲染 XML.CFU 数据为层级结构-->
+<script>
+	  // 渲染 XML 数据为层级结构
+    function renderCFUData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        const recordedcontainer = $("#recorded");
+        container.empty();
+       recordedcontainer.empty();
+// 添加筛选按钮
+    const filterButton = $(`<button id="filterRows" style="display: inline-flex;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: rgba(234,240,255,.86);
+  font-weight: 900;">切换已记录数据</button>`);
+   
+    recordedcontainer.append(filterButton); // 添加到表格上方
+
+        simpleList.forEach((simple, simpleIndex) => {
+			
+            const row = $(`
+                <tr id="tr-${simpleIndex}" data-test="${simple.ifF}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num-${simpleIndex}" class="numCell" data-done="${simple.done}" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>  
+                     <td id="text-${simpleIndex}">
+                    <input type="text" id="recorddata-${simpleIndex}" class="recorddatacss" name="data" value="${simple.result||","}" onclick="CFUshowSelectMenu(${simpleIndex},this)">
+                </td> 
+                   
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                     <td  text="${simple.company}" width="50px" >${simple.company}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name-${simpleIndex}" class="testItem" name="simpleName" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+            const Input = row.find(`#recorddata-${simpleIndex}`);
+            const InputTr = row.find(`#tr-${simpleIndex}`);
+            if(Input.val()!=","){
+				row.hide();
+			}
+             // 动态生成与该 Simple 数据对应的 MethodProceed inputs
+        const methodInputsContainer = row.find(`#method-${simpleIndex}`);
+         const textContainer=row.find(`#text-${simpleIndex}`);
+        const groupDiv = $(`<div>Group ${simpleIndex}</div>`);
+        
+		
+     
+       
+            methodInputsContainer.append(groupDiv);
+       textContainer.append(methodInputsContainer);
+
+            container.append(row);
+            const $tr = $("#tr-" + simpleIndex);
+const $num = $("#num-" + simpleIndex);
+
+// 先清一下（防止重复渲染时叠加）
+$num.removeClass("isBF isTodo");
+
+if(String($tr.data("test") || "").split(/[，,]/).includes("BF")){
+  $num.addClass("isBF");
+}
+if(String($num.data("done")) === "0"){
+  $num.addClass("isTodo");
+}
+		     
+		  
+       });
+       
+           // 筛选按钮点击事件
+    $("#filterRows").on("click", function () {
+        container.find("tr").each(function () {
+            const input = $(this).find("input.recorddatacss");
+            if (input.length > 0 && input.val() != ",") {
+                $(this).show(); // 显示符合条件的行
+            } else {
+                $(this).hide(); // 隐藏不符合条件的行
+            }
+        });
+    });
+        }
+    
+
+</script>
+<!--渲染 XML.MPN 数据为层级结构-->
+<script>
+	  // 渲染 XML 数据为层级结构
+    function renderMPNData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        container.empty();
+        var result=null;
+
+        simpleList.forEach((simple, simpleIndex) => {
+			var q=null;
+			 var proceedLenth=methodProceedList[simpleIndex].length;
+			if(simple.result!=null&&simple.result.includes(">")){
+				result= simple.result.split(">");
+			}else{methodProceedList[simpleIndex].forEach((proceed)=>{
+				result="";
+			})}
+			
+            const row = $(`
+                <tr id="tr-${simpleIndex}" data-test="${simple.ifF}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num-${simpleIndex}" class="numCell" data-done="${simple.done}" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>   
+                    <td id="text-${simpleIndex}" width="100px" >
+	 <div class="method-inputs" id="method-${simpleIndex}" result-value="${simple.result}">
+                    <!-- MethodProceed inputs will be appended here -->
+                </div>
+	</td>	                                   
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                     <td  text="${simple.company}" width="50px" >${simple.company}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name-${simpleIndex}" name="simpleName" class="testItem" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+            
+             // 动态生成与该 Simple 数据对应的 MethodProceed inputs
+        const methodInputsContainer = row.find(`#method-${simpleIndex}`);
+        methodInputsContainer.empty();
+         
+        const groupDiv = $(`<div></div>`);
+        var index=0;
+       
+        methodProceedList[simpleIndex].forEach((Proceed)=>{
+			const proceedDiv = `<div>${Proceed.methodProceed}<input id="method-${simpleIndex}-${simpleList[simpleIndex].id}-${index}" data-input-index="${index}" data-input-id="${simpleList[simpleIndex].id}" data-input-proceed-name="${Proceed.methodProceed}" data-input-proceed-length="${proceedLenth}" type="text" name="method-${simpleIndex}" onclick="MPNshowSelectMenu(${simpleIndex},this)" value="${result[index]||" "}" /></div>`;
+			
+			 groupDiv.append(proceedDiv);
+			
+			 
+			 index++;
+			 
+		});
+        
+		
+            methodInputsContainer.append(groupDiv);
+      
+
+            container.append(row);
+            if(simple.result!=null&&simple.result.includes("X")){
+				 console.log("#tr-"+simpleIndex);
+				$("#tr-"+simpleIndex).hide();
+			}
+            const $tr = $("#tr-" + simpleIndex);
+const $num = $("#num-" + simpleIndex);
+
+// 先清一下（防止重复渲染时叠加）
+$num.removeClass("isBF isTodo");
+
+if(String($tr.data("test") || "").split(/[，,]/).includes("BF")){
+  $num.addClass("isBF");
+}
+if(String($num.data("done")) === "0"){
+  $num.addClass("isTodo");
+}
+       });
+        // 筛选按钮点击事件
+    $("#filterRows").on("click", function () {
+    container.find("tr").each(function () {
+        const input = $(this).find(".method-inputs");
+ 
+        // 检查复选框是否被选中
+        if (input.attr("result-value")!=null&&input.attr("result-value").includes("X")) {
+            $(this).show(); // 显示符合条件的行
+             
+            }else {
+            $(this).hide(); // 隐藏不符合条件的行
+        }
+    });
+});
+        }
+</script>
+<!--渲染 XML.attr 数据为层级结构-->
+<script>
+	var result=null;
+	let Index=null;
+	  // 渲染 XML 数据为层级结构
+    function renderattrData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        container.empty();
+        var attrproceedList=methodProceedList;
+        var attrsimpleList=simpleList;
+   
+
+       
+        simpleList.forEach((simple, simpleIndex) => {
+			
+			if(simple.result!=null){
+				result= simple.result;
+			}else{methodProceedList[simpleIndex].forEach((proceed)=>{
+				result="";
+			})}
+            const row = $(`
+                <tr id="tr-${simpleIndex}" class="tr-glow" data-test="${simple.ifF}" data-attr-result="${result}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num-${simpleIndex}" class="numCell" data-done="${simple.done}" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>   
+                    <td id="text-${simpleIndex}" class="td-glow" width="auto" data-value="${simple.result||"null"}">	
+	 <div class="method-inputs" id="method-${simpleIndex}">
+                    <!-- MethodProceed inputs will be appended here -->
+                   
+                </div>
+	 <input type="checkbox" id="check-${simpleIndex}" data-attr-id="${simple.id}" data-attr-check="${simple.unit}" class="attrrecorddatacss" name="data" onclick="attrsubmitInput(${simpleIndex},this)"   />
+	
+	</td>	                                   
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                     <td  text="${simple.company}" width="50px" >${simple.company}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name-${simpleIndex}" class="testItem" name="simpleName" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+            const input= row.find(`#check-${simpleIndex}`);
+            
+            if(input.data("attr-check")=="selected"){
+				console.log("selected");
+				 input.prop("checked", true); // 使用 jQuery 设置复选框为选中状态
+			}
+
+         
+		
+     
+            container.append(row);
+            const $tr = $("#tr-" + simpleIndex);
+const $num = $("#num-" + simpleIndex);
+
+// 先清一下（防止重复渲染时叠加）
+$num.removeClass("isBF isTodo");
+
+if(String($tr.data("test") || "").split(/[，,]/).includes("BF")){
+  $num.addClass("isBF");
+}
+if(String($num.data("done")) === "0"){
+  $num.addClass("isTodo");
+}
+       });
+       // 筛选按钮点击事件
+    $("#filterRows").off("click").on("click", function () {
+		const checkedSimple = new Set();
+    container.find("tr").each(function () {
+        const input = $(this).find("input.attrrecorddatacss");
+ 
+        // 检查复选框是否被选中
+        if (input.is(':checked')) {
+            $(this).show(); // 显示符合条件的行
+             // 获取当前行的索引
+            
+            const rowId = $(this).attr("id");
+            const simpleIndex = rowId.split("-")[1];
+             checkedSimple.add($("name-"+simpleIndex).val())
+            console.log(simpleIndex);
+            const attrResult=$(this).attr("data-attr-result");
+            var resultArry=null;
+            if(attrResult!=null&&attrResult.includes(">")){
+				resultArry= attrResult.split(">");
+			}else{
+				resultArry="";
+			}
+            if (rowId && rowId.includes("-")) {
+                
+
+                // 动态生成与该 Simple 数据对应的 MethodProceed inputs
+                const methodInputsContainer = $(this).find(`#method-${simpleIndex}`);
+                methodInputsContainer.empty(); // 清空现有内容
+
+                const groupDiv = $(`<div>Group ${simpleIndex}</div>`);
+                let index = 0;
+                 console.log(attrproceedList);
+                var proceedLenth=attrproceedList[simpleIndex].length;
+               
+                attrproceedList[simpleIndex].forEach((Proceed) => {
+                    const proceedDiv = $(`<div>${Proceed.methodProceed}
+                        <input id="method-${simpleIndex}-${attrsimpleList[simpleIndex].id}-${index}" 
+                        
+                               data-input-index="${index}" 
+                               data-input-id="${attrsimpleList[simpleIndex].id}" 
+                               data-input-proceed-name="${Proceed.methodProceed}" 
+                               data-input-proceed-length="${proceedLenth}" 
+                               type="text" 
+                               name="method-${simpleIndex}" 
+                               onclick="attrshowSelectMenu(${simpleIndex}, this)" 
+                                value="${resultArry[index]||" "}" />
+                    </div>`);
+                    groupDiv.append(proceedDiv);
+                    index++;
+                });
+
+                methodInputsContainer.append(groupDiv); // 添加新内容到容器
+            }
+
+            }else {
+            $(this).hide(); // 隐藏不符合条件的行
+        }
+    });
+    const filterSelect = $("#filterSelect");
+     // 动态生成下拉菜单选项
+        checkedSimple.forEach((item) => {
+			 if (typeof item === "undefined") {
+        return; // 跳过 undefined 的值
+    }
+            const option = $(`<option value="${item}">${item}</option>`);
+            filterSelect.append(option);
+        });
+
+        // 添加筛选功能
+        filterSelect.on("click", function () {
+            const selectedValue = $(this).val();
+            filterTable(selectedValue);
+        });
+    
+
+    // 根据选择值筛选表格
+    function filterTable(selectedValue) {
+        $("#dataBody tr").each(function () {
+            const testItem = $(this).find(".testItem").text();
+             const input = $(this).find("input.attrrecorddatacss");
+            if (testItem.includes(selectedValue)) {
+				if(input.length > 0 && input.val() != ","&&!input.is(':checked')){
+					   $(this).hide(); // 隐藏不匹配的行
+					  
+				}else {
+               
+               $(this).show(); // 显示匹配的行
+            }
+              
+            } else {
+                $(this).hide(); // 隐藏不匹配的行
+                console.log(testItem+"已隐藏");
+            }
+        });}
+});
+        
+        }
+        
+</script>
+<!--渲染 XML.none 数据为层级结构-->
+<script>
+	  // 渲染 XML 数据为层级结构
+    function rendernoneData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        container.empty();
+        
+
+        simpleList.forEach((simple, simpleIndex) => {
+			
+            const row = $(`
+                <tr id="tr-${simpleIndex}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>   
+                    <td id="text-${simpleIndex}" width="100px" ><label >没有标准或检测项目不匹配，添加后再看看</label>
+	
+	</td>	                                   
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name" class="testItem" name="simpleName" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+            
+             
+
+            container.append(row);
+       });
+        }
+</script>
+
+<!--下拉菜单-->
+<script>
+	 // 初始化下拉菜单选项
+    function populateFilter(simpleList) {
+        const filterSelect = $("#filterSelect");
+        const testItems = new Set();
+        filterSelect.empty();
+        filterSelect.append(`<option value="">全部</option>`);
+
+        // 提取检测项目列的值
+        simpleList.forEach((simple) => {
+            if (simple.testItem) {
+
+					testItems.add(simple.testItem)
+
+            }
+        });
+
+        // 动态生成下拉菜单选项
+        testItems.forEach((item) => {
+			
+            const option = $(`<option value="${item}">${item}</option>`);
+            filterSelect.append(option);
+        });
+
+        // 添加筛选功能
+        filterSelect.off("change").on("change", function () {
+            const selectedValue = $(this).val();
+            filterTable(selectedValue,simpleList);
+        });
+    }
+
+    function loadNormalizedFilterOptions(tableDate, unitValue, simpleList) {
+        const filterSelect = $("#filterSelect");
+        filterSelect.empty().append(`<option value="">全部</option>`);
+        if (!tableDate || !unitValue) {
+            populateFilter(simpleList);
+            return;
+        }
+
+        $.ajax({
+            url: "/record/api/test-item-filters",
+            type: "GET",
+            dataType: "json",
+            data: {
+                date: tableDate,
+                unit: unitValue
+            },
+            success: function (options) {
+                filterSelect.empty().append(`<option value="">全部</option>`);
+                if (!options || options.length === 0) {
+                    populateFilter(simpleList);
+                    return;
+                }
+
+                options.forEach(function (option) {
+                    const aliases = option.aliases && option.aliases.length > 0 ? option.aliases : [option.label];
+                    const value = aliases.join("||");
+                    const label = `${option.label} (${option.count})`;
+                    filterSelect.append($(`<option></option>`).val(value).text(label));
+                });
+
+                filterSelect.off("change").on("change", function () {
+                    filterTable($(this).val(), simpleList);
+                });
+            },
+            error: function () {
+                populateFilter(simpleList);
+            }
+        });
+    }
+
+    let selectedTable=[]; 
+    let selectedSimpleList=[];
+    // 根据选择值筛选表格
+    function filterTable(selectedValue,simpleList) {
+		selectedSimpleList=[];
+        $("#dataBody tr").each(function () {
+            const testItem = $(this).find(".testItem").text();
+             const input = $(this).find("input.recorddatacss");
+             const aliases = selectedValue ? selectedValue.split("||") : [""];
+             const matched = aliases.some((alias) => testItem.includes(alias));
+            if (matched) {
+				selectedTable.push($(this));
+				simpleList.forEach((simple) => {
+					
+					if (aliases.some((alias) => simple.testItem.includes(alias))) {
+						console.log(simple.testItem+"---"+selectedValue);
+						selectedSimpleList.push(simple);
+					}
+				});
+				if(input.length > 0 && input.val() != ","){
+					   $(this).hide(); // 隐藏不匹配的行
+					  
+				}else {
+               document.querySelectorAll('td.td-glow[data-value*="检出"]').forEach((td) => {
+    console.log(td); // 输出包含 "检出" 的元素
+});
+               $(this).show(); // 显示匹配的行
+            }
+              
+            } else {
+                $(this).hide(); // 隐藏不匹配的行
+                //console.log(testItem+"已隐藏");
+            }
+        });
+	 }
+	
+	
+	
+</script>
+
+
+<script>
+	 
+
+   function parttnResult(s) {
+		var resultSpliteQurry=s.split("-");
+		
+		for(var i=0;i<resultSpliteQurry.length;i++){
+			var result=resultSpliteQurry[i].substring(2, s.length-1);
+			
+			if(!result.contains(",")&&result.split(",").length!=2){
+				alert("老铁，您可能输错了，再检查检查")
+			}
+		}
+		
+		return requary;
+		
+	}
+    function GetRandomNum(min,max){
+		var Range=max-min;
+		var Rand=Math.random();
+		return (min+Math.floor(Rand*Range));
+	}
+    function randomLoop(average){
+		var integer=Math.floor(average);
+		var baseInteger=Math.floor(integer/10);
+		var indexQuary=[1,2,3,4,5,6,7,8,9,10,20,30,40];
+		if(baseInteger===0){
+				return 0;
+				
+			}else{
+				
+			
+				return GetRandomNum(baseInteger-1,baseInteger+2);
+			
+		
+			}
+		
+	}
+	function autoZero(inputID,dilution){
+		document.getElementById("recorddata-"+inputID).value="";
+		var d2=parseInt(dilution)+1;
+		var d3=parseInt(dilution)+2;
+		document.getElementById("recorddata-"+inputID).value="-"+dilution+"(0,0)-"+d2+"(0,0)-"+d3+"(0,0)";
+	};
+    function partten(inputID,selectID){
+		dilution=document.getElementById(selectID).value;
+		redata=document.getElementById("recorddata-"+inputID).value;
+		console.log(redata);
+		let data=redata.split(',');
+		let ldata=data[0];
+		let rdata=data[1];
+		let average=Math.floor(((ldata/1)+(rdata/1))/2);
+		console.log(average);
+		console.log(selectID);
+		if(dilution==="-1"){
+			
+			if(randomLoop(average)===0){
+				redata=dilution+"("+redata+")-2(0,0)-3(0,0)";
+				console.log(redata);
+			document.getElementById("recorddata-"+inputID).value=redata;
+			}else{
+			rdata2=randomLoop(average);
+			ldata2=randomLoop(average);
+			data2=	rdata2	+","+	ldata2;
+			data3=randomLoop((rdata2+ldata2)/2)+","+randomLoop((rdata2+ldata2)/2);
+			redata=dilution+"("+redata+")-2("+data2+")-3("+data3+")";
+			document.getElementById("recorddata-"+inputID).value=redata;
+			}
+			
+			return redata;
+		}else if(dilution==="-0"){
+			if(randomLoop(average)===0){
+				redata=dilution+"("+redata+")-1(0,0)-2(0,0)";
+				console.log(redata);
+			document.getElementById("recorddata-"+inputID).value=redata;
+			}else{
+			rdata2=randomLoop(average);
+			ldata2=randomLoop(average);
+			data2=	rdata2	+","+	ldata2;
+			data3=randomLoop((rdata2+ldata2)/2)+","+randomLoop((rdata2+ldata2)/2);
+			redata=dilution+"("+redata+")-1("+data2+")-2("+data3+")";
+			document.getElementById("recorddata-"+inputID).value=redata;
+			}
+			
+			return redata;
+		}else if(average<=40){
+			if((selectID.includes("T")&&dilution==="-3")||(selectID.includes("Y")&&dilution==="-6")||(selectID.includes("U")&&dilution==="-9")){				
+				lresultdata=average*10+randomLoop(average)*2;
+			rresultdata=average*10+randomLoop(average)*2;
+			resultdata=lresultdata+","+rresultdata;
+				redata=((dilution*1)+2)+"(T,T)"+((dilution*1)+1)+"("+resultdata+")"+dilution+"("+redata+")";
+				document.getElementById("recorddata-"+inputID).value=redata;
+			}else{
+				lresultdata=average*10+randomLoop(average)*2;
+			rresultdata=average*10+randomLoop(average)*2;
+			resultdata=lresultdata+","+rresultdata;
+			lresultdata2=randomLoop(average);
+			rresultdata2=randomLoop(average);
+			resultdata2=lresultdata2+","+rresultdata2;
+			redata=((dilution*1)+1)+"("+resultdata+")"+dilution+"("+redata+")"+((dilution*1)-1)+"("+resultdata2+")";
+			document.getElementById("recorddata-"+inputID).value=redata;
+			return redata;
+			}
+			
+		}else if(average>40){
+			
+				ldata=randomLoop(average);
+			rdata=randomLoop(average);
+			data=ldata+","+rdata;
+	
+			
+			redata=((dilution*1)+1)+"(T,T)"+dilution+"("+redata+")"+((dilution*1)-1)+"("+data+")";
+			
+			
+			document.getElementById("recorddata-"+inputID).value=redata;
+			return redata;
+		}
+	}
+	
+    function focusSelect(id){
+  const tr = document.getElementById(id);
+  if(!tr) return;
+  tr.classList.add('tr-active');
+}
+
+function blurSelect(id){
+  const tr = document.getElementById(id);
+  if(!tr) return;
+  tr.classList.remove('tr-active');
+}
+     function openmanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=false;
+	}
+	function closemanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=true;
+	}
+	
+    function followScroll(){
+		 var scrollTop=$(window).scrollTop;
+		 var elementTop=$("#home").offset().top;
+		 var distance=scrollTop-elementTop;
+		 $("#home").css("top",distance+"px");
+	 }
+	 $(window).scroll(followScroll);
+	 $(document).ready(function(){
+		 followScroll();
+	 });
+
+	function validateInput(event) {
+  var regex = /^(\d+)?(\.\d+)?$/;
+  var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+  if (!regex.test(event.target.value + key)) {
+    event.preventDefault();
+    return false;
+  }
+}
+
+	 </script>
+	  <script src="script/plusSelect.js?v1.0.2" ></script>
+<script>initDraggable('home','appselectLabel');</script>
+	
+	<script>
+		// 显示CFU下拉菜单
+function CFUshowSelectMenu(simpleIndex,inputElement) {
+    // 删除之前的动态菜单
+    $(".dynamic-menu").remove();
+
+    // 创建下拉菜单容器
+    const menu = $(`
+        <div class="dynamic-menu" style="position: absolute; z-index: 1000; background: #fff; border: 1px solid #ccc; padding: 10px;">
+            <select id="T" onchange="partten(${simpleIndex},this.id)">
+                <option value="n">选择稀释度</option>
+                <option value="-0">-0</option>
+                <option value="-1">-1</option>
+                <option value="-2">-2</option>
+                <option value="-3">-3</option>
+                <option value="-4">-4</option>
+                <option value="-5">-5</option>
+                <option value="-6">-6</option>
+                <option value="-7">-7</option>
+                <option value="-8">-8</option>
+                <option value="-9">-9</option>
+                <option value="-10">-10</option>
+                <option value="-11">-11</option>
+                <option value="-12">-12</option>
+            </select>
+            <label for="AutoZero-0">原倍自动填零</label>
+            <input type="radio" id="AutoZero-0" name="options" value="0" onchange="autoZero(${simpleIndex},this.value)" >
+            <label for="AutoZero-1">十倍自动填零</label>
+            <input type="radio" id="AutoZero-1" name="options" value="1" onchange="autoZero(${simpleIndex},this.value)" >
+        </div>
+    `);
+
+    // 定位到 input 上方
+    const inputOffset = $(inputElement).offset();
+    menu.css({
+        top: inputOffset.top - menu.outerHeight() - 50,
+        left: inputOffset.left,
+    });
+
+    // 添加到页面
+    $("body").append(menu);
+ // 防止点击菜单触发其他事件
+    menu.on("click", function (e) {
+        e.stopPropagation();
+       
+    });
+// 防止点击输入框本身触发提交
+    $(inputElement).on("click", function (e) {
+        e.stopPropagation();
+    });
+    
+       // 防止首次点击 `input` 触发全局提交逻辑
+    setTimeout(() => {
+         $(document).off("click.dynamic-menu").on("click.dynamic-menu", function () {
+        if ($(".dynamic-menu").length > 0) {
+            CFUsubmitInput(simpleIndex,inputElement); // 执行提交逻辑
+            $(".dynamic-menu").remove(); // 移除菜单
+            
+            $(document).off("click.dynamic-menu"); // 解除绑定
+            
+        }
+    });
+    }, 0);
+    
+   
+}
+		// 显示MPN下拉菜单
+function MPNshowSelectMenu(simpleIndex,inputElement) {
+    // 删除之前的动态菜单
+    $(".dynamic-menu").remove();
+
+    // 创建下拉菜单容器
+    const menu = $(`
+        <div class="dynamic-menu" style="position: absolute; z-index: 1000; background: #fff; border: 1px solid #ccc; padding: 10px;">
+            <div id="menuContent">
+                <p>加载中...</p>
+            </div>
+            <button id="addButton" style="margin-top: 10px;">添加</button>
+        </div>
+    `);
+// 绑定点击添加按钮的事件
+menu.find("#addButton").on("click", function () {
+    // 删除已有的弹出框
+    $(".popup-div").remove();
+    
+   const proceed_name=$(inputElement).attr('data-input-proceed-name');
+
+    // 创建弹出框
+     const popupDiv = $(`
+        <div class="popup-div" style="position: fixed; z-index: 2000; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #f9f9f9; border: 1px solid #ccc; padding: 20px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);">
+            <h3>输入信息</h3>
+            <form id="recordForm">
+                <label for="proceedName">${proceed_name}</label>
+                
+
+                <label for="infomation">信息:</label>
+                <textarea id="infomation" name="infomation" rows="4" style="width: 100%; margin-bottom: 10px;" required></textarea>
+
+                <button type="button" id="submitRecord" style="display: block; margin: 10px auto; padding: 5px 10px; background-color: #4CAF50; color: #fff; border: none; border-radius: 5px; cursor: pointer;">提交</button>
+            </form>
+            <button id="closePopup" style="display: block; margin: 10px auto; padding: 5px 10px; background-color: #f44336; color: #fff; border: none; border-radius: 5px; cursor: pointer;">关闭</button>
+        </div>
+    `);
+     // 绑定提交按钮事件
+    popupDiv.find("#submitRecord").on("click", function () {
+        // 获取用户输入的数据
+        const proceedName = $(inputElement).attr("data-input-proceed-name");
+        const infomation = $("#infomation").val();
+
+        // 验证输入是否为空
+        if (!proceedName || !infomation) {
+            alert("请输入完整信息！");
+            return;
+        }
+
+        // 创建 CustomeRecordinfoInstant 对象
+        const record = {
+            proceedName: proceedName,
+            infomation: infomation,
+        };
+
+        // 发送到后端
+        $.ajax({
+            url: "/api/json/save",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify([record]), // 发送集合
+            success: function (response) {
+                alert(response); // 提示成功信息
+                popupDiv.remove(); // 提交后关闭弹出框
+            },
+            error: function (xhr, status, error) {
+                console.error("提交失败:", error);
+                alert("提交失败，请稍后重试！");
+            },
+        });
+    });
+
+    // 添加关闭按钮的点击事件
+    popupDiv.find("#closePopup").on("click", function (e) {
+		e.stopPropagation();
+        popupDiv.remove(); // 移除弹出框
+    });
+
+    // 将弹出框添加到页面
+    $("body").append(popupDiv);
+    // 防止点击弹出框触发其他事件
+    popupDiv.on("click", function (e) {
+        e.stopPropagation();
+       
+    });
+});
+
+
+    // 定位到 input 上方
+    const inputOffset = $(inputElement).offset();
+    menu.css({
+        top: inputOffset.top - menu.outerHeight() - 70,
+        left: inputOffset.left,
+    });
+
+    // 添加到页面
+    $("body").append(menu);
+    
+ // 防止点击菜单触发其他事件
+    menu.on("click", function (e) {
+        e.stopPropagation();
+       
+    });
+    
+// 防止点击输入框本身触发提交
+    $(inputElement).on("click", function (e) {
+        e.stopPropagation();
+    });
+     // 调用后端接口，获取 JSON 数据
+    $.ajax({
+        url: "/api/json/read",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            const menuContent = $("#menuContent");
+            menuContent.empty(); // 清空加载中内容
+
+            if (!data || data.length === 0) {
+                menuContent.html("<p>数据为空，请编辑后再试。</p>");
+            } else {
+                // 根据 JSON 数据生成下拉菜单
+                const select = $(`<select id="jsonSelect" style="width: 100%;"><option value=" ">选择预定的值</option></select>`);
+                var index=0;
+                $.each(data, function (index) {
+					var proceedName=data[index].proceedName;
+					var infomation=data[index].infomation;
+					
+					var name=$(inputElement).attr("data-input-proceed-name");
+					if(proceedName===name){
+						const option = $(`<option value="${infomation}">${infomation}</option>`);
+                    select.append(option);
+					}else{console.log(proceedName+"--"+name)}
+                    
+                    index++;
+                });
+
+                menuContent.append(select);
+                $("#jsonSelect").on("change", function () {
+		$(inputElement).val($(this).val());   
+    });
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("获取数据失败:", error);
+            $("#menuContent").html("<p>获取数据失败，请稍后再试。</p>");
+        },
+    });
+    
+       // 防止首次点击 `input` 触发全局提交逻辑
+    setTimeout(() => {
+         $(document).off("click.dynamic-menu").on("click.dynamic-menu", function () {
+        if ($(".dynamic-menu").length > 0) {
+            MPNsubmitInput(simpleIndex,inputElement); // 执行提交逻辑
+            $(".dynamic-menu").remove(); // 移除菜单
+            
+            $(document).off("click.dynamic-menu"); // 解除绑定
+            
+        }
+    });
+    }, 0);
+    
+   
+}
+// 显示attrConfirm下拉菜单
+function attrshowSelectMenu(simpleIndex,inputElement) {
+    // 删除之前的动态菜单
+    $(".dynamic-menu").remove();
+
+    // 创建下拉菜单容器
+    const menu = $(`
+        <div class="dynamic-menu" style="position: absolute; z-index: 1000; background: #fff; border: 1px solid #ccc; padding: 10px;">
+            <div id="menuContent">
+                <p>加载中...</p>
+            </div>
+            <button id="addButton" style="margin-top: 10px;">添加</button>
+        </div>
+    `);
+// 绑定点击添加按钮的事件
+menu.find("#addButton").on("click", function () {
+    // 删除已有的弹出框
+    $(".popup-div").remove();
+    
+   const proceed_name=$(inputElement).attr('data-input-proceed-name');
+
+    // 创建弹出框
+     const popupDiv = $(`
+        <div class="popup-div" style="position: fixed; z-index: 2000; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 300px; background: #f9f9f9; border: 1px solid #ccc; padding: 20px; box-shadow: 0px 4px 10px rgba(0,0,0,0.2);">
+            <h3>输入信息</h3>
+            <form id="recordForm">
+                <label for="proceedName">${proceed_name}</label>
+                
+
+                <label for="infomation">信息:</label>
+                <textarea id="infomation" name="infomation" rows="4" style="width: 100%; margin-bottom: 10px;" required></textarea>
+
+                <button type="button" id="submitRecord" style="display: block; margin: 10px auto; padding: 5px 10px; background-color: #4CAF50; color: #fff; border: none; border-radius: 5px; cursor: pointer;">提交</button>
+            </form>
+            <button id="closePopup" style="display: block; margin: 10px auto; padding: 5px 10px; background-color: #f44336; color: #fff; border: none; border-radius: 5px; cursor: pointer;">关闭</button>
+        </div>
+    `);
+     // 绑定提交按钮事件
+    popupDiv.find("#submitRecord").on("click", function () {
+        // 获取用户输入的数据
+        const proceedName = $(inputElement).attr("data-input-proceed-name");
+        const infomation = $("#infomation").val();
+
+        // 验证输入是否为空
+        if (!proceedName || !infomation) {
+            alert("请输入完整信息！");
+            return;
+        }
+
+        // 创建 CustomeRecordinfoInstant 对象
+        const record = {
+            proceedName: proceedName,
+            infomation: infomation,
+        };
+
+        // 发送到后端
+        $.ajax({
+            url: "/api/json/save",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify([record]), // 发送集合
+            success: function (response) {
+                alert(response); // 提示成功信息
+                popupDiv.remove(); // 提交后关闭弹出框
+            },
+            error: function (xhr, status, error) {
+                console.error("提交失败:", error);
+                alert("提交失败，请稍后重试！");
+            },
+        });
+    });
+
+    // 添加关闭按钮的点击事件
+    popupDiv.find("#closePopup").on("click", function (e) {
+		e.stopPropagation();
+        popupDiv.remove(); // 移除弹出框
+    });
+
+    // 将弹出框添加到页面
+    $("body").append(popupDiv);
+    // 防止点击弹出框触发其他事件
+    popupDiv.on("click", function (e) {
+        e.stopPropagation();
+       
+    });
+});
+
+
+    // 定位到 input 上方
+    const inputOffset = $(inputElement).offset();
+    menu.css({
+        top: inputOffset.top - menu.outerHeight() - 70,
+        left: inputOffset.left,
+    });
+
+    // 添加到页面
+    $("body").append(menu);
+    
+ // 防止点击菜单触发其他事件
+    menu.on("click", function (e) {
+        e.stopPropagation();
+       
+    });
+    
+// 防止点击输入框本身触发提交
+    $(inputElement).on("click", function (e) {
+        e.stopPropagation();
+    });
+     // 调用后端接口，获取 JSON 数据
+    $.ajax({
+        url: "/api/json/read",
+        type: "GET",
+        dataType: "json",
+        success: function (data) {
+            const menuContent = $("#menuContent");
+            menuContent.empty(); // 清空加载中内容
+
+            if (!data || data.length === 0) {
+                menuContent.html("<p>数据为空，请编辑后再试。</p>");
+            } else {
+                // 根据 JSON 数据生成下拉菜单
+                const select = $(`<select id="jsonSelect" style="width: 100%;"><option value=" ">选择预定的值</option></select>`);
+                var index=0;
+                $.each(data, function (index) {
+					var proceedName=data[index].proceedName;
+					var infomation=data[index].infomation;
+					
+					var name=$(inputElement).attr("data-input-proceed-name");
+					if(proceedName===name){
+						const option = $(`<option value="${infomation}">${infomation}</option>`);
+                    select.append(option);
+					}else{console.log(proceedName+"--"+name)}
+                    
+                    index++;
+                });
+
+                menuContent.append(select);
+                $("#jsonSelect").on("change", function () {
+		$(inputElement).val($(this).val());   
+    });
+            }
+        },
+        error: function (xhr, status, error) {
+            console.error("获取数据失败:", error);
+            $("#menuContent").html("<p>获取数据失败，请稍后再试。</p>");
+        },
+    });
+    
+       // 防止首次点击 `input` 触发全局提交逻辑
+    setTimeout(() => {
+         $(document).off("click.dynamic-menu").on("click.dynamic-menu", function () {
+        if ($(".dynamic-menu").length > 0) {
+			console.log("attr提交逻辑");
+            attrConfirmsubmitInput(simpleIndex,inputElement); // 执行提交逻辑
+            $(".dynamic-menu").remove(); // 移除菜单
+            
+            $(document).off("click.dynamic-menu"); // 解除绑定
+            
+        }
+    });
+    }, 0);
+    
+   
+}
+	</script>
+	
+	
+	<script>
+		// 点击“自动填零”按钮时弹出对话框
+function CFUsubmitZeroInput() {
+    document.getElementById('customModal').style.display = 'block';
+}
+
+// 点击“取消”关闭对话框
+function closeCustomModal() {
+    document.getElementById('customModal').style.display = 'none';
+}
+
+// 点击“确定”执行原本的提交操作
+function confirmAutoZero() {
+    document.getElementById('customModal').style.display = 'none';
+
+    // 原自动填零逻辑
+    $.ajax({
+        url: '/AutoupdateData',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            list: selectedSimpleList,
+            table_name: document.getElementById('con').textContent
+        }),
+        success: function (data, status) {
+			
+			dateLableAjax(document.getElementById('con').textContent,"0");
+			
+            console.log(data);
+            console.log(status);
+        },
+        error: function () {
+            alert('系统异常，提交失败');
+        }
+    });
+    
+    
+}
+		
+	//CFU传值
+	// 提交输入框值
+function CFUsubmitInput(simpleIndex,inputElement) {
+    const inputValue = $(inputElement).val();
+    
+			 if(inputValue.length>=20){
+				 console.log("失焦提交值: ", inputValue);
+				 cfusimple[simpleIndex].result=inputValue;
+				 
+				 $.ajax({
+           url:'/updateData',
+            data:{"simpleNum":$("#num-"+simpleIndex).text(),
+             "simpleID":$("#num-"+simpleIndex).data("id"),
+            "simpleName":$("#name-"+simpleIndex).text(),
+             "data":$(inputElement).val(),
+            "table_name":document.getElementById('con').textContent},
+            
+        
+           
+            success:function (data,status){
+				$("#tr-"+simpleIndex).hide();
+                console.log(data);
+                console.log(status);
+               
+            },
+            error: function () {
+            alert('系统异常，提交失败');
+        }
+        }); 
+        
+			 }else{alert("有错误，提交失败");}
+   
+}
+	//MPN传值
+	// 提交输入框值
+function MPNsubmitInput(simpleIndex,inputElement) {
+    const inputValue = $(inputElement).val();
+    if(inputValue.charAt(inputValue.length-1)===" "){
+		 alert('提交值为空，提交失败');
+	}else{
+		 console.log("失焦提交值: ", inputValue);
+				// mpnsimple[simpleIndex].result=inputValue;
+			var	proceedName=$(inputElement).attr("data-input-proceed-name");
+				 $.ajax({
+           url:'/updateMPNData',
+            data:{"simpleNum":$("#num-"+simpleIndex).text(),
+             "simpleID":$("#num-"+simpleIndex).data("id"),
+            "simpleName":$("#name-"+simpleIndex).text(),
+            "proceedName":proceedName,
+             "data":$(inputElement).val(),
+            "table_name":document.getElementById('con').textContent,
+            "step":$(inputElement).data("input-index"),
+            "proceedLength":$(inputElement).data("input-proceed-length")},
+            
+            //获取proceed的大小，获得当前input所属的proceed的位置传递着两个参数
+        
+           
+            success:function (data,status){
+				
+                console.log(data);
+                console.log(status);
+                
+                // 实时更新输入框的提交值
+                $(inputElement).val(data);
+                if($(inputElement).val().includes("X")){
+					const inputid=$(inputElement).attr("id");
+					const trid="#tr-"+inputid.split("-")[1];
+					$(trid).hide();
+				}
+            },
+            error: function () {
+            alert('系统异常，提交失败');
+        }
+        }); 
+	}
+			 
+				
+
+}
+//attr传值
+	// 提交输入框值
+function attrsubmitInput(simpleIndex,inputElement) {
+   
+    if ($(inputElement).is(':checked')) {
+		$.ajax({
+           url:'/updateAttrData',
+            data:{"simpleNum":$("#num-"+simpleIndex).text(),
+             "simpleID":$("#num-"+simpleIndex).data("id"),
+            "simpleName":$("#name-"+simpleIndex).text(),           
+            "table_name":document.getElementById('con').textContent},
+            
+        
+           
+            success:function (data,status){
+				
+                console.log(data);
+                console.log(status);
+               
+            },
+            error: function () {
+            alert('系统异常，提交失败');
+        }
+        }); 
+        
+			
+} else {
+    console.log(`Checkbox #check-${simpleIndex} is not checked.`);
+	}
+			 
+   
+}
+  //attrConfirm传值
+	// 提交输入框值
+function attrConfirmsubmitInput(simpleIndex,inputElement) {
+    const inputValue = $(inputElement).val();
+     if(inputValue.charAt(inputValue.length-1)===" "){
+		 alert('提交值为空，提交失败');
+	}else{
+		console.log("失焦提交值: ", inputValue);
+				// cfusimple[simpleIndex].result=inputValue;
+			var	proceedName=$(inputElement).attr("data-input-proceed-name");
+				 $.ajax({
+           url:'/updateMPNData',
+            data:{"simpleNum":$("#num-"+simpleIndex).text(),
+             "simpleID":$("#num-"+simpleIndex).data("id"),
+            "simpleName":$("#name-"+simpleIndex).text(),
+            "proceedName":proceedName,
+             "data":$(inputElement).val(),
+            "table_name":document.getElementById('con').textContent,
+            "step":$(inputElement).data("input-index"),
+            "proceedLength":$(inputElement).data("input-proceed-length")},
+            
+            //获取proceed的大小，获得当前input所属的proceed的位置传递着两个参数
+        
+           
+            success:function (data,status){
+				
+                console.log($(inputElement).val());
+                console.log(status);
+                $(inputElement).val(data);
+            },
+            error: function () {
+            alert('系统异常，提交失败');
+        }
+        }); 
+	}
+			 
+				 
+
+}
+</script>
+ <script src="script/queryJs.js?v=1.0.0" ></script>
+	  <script src="script/spotlightMove.js?v=1.0.0" ></script>
+	 <script src="script/changeBackgroundImage.js"></script>
+	 
+	  <script>
+  (function initFilterCollapse(){
+    const topNav = document.querySelector('.topNav');
+    const btn = document.getElementById('filterToggleBtn');
+    if(!topNav || !btn) return;
+
+    function setExpanded(expanded){
+      // expanded=true => 展开 filters
+      topNav.classList.toggle('isCollapsed', !expanded);
+      btn.setAttribute('aria-expanded', String(expanded));
+      btn.textContent = expanded ? 'Filters ▾' : 'Filters ▸';
+    }
+
+    // 小屏默认收起；大屏默认展开
+    const isMobile = window.matchMedia('(max-width: 980px)').matches;
+    setExpanded(!isMobile ? true : false);
+
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      setExpanded(!expanded);
+      // 标记：用户在小屏手动展开过
+      if(window.matchMedia('(max-width: 980px)').matches){
+        topNav.classList.add('expandedOnMobile');
+      }
+    });
+
+    // 窗口变化时自动适配
+    window.addEventListener('resize', () => {
+      const mobile = window.matchMedia('(max-width: 980px)').matches;
+      // 如果没手动操作过，就按默认策略切换
+      if(!topNav.classList.contains('expandedOnMobile')){
+        setExpanded(!mobile);
+      }
+    });
+  })();
+  
+  
+	</script>
+    </main>
+  </div>
+</body>
+</html>

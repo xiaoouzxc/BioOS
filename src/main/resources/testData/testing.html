@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<style type="text/css">
+	table{
+		width: max-content;
+		
+	}
+	
+	td{
+
+white-space:pre-line;
+word-wrap: break-word;
+word-break: break-all;
+
+}
+#dolabel{
+	display: inline-block;
+	border:2px solid ;
+    width:200px;
+    height: 80px;
+    background-color: aqua;
+}
+#donelabel{
+	display: inline-block;
+	border:2px solid ;
+    width:200px;
+    height: 80px;
+    background-color: rgb(255, 255, 128);
+}
+#questlabel{
+	display: inline-block;
+	border:2px solid ;
+    width:250px;
+    height: 80px;
+    background-color: rgb(0, 255, 128);
+}
+.subbut{
+	background-image: url(right.jpg);
+	 width:80px;
+    height: 80px;
+}
+
+</style>
+ <script  th:src="@{script/jQuery3.7.1.js}"></script>
+</head>
+<body>
+	
+	<div>
+		
+		<label for="do" id="dolabel">未做</label>
+		<button id="do" onclick="window.location.href='http://192.168.2.8:8081/testing'" hidden></button>
+		<label for="done" id="donelabel">已做</label>
+		<button id="done" onclick="window.location.href='http://192.168.2.8:8081/check'" hidden></button>
+		<form action="#" th:action="@{/quest}" method="get" enctype="text/plain">	
+		<label  id="questlabel">查询<input  type="text" name="questSimpleNum"  /><label for="quest" >提交</label><input id="quest" type="submit" hidden></label>
+		</form>
+	</div>
+	<div>
+		<table  bgcolor="blue"  border="1">
+			<tr>
+		<td>操作</td>
+		<!--<td>序号</td>-->
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>报告抬头</td>
+		<td>检测项目</td>
+		<td>报告单位</td>
+		<td>检测方法</td>		
+		<td>备注</td>
+   </tr>
+	<tr th:each="questsimple:${presentQuestList}">
+		<form action="#" th:action="@{/done2}" method="get" enctype="text/plain">
+			<td>			
+			<input type="text" name="simpleNum" th:value="${questsimple.getNumber()}" hidden/>			
+			 <input id="subbut" type="submit" value=" " />
+			 
+			</td>
+		<!--<td ><button onclick="changeColor(this.id) " action="http://192.168.2.8:8081" ><input >已做</button></td>-->
+		</form>
+	<!--<td th:text="${simple.getId()}"></td>-->
+	<td th:text="${questsimple.getNumber()}" style="font-size: 30px;"></td>
+	<td th:text="${questsimple.getName()}" width="50px" ></td>
+	<td th:text="${questsimple.getCompany()}" width="50px"></td>
+	<td  th:text="${questsimple.getTestItem()}" style="font-size: 30px;"></td>
+	<td th:text="${questsimple.getUnit()}"></td>		
+	<td th:text="${questsimple.getTestMethod()}" width="400px"></td>	
+	<td th:text="${questsimple.getTip()}" width="100px"></td>
+	</tr>
+		</table>
+	</div>
+<div>
+	<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td>操作</td>
+		<!--<td>序号</td>-->
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>报告抬头</td>
+		<td>检测项目</td>
+		<td>报告单位</td>
+		<td>检测方法</td>		
+		<td>备注</td>
+   </tr>
+	<tr id="trid" th:each="simple:${presentList}" >
+		
+		<!--<form action="#" th:action="@{/done}" method="get" enctype="text/plain">
+			<td>			
+			<input type="text" name="simpleNum" th:value="${simple.getNumber()}" hidden/>			
+			 <input id="subbut" type="submit" value=" " />
+			 
+			</td>
+		<!--<td ><button onclick="changeColor(this.id) " action="http://192.168.2.8:8081" ><input >已做</button></td>-->
+		</form>
+-->
+    <td><label id="F" th:value="${simple.getIfF()}" hidden></label><button id="btid" class="subbut" onclick="changeColor(this.id) " th:value="${simple.getNumber()}"></td>
+	<!--<td th:text="${simple.getId()}"></td>-->
+	<td th:text="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td th:text="${simple.getName()}" width="50px" ></td>
+	<td th:text="${simple.getCompany()}" width="50px"></td>
+	<td  th:text="${simple.getTestItem()}" style="font-size: 30px;"></td>
+	<td th:text="${simple.getUnit()}"></td>		
+	<td th:text="${simple.getTestMethod()}" width="400px"></td>	
+	<td th:text="${simple.getTip()}" width="100px"></td>	
+	</tr>
+	
+</table>
+
+</div>
+
+<script>
+	var btn = document.querySelectorAll('#btid');
+	var tr = document.querySelectorAll('#trid');
+	var fl = document.querySelectorAll('#F');
+	
+
+	 for(var i=0;i<btn.length;i++){
+		  var trid="tr"+i;
+		  var btid="bt"+i;
+		  btn[i].setAttribute('id',btid);
+		  
+			   tr[i].setAttribute('id',trid);
+			    if(fl[i].getAttribute('value')==="BF"){
+					 tr[i].style.backgroundColor = "red";
+				}else if(fl[i].getAttribute('value')==="RBF"){
+					tr[i].style.backgroundColor = "blue";
+				}
+			  
+	  }
+	  
+	  function a1(id){
+        var modeljson={
+            "name": document.getElementById(id).value
+        }
+        $.ajax({
+            url:'/ajax/a',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+                console.log(modeljson)
+            }
+        })
+    }
+	
+function changeColor(id) {
+	//var button=document.querySelectorAll('button');
+	
+      //var tr = document.querySelectorAll('tr');
+       var btid;
+       var trnum;
+      for(var i=0;i<btn.length;i++){
+		  btid= btn[i].getAttribute('id');
+		  if(btid===id){
+			  trnum=i;
+			  break;
+		  }
+		 
+	  }
+	  var button = document.getElementById(btid);
+	  var trid="tr"+trnum;
+	  var tr=document.getElementById(trid);
+	 
+	a1(btid);
+	tr.parentNode.removeChild(tr);
+     
+      }
+     
+</script>
+</body>
+</html>

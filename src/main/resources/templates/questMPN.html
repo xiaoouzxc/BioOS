@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="script/plusSelect.css">
+<title>Insert title here</title>>
+<style type="text/css">
+	table{
+		width: max-content;
+		
+	}
+	
+	td{
+
+white-space:pre-line;
+word-wrap: break-word;
+word-break: break-all;
+
+}
+#batchPanelTip {
+  position: fixed;
+  right: 50px;
+  top: 100px; 
+  z-index: 1000;
+}
+#batchPanel {
+  position: fixed;
+  right: 10px;
+  top: 100px;
+  background: rgba(255,255,255,0.9);
+  border: 1px solid #ccc;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+}
+#batchPanel .batchBtn {
+  display: block;
+  margin: 4px 0;
+  padding: 6px 10px;
+  background: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  border-radius: 3px;
+}
+#batchPanel .batchBtn:hover {
+  background: #0056b3;
+}
+</style>
+</head>
+<body>
+	<div id="manualPanel" hidden>
+		<label for="close" id="lclose">X<button id="close" onclick="closemanualPanel()" hidden></button></label>
+	<form action="#" th:action="@{/manualAddFData}" method="get" enctype="text/plain">			
+	<label for="input1" id="l1">样品短号<input id="input1" type="text" name="simpleNum"  /></label>
+	<label for="input2" id="l2">样品名称<input id="input2" type="text" name="simpleName" value="/"/></label>
+	<label for="input3" id="l3">检测项目<input id="input3" type="text" name="simpleItem" value="m"/></label>
+	<label for="input4" id="l4">检测方法<input id="input4" type="text" name="testMethord" value="/" /></label>
+	<label for="update" id="input5" >提交</label><input id="update" type="submit"  hidden></label>
+	
+	</form>
+	</div>
+	<div style="font-size: 0;" id="home" >
+		<img src="image/Buttonplus.png" id="appselectLabel"  ></img>
+		<div id="selectapp" style="grid-auto-flow: column;" hidden>
+			<img src="image/weizuo.png"  id="dolabel" onclick="window.location.href='/testing'">未做</img>		
+		<img src="image/yizuo.png" id="donelabel"  onclick="window.location.href='/check'">已做</img>		
+		<img src="image/xieguan.png" id="writeMPNlabel" onclick="window.location.href='/questMPN'">写管</img>		
+		<img src="image/jiafuce.png" id="mbut" onclick="openmanualPanel()">手动添加复测</img>	
+		<a  id="tipLabelc" href="/load" download="biaoqian.txt"  >标签下载</a>
+		<a id="tipLabelF" href="/loadF" download="Fbiaoqian.txt" >复测标签下载</a>	
+		
+		</div>
+		</div>
+<div>
+	<table id="mainTable" bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<!--<td>序号</td>-->
+		
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>报告抬头</td>
+		<td>检测项目</td>
+		<td>报告单位</td>
+		<td>检测方法</td>		
+		<td>备注</td>
+   </tr>
+	<tr id="trid"  th:each="simple:${presentList}" >
+		<td hidden><button id="heapbt" >已做</button>
+		<label id="done" th:value="${simple.getDone()}"></label>
+		<label id="F" th:value="${simple.getIfF()}"></label></td>
+	<td th:text="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td th:text="${simple.getName()}" width="50px" ></td>
+	<td th:text="${simple.getCompany()}" width="50px"></td>
+	<td  th:text="${simple.getTestItem()}" style="font-size: 30px;"></td>
+	<td th:text="${simple.getUnit()}"></td>		
+	<td th:text="${simple.getTestMethod()}" width="400px"></td>	
+	<td th:text="${simple.getTip()}" width="100px"></td>	
+	</tr>
+	
+</table>
+
+</div>
+
+<!-- 右侧批次按钮面板 -->
+
+    <div id="batchPanelTip" style="display: flex; align-items: flex-start; width: fit-content;"><p style="writing-mode: vertical-rl; text-orientation: upright; margin-right: 8px; height: 100%;">单独查看某一批</p></div>
+    <div id="batchPanel" style="display: flex; flex-direction: column;"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+  // 1. 首次向后端请求所有批次
+  $.getJSON('/batches', function(batchList) {
+    const panel = $('#batchPanel').empty();
+    batchList.forEach(function(b){
+      $('<button>')
+        .addClass('batchBtn')
+        .text(b)
+        .data('batch', b)
+        .appendTo(panel);
+    });
+  });
+
+  // 2. 点击某个批次按钮
+  $('#batchPanel').on('click', '.batchBtn', function(){
+    const batch = $(this).data('batch');
+    // 发 AJAX 拿 simpleList
+    $.getJSON('/simples', { batch: batch }, function(simpleList){
+     function renderTable(simpleList) {
+  const tbody = $('#mainTable').empty();  // 先清空
+
+  simpleList.forEach((simple, i) => {
+    // 用模板字符串直接写出跟你 Thymeleaf 一模一样的结构
+    const row = $(`
+      <tr id="trid-${i}">
+        <td hidden>
+          <button id="heapbt-${i}">已做</button>
+          <label id="done-${i}" value="${simple.done}"></label>
+          <label id="F-${i}"    value="${simple.ifF}"></label>
+        </td>
+        <td style="font-size:30px;">${simple.number}</td>
+        <td width="50px">${simple.name}</td>
+        <td width="50px">${simple.company}</td>
+        <td style="font-size:30px;">${simple.testItem}</td>
+        <td>${simple.unit}</td>
+        <td width="400px">${simple.testMethod}</td>
+        <td width="100px">${simple.tip}</td>
+      </tr>
+    `);
+
+    // 如果 done=1，给整行加个标记颜色；或者 ifF 包含 BF 时加红……
+    if (simple.done === 1) {
+      row.css('background-color', 'purple');
+    } else if ((simple.ifF||'').includes('BF')) {
+      row.css('background-color', 'red');
+    } else if (i % 2 === 0) {
+      row.css('background-color', '#b9d5b9');
+    }
+
+    // 绑定按钮点击事件
+    row.find(`#heapbt-${i}`).on('click', () => {
+      changeColor(`heapbt-${i}`);
+    });
+
+    tbody.append(row);
+  });
+}
+
+// 你的批次按钮点击之后：
+$('#batchPanel').on('click', '.batchBtn', function(){
+  const batch = $(this).data('batch');
+  $.getJSON('/simples', { batch }, function(data){
+    renderTable(data);
+  });
+});
+
+// 复用你原来的 changeColor 函数
+function changeColor(id) {
+  const btns = $('button[id^="heapbt-"]');
+  btns.each(function(idx, btn){
+    if (btn.id === id) {
+      $(`#trid-${idx}`).css('background-color', 'red');
+      return false;
+    }
+  });
+}
+    });
+  });
+});
+</script>
+
+
+<script src="script/plusSelect.js"></script>
+<script>
+	var btn = document.querySelectorAll("#heapbt");
+	var tr = document.querySelectorAll("#trid");
+	var doneLabel = document.querySelectorAll('#done');
+	var FLabel = document.querySelectorAll('#F');
+
+	 for(var i=0;i<btn.length;i++){
+		  var trid="tr"+i;
+		  var btid="bt"+i;
+		  btn[i].setAttribute('id',btid);  
+		 tr[i].setAttribute('id', trid); 
+		 
+		 if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+			    if(doneLabel[i].getAttribute('value')==="1"){
+					 tr[i].style.backgroundColor = "purple";
+				}else if(FLabel[i].getAttribute('value').includes("BF")){
+					tr[i].style.backgroundColor = "red";
+				}
+	  }
+	  
+	 
+	
+function changeColor(id) {
+	var button=document.querySelectorAll('button');
+	
+      var tr = document.querySelectorAll('tr');
+       var btid;
+       var trnum;
+      for(var i=0;i<=button.length;i++){
+		  btid= button[i].getAttribute('id');
+		  if(btid===id){
+			  trnum=i;
+			  break;
+		  }
+		
+		
+		 
+	  }
+	  var btn = document.getElementById(btid);
+	  var trid="tr"+trnum;
+	  var tr=document.getElementById(trid);
+	 
+	
+	tr.style.backgroundColor = "red";
+     
+      }
+</script>
+<script src="script/plusSelect.js?v1.0.2" ></script>
+<script>initDraggable('home','appselectLabel');</script>
+</body>
+</html>

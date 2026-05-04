@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>title</title>
+    <style>
+        .box{
+            width: 500px;
+            height: 100px;
+            background-color: aquamarine;
+            border-radius: 14px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,.3);
+ 
+          
+            position:relative;
+            
+        }
+        .boarder{
+			 width: 100px;
+            height: 100px;
+            background-color: rgb(255, 0, 0);
+            border-radius: 14px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,.3);
+            position:absolute;
+		}
+    </style>
+</head>
+<body>
+hello 第一个Thymeleaf程序
+
+<h2>JavaBean对象</h2>
+<table bgcolor="#ffe4c4" border="1">
+    <tr>
+		<td><a href="javascript:;"  οnclick="delRow(this)">删除</a></td>
+        <td>介绍</td>
+        <td th:text="${user.name}"></td>
+    </tr>
+    <tr>
+		<td><a href="javascript:;"  οnclick="delRow(this)">删除</a></td>
+        <td>年龄</td>
+        <td th:text="${user['age']}"></td>
+    </tr>
+    <tr>
+		<td><a href="javascript:;"  οnclick="delRow(this)">删除</a></td>
+        <td>介绍</td>
+        <td th:text="${user.getDetail()}"></td>
+    </tr>
+</table>
+	<script>
+function delRow(obj, removeRow) {
+		var tr = this.getRowObj(obj);
+		if (tr != null) {
+			tr.parentNode.removeChild(tr);
+			alert(removeRow + "----removeRow");
+			//$("#p_" + removeRow).show();
+			//$("#p1_" + removeRow).show();
+		} else {
+			throw new Error("the given object is not contained by the table");
+		}
+	}
+	function getRowObj(obj) {
+		var i = 0;
+		while (obj.tagName.toLowerCase() != "tr") {
+			obj = obj.parentNode;
+			if (obj.tagName.toLowerCase() == "table")
+				return null;
+		}
+		return obj;
+	}
+</script>
+<h2>List取值</h2>
+
+<div class="box" th:each="name:${userlist}">
+	<label  background-color="#ffe4c4" border="1" th:text="${name}"></label>
+</div>
+<div class="boarder"></div>
+
+
+       
+</body>
+</html>

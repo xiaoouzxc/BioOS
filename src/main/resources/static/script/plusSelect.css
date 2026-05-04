@@ -1,0 +1,105 @@
+@charset "UTF-8";
+#dolabel{
+	display: inline-block;
+	border:2px solid ;
+    width:80px;
+    height: 30px;
+    margin: 5px;
+}
+#donelabel{
+	display: inline-block;
+	border:2px solid ;
+    width:80px;
+    height: 30px;
+     margin: 5px;
+}
+#writeMPNlabel{
+	display: inline-block;
+	border:2px solid ;
+    width:80px;
+    height: 30px;
+    margin: 5px;
+}
+#tipLabelc{
+	display: inline-block;
+	border:2px solid ;
+    width:80px;
+    height:30px;
+    background-image: url(../image/dachu.png);
+    margin: 5px;
+}
+#tipLabelF{
+	display: inline-block;
+	border:2px solid ;
+    width:80px;
+    height:30px;
+    background-image: url(../image/dafu.png);
+    margin: 5px;
+}
+#manualPanel{
+		position:absolute;
+  left: 25%;
+  top:300px;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:30%;
+  height: 20%;
+  z-index: 99;
+  background-color: aqua;
+	}
+	
+	#l2{
+		position: absolute;
+		left: 20px;
+		top: 60px;
+	}
+	#l3{
+		position: absolute;
+		left: 20px;
+		top: 100px;
+	}
+	#l4{
+		position: absolute;
+		left: 20px;
+		top: 140px;
+	}
+	#input5{
+		position: absolute;
+		left:90%;
+		top: 140px;
+		border:2px solid ;
+		background-color: white;
+	}
+	#lclose{
+		position: absolute;
+		left:96%;
+		top: -2px;
+		
+	}
+#home{
+		
+		position:fixed;
+  left: 70%;
+  top:40%;
+ 
+  
+  width:80px;
+  height: 200px;
+  
+  background-color: rgb(255, 255, 255,0);
+	}
+	
+	#appselectLabel{
+		
+		position:relative;
+	left: 80px;
+  top:7%;	
+  width:70px;
+  height: 70px;
+		 
+	}
+	#selectapp{
+		 width:80px;
+      height: 200px;
+	}

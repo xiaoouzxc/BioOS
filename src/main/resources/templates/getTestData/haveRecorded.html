@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="script/recordSelectplus.css"/>
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+<style>
+	
+</style>
+</head>
+<body>
+	<div  id="home">
+		<img src="image/Buttonplus.png" id="appselectLabel"  ></img>
+		<div id="selectapp" style="grid-auto-flow: column;" hidden>
+		<label for="backTodata" id="backTodataLabel">返回记录页</label>
+		<button id="backTodata" onclick="window.location.href='/recording'" hidden></button>
+		<label for="backToHome" id="backToHomeLabel">返回主页</label>
+		<button id="backToHome" onclick="window.location.href='/'" hidden></button>
+		<div id="selectDatePanel" >
+		<form action="#" th:action="@{/recording}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" class="chuselectcss" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateList" id="questfromDatelabel"   >查询初测<input id="questfromDateList" type="submit"  hidden></label>
+		</form>
+	</div>
+	<div id="selectDatePanelF" >
+		<form action="#" th:action="@{/Frecording}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" class="fuselectcss" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateListforF" id="questfromDateFlabel" >查询复测</label><input id="questfromDateListforF" type="submit"  hidden></label>
+		</form>
+	</div>
+	<form action="#" th:action="@{/recordselData}" target="_blank" method="get" enctype="text/plain">	
+	<label for="selomenresult" id="selectSelresult" >可疑沙门结果</label><input id="selomenresult" type="submit"  hidden></label>
+	</form>
+	
+	<label for="manual" id="mbut">手动添加数据</label>
+	<button id="manual"  onclick="openmanualPanel()" hidden></button>
+	<label for="done" id="donelabel">查看已记结果</label>
+		<button id="done" onclick="window.location.href='/haverecorded'" hidden></button>
+		</div>
+	</div>
+	<div id="manualPanel" hidden>
+		<label for="close" id="lclose">X<button id="close" onclick="closemanualPanel()" hidden></button></label>
+	<form action="#" th:action="@{/manualAddData}" target="_blank" method="get" enctype="text/plain">					
+	<label for="input1" id="l1">样品短号<input id="input1" type="text" name="simpleNum"  /></label>
+	<label for="input2" id="l2">样品名称<input id="input2" type="text" name="simpleName" value="/"/></label>
+	<label for="input3" id="l3">检测项目<input id="input3" type="text" name="simpleItem" value="m"/></label>
+	<label for="input4" id="l4">检测方法<input id="input4" type="text" name="testMethord" value="/" /></label>
+	<label for="input5" id="l5" hidden>检测方法<input id="input5" type="text" name="table_name" th:value="${tablename}" hidden/></label>
+	<label for="addData" id="input5" >提交</label><input id="addData" type="submit"  hidden></label>	
+	</form>
+	</div>
+	<label id="con" name="table_name" th:text="${tablename}" th:value="${tablename}" ></label>
+<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>检测项目</td>
+		<td>检测方法</td>		
+		<td>结果</td>
+   </tr>
+	<tr id="tr"  th:each="simple:${simpleList}" onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)">
+		
+		
+		
+		<label id="fDatelabel" th:value="${simple.getIfF()}"></label>
+	
+	<td id="num" name="simpleNum" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td  th:text="${simple.getName()}" width="50px" ></td>
+	
+	<td id="name" name="simpleName" th:text="${simple.getTestItem()}" th:value="${simple.getTestItem()}" style="font-size: 30px;"></td>
+		
+	<td th:text="${simple.getTestMethod()}" width="400px"></td>	
+		
+		<td  width="100px"><label for="recorddata" ></label><input type="text" id="recorddata" name="data" th:value="${simple.getResult()}" onblur="todo(this.id)"/></td>	
+	</tr>
+	<button hidden></button>
+</table>
+
+<script>
+	
+	var recorddata = document.querySelectorAll('#recorddata');
+	var tdNum = document.querySelectorAll('#num');
+	var tdNam = document.querySelectorAll('#name');
+	var tr = document.querySelectorAll('#tr');
+	var flabeld=document.querySelectorAll('#fDatelabel');
+	
+   var recorddataid
+    var tdNumid
+    var tdNamid
+     var trid
+      var flabeldid
+     
+	 for(var i=0;i<recorddata.length;i++){
+		   recorddataid="record"+i;
+		   tdNumid="tdnum"+i;
+		   tdNamid="tdnam"+i;
+		    trid="trid"+i;
+		    flabeldid="flabeldid"+i;
+		 		 recorddata[i].setAttribute('id',recorddataid);
+			   tdNum[i].setAttribute('id',tdNumid); 
+			   tdNam[i].setAttribute('id',tdNamid);
+			    tr[i].setAttribute('id',trid);
+			    flabeld[i].setAttribute('id',flabeldid);
+			    if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+			  if(flabeld[i].getAttribute('value')==="BF"||flabeld[i].getAttribute('value')==="RBF"){
+			  tdNum[i].style.backgroundColor="red";
+		  }
+			  
+	  }
+	   
+	 function d1(id1,id2,id3){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+             "data":document.getElementById(id3).value,
+            "table_name":document.getElementById('con').getAttribute('value')
+            
+        }
+        $.ajax({
+            url:'/ajax/d',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	
+	 function todo(id){
+		 var index;
+		 var checkboxid
+		 for(var i=0;i<recorddata.length;i++){
+		 checkboxid= recorddata[i].getAttribute('id');
+		  if(checkboxid===id){
+			  index=i;			  
+			  break;
+		  }
+		 
+	  }
+
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;
+		
+		 var  recorddataid="record"+index;
+		  
+		 d1(tdNumid,tdNamid,recorddataid);
+		
+       
+    }
+  function focusSelect(id){
+			
+			var selectedtr=document.getElementById(id);
+			 selectedtr.style.backgroundColor = "#e3eee3";
+		}
+		function blurSelect(id){
+			var selectedtr=document.getElementById(id);
+			if(id.charAt(id.length-1)%2==0){
+				
+				selectedtr.style.backgroundColor = "#b9d5b9";
+			}else{
+				selectedtr.style.backgroundColor = "#8fbc8f";
+			}
+			 
+		}
+	 </script>
+	 <script src="script/plusSelect.js?v1.0.1" ></script>
+<script>initDraggable('home','appselectLabel');</script>
+</body>
+</html>

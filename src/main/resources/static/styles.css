@@ -1,0 +1,63 @@
+div.fileSelect{
+  position:relative;
+  /*margin-top: 10%;
+  margin-left: 34%;
+  margin-bottom: 10%;
+  margin-right: 10%;
+  border:2px solid rgb(255, 255, 255);
+  padding: 20px;
+  
+  width:1000px;*/
+  
+  
+}
+ input[type="file"]{
+  opacity: 0;
+} 
+/*#grid{
+	position:relative;
+	margin-top: 15%;
+	left: 25%;
+}*/
+#calenderImag{
+	position:relative;
+	left: 0%;
+}
+#saveDate{
+	position:relative;
+	left:8%
+}
+#questDate{
+	position:relative;
+	left:15%
+}
+#findF{
+position:relative;
+	left:25%	
+}
+
+
+
+#delLabel{
+	display: inline-block;
+	width: max-content;
+	height: 25px;
+	margin-left: 50%;
+  border:2px solid ;
+  background-color: red;
+}#fileUP{
+	display: block;
+	width: 60%;	
+	margin-top: 20px;
+	padding:10px;
+  border:2px solid ;
+  background-color: rgb(255, 255, 255);
+}
+#upLabel{	
+	display: block;
+	width: max-content;
+	margin-left: 80%;
+	padding: 5px;
+  border:2px solid ;
+  background-color: rgb(255, 255, 255);
+}

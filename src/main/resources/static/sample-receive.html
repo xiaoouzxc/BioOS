@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>样品接收 - 微生物做样系统</title>
+  <link rel="stylesheet" href="script/lab-admin.css" />
+  <script src="script/jQuery3.7.1.js"></script>
+</head>
+<body>
+  <div class="lab-shell">
+    <aside class="lab-sidebar" aria-label="主导航">
+      <a class="lab-brand" href="/" title="首页仪表盘">
+        <span class="lab-brand-mark">MB</span>
+        <span class="lab-brand-text">微生物</span>
+      </a>
+
+      <nav class="lab-nav">
+        <a class="lab-nav-item" href="/" title="首页仪表盘">
+          <span class="lab-nav-icon lab-icon-dashboard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>首页仪表盘</strong>
+            <small>系统动态概览</small>
+          </span>
+        </a>
+        <a class="lab-nav-item is-active" href="/sample-receive.html" title="样品接收">
+          <span class="lab-nav-icon lab-icon-receive" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品接收</strong>
+            <small>上传 Excel 清单</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/testing" title="样品处理">
+          <span class="lab-nav-icon lab-icon-process" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品处理</strong>
+            <small>做样与写管入口</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/recordingbeta" title="结果记录">
+          <span class="lab-nav-icon lab-icon-record" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>结果记录</strong>
+            <small>培养与判读记录</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/getTestDatabeta" title="样品查询">
+          <span class="lab-nav-icon lab-icon-query" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品查询</strong>
+            <small>历史数据检索</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/standard" title="标准方法管理">
+          <span class="lab-nav-icon lab-icon-standard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>标准方法管理</strong>
+            <small>项目与方法配置</small>
+          </span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="lab-main">
+      <header class="lab-topbar">
+        <div>
+          <strong>样品接收</strong>
+          <span>导入样品 Excel 清单并进入后续做样流程</span>
+        </div>
+        <div class="lab-user-area" data-auth-user>
+          <a class="lab-button" href="/">返回首页</a>
+        </div>
+      </header>
+
+      <section class="lab-page-header">
+        <div>
+          <h1>样品接收</h1>
+          <p>上传样品清单、打开接收日历或回滚最后一批导入记录。后端上传接口和字段保持不变。</p>
+        </div>
+      </section>
+
+      <section class="lab-content-grid">
+        <article class="lab-card lab-upload-card">
+          <div class="lab-card-header">
+            <div>
+              <p class="lab-card-kicker">Excel Import</p>
+              <h2>导入样品清单</h2>
+            </div>
+            <a class="lab-icon-button" href="/calendar.html" title="打开日历">
+              <img src="image/calendar.png" alt="" />
+            </a>
+          </div>
+
+          <form id="uploadfile" class="lab-upload-form">
+            <input type="text" name="temp" value="avatar" hidden />
+            <input id="file_upload" type="file" name="file" accept=".xlsx" />
+
+            <label class="lab-file-drop" for="file_upload">
+              <span class="lab-file-icon">XLSX</span>
+              <span class="lab-file-copy">
+                <strong>选择样品 Excel 文件</strong>
+                <span id="selectedFileName">未选择文件</span>
+              </span>
+            </label>
+
+            <div class="lab-button-row">
+              <button type="button" class="lab-button lab-button-primary" onclick="submitFormWithProgress()">
+                上传文件
+              </button>
+              <button type="button" class="lab-button lab-button-danger" onclick="deleteAlert()">
+                删除最后一批样品
+              </button>
+            </div>
+          </form>
+        </article>
+
+        <article class="lab-card lab-panel">
+          <div class="lab-panel-header">
+            <h2>接收后续操作</h2>
+          </div>
+          <div class="lab-receive-actions">
+            <a class="lab-action-card" href="/testing">
+              <span class="lab-action-icon"><img src="image/dosimple.png" alt="" /></span>
+              <span class="lab-action-text">
+                <strong>进入样品处理</strong>
+                <span>上传后进入待处理样品做样流程。</span>
+              </span>
+            </a>
+            <a class="lab-action-card" href="/check">
+              <span class="lab-action-icon"><img src="image/yizuo.png" alt="" /></span>
+              <span class="lab-action-text">
+                <strong>已处理样品</strong>
+                <span>查看已完成处理的样品。</span>
+              </span>
+            </a>
+            <a class="lab-action-card" href="/questMPN">
+              <span class="lab-action-icon"><img src="image/xieguan.png" alt="" /></span>
+              <span class="lab-action-text">
+                <strong>MPN 写管</strong>
+                <span>进入 MPN 写管相关操作。</span>
+              </span>
+            </a>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="lab-loader" id="loaderOverlay" aria-live="polite">
+    <div class="lab-loader-box">
+      <div class="lab-loader-top">
+        <strong>正在上传样品清单</strong>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="lab-progress">
+        <span id="barFill"></span>
+      </div>
+    </div>
+  </div>
+
+  <script src="script/lab-auth-nav.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const fileInput = document.getElementById("file_upload");
+      const fileNameDisplay = document.getElementById("selectedFileName");
+
+      fileInput.addEventListener("change", function (event) {
+        const selectedFile = event.target.files[0];
+        fileNameDisplay.textContent = selectedFile ? `已选择：${selectedFile.name}` : "未选择文件";
+      });
+
+      fileInput.addEventListener("click", function () {
+        fileInput.value = "";
+        fileNameDisplay.textContent = "未选择文件";
+      });
+    });
+
+    function deleteAlert() {
+      const confirmed = confirm("将删除最后一批添加的样品，确定吗？");
+      if (!confirmed) return;
+
+      $.ajax({
+        url: "/delete",
+        success: function () {
+          alert("已删除");
+        },
+        error: function () {
+          alert("删除请求异常");
+        }
+      });
+    }
+
+    function submitFormWithProgress() {
+      const form = document.getElementById("uploadfile");
+      const fileInput = document.getElementById("file_upload");
+      const selectedFile = fileInput.files[0];
+
+      if (!selectedFile) {
+        alert("请先选择一个 .xlsx 文件");
+        return;
+      }
+
+      const formData = new FormData(form);
+      const overlay = document.getElementById("loaderOverlay");
+      const progressText = document.getElementById("progressText");
+      const barFill = document.getElementById("barFill");
+
+      overlay.style.display = "grid";
+      progressText.textContent = "0%";
+      barFill.style.width = "0%";
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", "/upload/file", true);
+
+      xhr.upload.onprogress = function (event) {
+        if (!event.lengthComputable) return;
+        const percent = Math.round((event.loaded / event.total) * 100);
+        progressText.textContent = `${percent}%`;
+        barFill.style.width = `${percent}%`;
+      };
+
+      xhr.onload = function () {
+        if (xhr.status === 200) {
+          progressText.textContent = "100%";
+          barFill.style.width = "100%";
+          setTimeout(function () {
+            overlay.style.display = "none";
+          }, 500);
+        } else {
+          overlay.style.display = "none";
+          alert("上传失败");
+        }
+      };
+
+      xhr.onerror = function () {
+        overlay.style.display = "none";
+        alert("上传出错");
+      };
+
+      xhr.send(formData);
+    }
+  </script>
+</body>
+</html>

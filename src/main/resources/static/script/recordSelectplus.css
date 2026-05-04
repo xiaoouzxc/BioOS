@@ -1,0 +1,186 @@
+@charset "UTF-8";
+#home{
+		
+		position:fixed;
+		z-index: 999;
+  left: 80%;
+  top:40%;
+ 
+  
+  width:80px;
+  height: 200px;
+  
+  background-color: rgb(255, 255, 255,0);
+	}
+	
+	#appselectLabel{
+		
+		position:relative;
+	left: 80px;
+  top:7%;	
+  width:70px;
+  height: 70px;
+		 
+	}
+	#selectapp{
+		 width:80px;
+      height: 200px;
+	}
+	#backTodataLabel{
+		display: inline-block;
+		border:2px solid ;
+    width:80px;
+    height: 30px;
+     margin: 5px;
+		 background-color: rgb(255, 128, 0);
+	}
+	#backToHomeLabel{
+		display: inline-block;
+		border:2px solid ;
+    width:80px;
+    height: 30px;
+     margin: 5px;
+		 background-color: rgb(255, 128, 0);
+	}
+	#selectSelresult{
+		display: inline-block;
+		border:2px solid ;
+    width:100px;
+    height: 30px;
+     margin: 5px;
+        background-color:  rgb(0, 255, 0);
+	}
+	#donelabel{
+		display: inline-block;
+		border:2px solid ;
+    width:100px;
+    height: 30px;
+     margin: 5px;
+        background-color:  rgb(166, 198, 57);
+	}
+	#mbut{
+	display: inline-block;
+		border:2px solid ;
+    width:100px;
+    height: 30px;
+     margin: 5px;
+    background-color: aqua;	
+	}	
+	#questfromDatelabel,#questfromDateFlabel,#questfromDateSellabel,#questfromrecordedlabel{
+		display: inline-block;		 
+		background-color: aliceblue;
+		border:2px solid ;
+       
+	}
+	#selectDatePanel{
+		display: inline-block;  
+  border:none ;
+  width:200px;
+    height: 30px;
+     margin: 10px;
+      
+  z-index: 99;
+  background-color:none;
+	}
+	
+	.chuselectcss{
+		border:2px solid #bdb2b2;
+		border-radius:10px;
+		outline:none;
+		width: 100px;
+		height:40px;
+		line-height: 20px;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		padding-left:20px;
+		background: turquoise;
+	}
+	#selectDatePanelF{
+		display: inline-block;
+  
+  border:none ;
+  width:200px;
+    height: 30px;
+     margin: 10px;
+    
+  
+  background-color:none;
+	}
+	.fuselectcss{
+		border:2px solid #bdb2b2;
+		border-radius:10px;
+		outline:none;
+		width: 100px;
+		height:40px;
+		line-height: 20px;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		padding-left:20px;
+		background: rgb(255, 255, 255);
+	}
+	#selectDatePanelRecorded{
+		display: inline-block;  
+  border:none ;
+  width:200px;
+    height: 30px;
+     margin: 10px;
+      
+  z-index: 99;
+  background-color:none;
+	}
+	.recordedselectcss{
+		border:2px solid #bdb2b2;
+		border-radius:10px;
+		outline:none;
+		width: 100px;
+		height:40px;
+		line-height: 20px;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		padding-left:20px;
+		background: rgb(255, 255, 0);
+	}
+	
+	#manualPanel{
+		position:absolute;
+  left: 25%;
+  top:20%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:500px;
+  height: 200px;
+  z-index: 99;
+  background-color: aqua;
+	}
+	#l2{
+		position: absolute;
+		left: 20px;
+		top: 60px;
+	}
+	#l3{
+		position: absolute;
+		left: 20px;
+		top: 100px;
+	}
+	#l4{
+		position: absolute;
+		left: 20px;
+		top: 140px;
+	}
+	#input5{
+		position: absolute;
+		left:90%;
+		top: 140px;
+		border:2px solid ;
+		background-color: white;
+	}
+	#lclose{
+		position: absolute;
+		left:96%;
+		top: -2px;
+		
+	}

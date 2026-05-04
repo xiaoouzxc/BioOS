@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+<style>
+	#dolabel{
+		
+		display: inline-block;	
+			 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(0, 255, 0);
+	}
+	#write{
+		
+		display: inline-block;	
+			 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(255, 128, 64);
+	}
+	#writeF{
+		
+		display: inline-block;	
+		 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(0, 255, 255);
+	}
+</style>
+</head>
+<body>		
+		<label for="getFdata" id="dolabel">复测数据</label>
+		<button id="getFdata" onclick="window.location.href='/getselomenFData'" hidden></button>
+		<label for="writedata" id="write">导出沙门数据</label>
+		<button id="writedata" onclick="window.location.href='/writeselomenData'" hidden></button>
+		<label for="writeFdata" id="writeF">导出复测沙门数据</label>
+		<button id="writeFdata" onclick="window.location.href='/writeselomenFData'" hidden></button>
+	<label id="con" name="table_name" th:text="${tablename}" th:value="${tablename}" hidden></label>
+<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>报告抬头</td>						
+		<td>日期</td>
+		<td>过程1</td>
+		<td>过程2</td>
+		<td>过程3</td>
+		<td>结果</td>
+		<td>复测</td>
+   </tr>
+	<tr id="trid" th:each="simple:${simpleList}" onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)">
+		
+		
+		
+		
+	
+	<td id="num" name="simpleNum" th:data-id="${simple.getId()}" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td  th:text="${simple.getName()}" width="50px" ></td>
+	<td  th:text="${simple.getCompany()}" width="50px" ></td>
+	<td  th:text="${simple.getDate()}" style="font-size: 30px;"></td>
+		<label id="selomenResult" th:value="${simple.getSelomenResult()}" hidden></label>
+	<td id="prosess1Display" width="100px">
+		DHL:<label id="letter1" style="color: rgb(255, 0, 0)"></label>
+		XLD:<label id="letter2" style="color: rgb(255, 128, 64)"></label>
+	</td>
+	<td id="prosess2Display" width="200px">
+		TSI:<label id="letter3" style="color: rgb(255, 255, 0)"></label>
+		BUN:<label id="letter4" style="color: rgb(0, 255, 0)"></label>
+		O:<label id="letter5" style="color: rgb(0, 128, 255); font-size: xx-large;"></label>
+		H:<label id="letter6" style="color: rgb(0, 255, 255); font-size: xx-large;"></label>
+	</td>
+	<td id="prosess3Display" width="400px">		
+		LYS:<label id="letter7" style="color: rgb(255, 128, 255); font-size: xx-large;"></label>		
+		KCN:<label id="letter8" style="color: rgb(128, 128, 0); font-size: xx-large;"></label>
+		靛基质:<label id="letter9" style="color: rgb(255, 128, 128); font-size: xx-large;"></label>
+		BUN:<label id="letter10" style="color: rgb(128, 0, 0); font-size: xx-large;"></label>
+		甘露醇:<label id="letter11" style="color: rgb(0, 0, 0); font-size: xx-large;"></label>
+		山梨醇:<label id="letter12" style="color: rgb(255, 128, 0); font-size: xx-large;"></label>
+		ONPG:<label id="letter13" style="color: rgb(128, 128, 255); font-size: xx-large;"></label>
+	</td>	
+	<td id="result">
+		<label id="letter14" style=" font-size: xx-large;"></label>
+	</td>
+		<td   width="120px">是否复测:<input id="check" type="checkbox" name="fsimple" th:value="${simple.getIfF()}" onchange="todo(this.id)" /> 
+		<label id="fDatelabel" th:text="${simple.getIfF()}"></label>
+		</td>	
+		
+	</tr>
+	<button hidden></button>
+</table>
+<script th:inline="javascript">
+	var tr = document.querySelectorAll('#trid');
+	var checkbox = document.querySelectorAll('#check');
+	var tdNum = document.querySelectorAll('#num');	
+	var selomenResult=document.querySelectorAll('#selomenResult');	
+	var fDatelabel = document.querySelectorAll('#fDatelabel');
+	var letter1 = document.querySelectorAll('#letter1');
+	var letter2 = document.querySelectorAll('#letter2');
+	var letter3 = document.querySelectorAll('#letter3');
+	var letter4 = document.querySelectorAll('#letter4');
+	var letter5 = document.querySelectorAll('#letter5');
+	var letter6 = document.querySelectorAll('#letter6');	
+	var letter7 = document.querySelectorAll('#letter7');	
+	var letter8 = document.querySelectorAll('#letter8');
+	var letter9 = document.querySelectorAll('#letter9');
+	var letter10 = document.querySelectorAll('#letter10');
+	var letter11 = document.querySelectorAll('#letter11');
+	var letter12 = document.querySelectorAll('#letter12');
+	var letter13 = document.querySelectorAll('#letter13');
+	var letter14 = document.querySelectorAll('#letter14');
+	
+	 var trid;
+	 var checkboxid
+	 var tdNumid
+	 var selomenResultid
+	 var fDatelabelid
+	 
+
+	 for(var i=0;i<checkbox.length;i++){
+		  trid="tr"+i;
+		  checkboxid="check"+i;
+		  tdNumid="tdnum"+i;		 
+		  selomenResultid="selomenResult"+i;
+		  fDatelabelid="fDatelabel"+i;
+		   tr[i].setAttribute('id',trid);
+		     if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+		    letter1[i].innerHTML=DHLresultExchange(selomenResult[i].getAttribute('value').charAt(0));
+		    letter2[i].innerHTML=XLDresultExchange(selomenResult[i].getAttribute('value').charAt(1));
+		    letter3[i].innerHTML=TSIresultExchange(selomenResult[i].getAttribute('value').charAt(2));
+		    letter4[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(3));
+		    letter5[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(4));
+		    letter6[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(5));
+		    letter7[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(6));		    
+		    letter8[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(7));		    
+		    letter9[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(8));
+		    letter10[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(9));
+		    letter11[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(10));
+		    letter12[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(11));
+		    letter13[i].innerHTML=plusExchange(selomenResult[i].getAttribute('value').charAt(12));
+		    var resultLetter=selomenResult[i].getAttribute('value').charAt(13);
+		    if(resultLetter=="r"){
+				letter14[i].innerHTML=resultExchangeRIGHT(resultLetter);
+				letter14[i].style.color="red";
+			}else if(resultLetter=="e"){
+				letter14[i].innerHTML=resultExchangeError(resultLetter);
+				letter14[i].style.color="green";
+			}else if(resultLetter=="l"){
+				letter14[i].innerHTML=resultExchangeNonesimple(resultLetter);
+				letter14[i].style.color="yellow";
+			}else{
+				letter14[i].innerHTML="";
+			}
+		   
+		  		/*ResultDisplay[i].innerHTML="DHL:"+DHLresultExchange(selomenResult[i].getAttribute('value').charAt(0))+"      /     "+
+		  		"XLD:"+XLDresultExchange(selomenResult[i].getAttribute('value').charAt(1))+"           "+
+		  		"TSI:"+TSIresultExchange(selomenResult[i].getAttribute('value').charAt(2))+"           "+
+		  		"BUN:"+selomenResult[i].getAttribute('value').charAt(3)+"           "+
+		  		"O:"+selomenResult[i].getAttribute('value').charAt(4)+"           "+
+		  		"H:"+selomenResult[i].getAttribute('value').charAt(5)+"           "+
+		  		"T-LYS:"+selomenResult[i].getAttribute('value').charAt(6)+"           "+
+		  		"LYS:"+selomenResult[i].getAttribute('value').charAt(7)+"           "+
+		  		"T-KCN:"+selomenResult[i].getAttribute('value').charAt(8)+"           "+
+		  		"KCN:"+selomenResult[i].getAttribute('value').charAt(9)+"           "+
+		  		"靛基质:"+selomenResult[i].getAttribute('value').charAt(10)+"           "+
+		  		"BUN:"+selomenResult[i].getAttribute('value').charAt(11)+"           "+
+		  		"甘露醇:"+selomenResult[i].getAttribute('value').charAt(12)+"           "+
+		  		"山梨醇:"+selomenResult[i].getAttribute('value').charAt(13)+"           "+
+		  		"ONPG:"+selomenResult[i].getAttribute('value').charAt(14);
+		  		prosess1Display[i].innerHTML="DHL:"+DHLresultExchange(selomenResult[i].getAttribute('value').charAt(0))+"           "+
+		  		"XLD:"+XLDresultExchange(selomenResult[i].getAttribute('value').charAt(1));
+		  		prosess2Display[i].innerHTML="TSI:"+TSIresultExchange(selomenResult[i].getAttribute('value').charAt(2))+"           "+
+		  		"BUN:"+selomenResult[i].getAttribute('value').charAt(3)+"           "+
+		  		"O:"+selomenResult[i].getAttribute('value').charAt(4)+"           "+
+		  		"H:"+selomenResult[i].getAttribute('value').charAt(5);
+		  		prosess3Display[i].innerHTML="T-LYS:"+selomenResult[i].getAttribute('value').charAt(6)+"           "+
+		  		"LYS:"+selomenResult[i].getAttribute('value').charAt(7)+"           "+
+		  		"T-KCN:"+selomenResult[i].getAttribute('value').charAt(8)+"           "+
+		  		"KCN:"+selomenResult[i].getAttribute('value').charAt(9)+"           "+
+		  		"靛基质:"+selomenResult[i].getAttribute('value').charAt(10)+"           "+
+		  		"BUN:"+selomenResult[i].getAttribute('value').charAt(11)+"           "+
+		  		"甘露醇:"+selomenResult[i].getAttribute('value').charAt(12)+"           "+
+		  		"山梨醇:"+selomenResult[i].getAttribute('value').charAt(13)+"           "+
+		  		"ONPG:"+selomenResult[i].getAttribute('value').charAt(14);*/
+		  checkbox[i].setAttribute('id',checkboxid);
+		  if(checkbox[i].getAttribute('value').charAt(0)==="F"){
+			  tdNum[i].style.backgroundColor="blue";
+			  checkbox[i].checked=true;
+		  }
+		   if(checkbox[i].getAttribute('value')==="BF"||checkbox[i].getAttribute('value')==="RBF"){
+			  tdNum[i].style.backgroundColor="red";
+		  }
+			   tdNum[i].setAttribute('id',tdNumid); 			  
+			   fDatelabel[i].setAttribute('id',fDatelabelid)
+	  }
+	   
+	 function b1(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "id":document.getElementById(id1).getAttribute('data-id'),
+            "table_name":document.getElementById('con').getAttribute('value')
+            
+        }
+        $.ajax({
+            url:'/ajax/b1',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	
+	 function todo(id){
+		 for(var i=0;i<checkbox.length;i++){
+		 var checkboxid= checkbox[i].getAttribute('id');
+		  if(checkboxid===id){
+			  trnum=i;			  
+			  break;
+		  }
+		 
+	  }
+
+		var tdNumid="tdnum"+trnum;
+		var tdNamid="tdnam"+trnum;
+		var fDatelabelid="fDatelabel"+trnum;
+		
+		  
+		 b1(tdNumid,tdNamid);
+       
+    }
+     function DHLresultExchange(char){
+		 if(char=="a"){
+			 return "RV,SC";
+		 }else if(char=="b"){
+			 return "RV";
+		 }else if(char=="c"){
+			 return "SC";
+		 }
+		 return " ";
+	 }
+	 function XLDresultExchange(char){
+		 if(char=="a"){
+			 return "RV,SC";
+		 }else if(char=="b"){
+			 return "RV";
+		 }else if(char==="c"){
+			 return "SC";
+		 }
+		 return " ";
+	 }
+	 function TSIresultExchange(char){
+		 if(char=="a"){
+			 return "K,A,H2S,GAS";
+		 }else if(char=="b"){
+			 return "K,H2S,GAS";
+		 }else if(char=="c"){
+			 return "A,H2S,GAS";
+		 }
+		 return " ";
+	 }
+	 function resultExchangeRIGHT(char){
+		 if(char=="r"){
+			 return "检出";
+		 }
+		 return " ";
+	 }
+	  function resultExchangeError(char){
+		 if(char=="e"){
+			 return "排除";
+		 }
+		 return " ";
+	 }
+	  function resultExchangeNonesimple(char){
+		 if(char=="l"){
+			 return "没样";
+		 }
+		 return " ";
+	 }
+	  function plusExchange(char){
+		 if(char=="+"){
+			 return "+";
+		 }else if(char=="-"){
+			 return "-";
+		 }
+		 return " ";
+	 }
+	  function focusSelect(id){
+			
+			var selectedtr=document.getElementById(id);
+			 selectedtr.style.backgroundColor = "#e3eee3";
+		}
+		function blurSelect(id){
+			var selectedtr=document.getElementById(id);
+			if(id.charAt(id.length-1)%2==0){
+				
+				selectedtr.style.backgroundColor = "#b9d5b9";
+			}else{
+				selectedtr.style.backgroundColor = "#8fbc8f";
+			}
+			 
+		}
+	 </script>
+</body>
+</html>

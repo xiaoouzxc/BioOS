@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>实验室温湿度日历</title>
+
+<style>
+  :root {
+    --bg: #eef6f8;
+    --card: rgba(255,255,255,0.86);
+    --line: #c9dde3;
+    --text: #15343d;
+    --muted: #6b8790;
+    --primary: #1687a7;
+    --primary-dark: #0f637c;
+    --green: #2f9e75;
+    --warning: #d98c00;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Microsoft YaHei", Arial, sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(22,135,167,0.18), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(47,158,117,0.16), transparent 35%),
+    linear-gradient(135deg, #eef8fb, #f7fbfc);
+  color: var(--text);
+  padding: 12px;
+}
+
+  .lab-calendar-shell {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .lab-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+    padding: 18px 20px;
+    border: 1px solid rgba(201,221,227,0.9);
+    border-radius: 22px;
+    background: var(--card);
+    box-shadow: 0 14px 40px rgba(13, 65, 80, 0.12);
+    backdrop-filter: blur(10px);
+  }
+
+  .lab-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .lab-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #1687a7, #2f9e75);
+    color: white;
+    display: grid;
+    place-items: center;
+    font-size: 25px;
+    box-shadow: 0 10px 20px rgba(22,135,167,0.28);
+  }
+
+  .lab-title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 1px;
+  }
+
+  .lab-subtitle {
+    margin-top: 4px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .month-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .month-label {
+    min-width: 150px;
+    text-align: center;
+    font-size: 19px;
+    font-weight: 800;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: #f2fbfd;
+    border: 1px solid #cfe5eb;
+  }
+
+  .lab-btn {
+    border: 0;
+    cursor: pointer;
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-weight: 700;
+    color: white;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    box-shadow: 0 8px 18px rgba(22,135,167,0.24);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+
+  .lab-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(22,135,167,0.32);
+  }
+
+  .calendar-card {
+    overflow: hidden;
+    border-radius: 24px;
+    border: 1px solid rgba(201,221,227,0.9);
+    background: rgba(255,255,255,0.92);
+    box-shadow: 0 18px 45px rgba(13,65,80,0.12);
+  }
+
+  .calendar {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+  }
+
+  .calendar th {
+    background: linear-gradient(180deg, #e7f6fa, #d8eef4);
+    color: #0f637c;
+    padding: 13px 8px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .calendar td {
+    position: relative;
+    height: 138px;
+    vertical-align: top;
+    padding: 10px;
+    border-right: 1px solid #e1edf1;
+    border-bottom: 1px solid #e1edf1;
+    background: rgba(255,255,255,0.78);
+    transition: background .18s ease, transform .18s ease;
+  }
+
+  .calendar td:hover {
+    background: #f1fbfd;
+    transform: scale(1.015);
+    z-index: 2;
+    box-shadow: inset 0 0 0 2px rgba(22,135,167,0.18);
+  }
+
+  .calendar tr td:last-child {
+    border-right: none;
+  }
+
+  .date {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 30px;
+    border-radius: 12px;
+    background: #e6f5f8;
+    color: #0f637c;
+    font-weight: 800;
+    margin-bottom: 8px;
+  }
+
+  .today .date {
+    color: white;
+    background: linear-gradient(135deg, #1687a7, #2f9e75);
+    box-shadow: 0 8px 18px rgba(22,135,167,0.25);
+  }
+
+  .lab-data {
+    display: grid;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .lab-chip {
+    padding: 6px 7px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.35;
+    border: 1px solid #d7e8ed;
+    background: #f8fcfd;
+  }
+
+  .lab-chip strong {
+    color: var(--primary-dark);
+  }
+
+  .memo-preview {
+    margin-top: 8px;
+    padding: 6px 7px;
+    border-radius: 10px;
+    background: #fff8e6;
+    color: #7a5300;
+    border: 1px dashed #e5bd55;
+    font-size: 12px;
+    max-height: 38px;
+    overflow: hidden;
+  }
+
+  .memo-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--warning);
+    box-shadow: 0 0 0 4px rgba(217,140,0,0.15);
+  }
+
+  .empty-cell {
+    background: rgba(244,249,250,0.65) !important;
+  }
+
+  .memo-modal-wrap {
+    position: fixed;
+    inset: 0;
+    display: none;
+    place-items: center;
+    z-index: 1000;
+  }
+
+  .memo-modal-wrap.is-open {
+    display: grid;
+  }
+
+  .memo-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(8,37,46,0.45);
+    backdrop-filter: blur(4px);
+  }
+
+  .memo-modal {
+    position: relative;
+    width: min(520px, calc(100vw - 32px));
+    border-radius: 24px;
+    background: #fafdfe;
+    border: 1px solid #cde3e9;
+    box-shadow: 0 24px 70px rgba(0,0,0,0.25);
+    padding: 20px;
+    animation: pop .18s ease;
+  }
+
+  @keyframes pop {
+    from { transform: translateY(14px) scale(.97); opacity: 0; }
+    to { transform: translateY(0) scale(1); opacity: 1; }
+  }
+
+  .memo-modal h3 {
+    margin: 0 0 8px;
+    color: #0f637c;
+  }
+
+  .memo-modal p {
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .memo-textarea {
+    width: 100%;
+    min-height: 150px;
+    resize: vertical;
+    border-radius: 16px;
+    border: 1px solid #c9dde3;
+    padding: 12px;
+    font-size: 14px;
+    outline: none;
+    background: white;
+  }
+
+  .memo-textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(22,135,167,0.12);
+  }
+
+  .memo-actions {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .lab-btn.secondary {
+    color: #0f637c;
+    background: #e8f5f8;
+    box-shadow: none;
+  }
+
+  .lab-btn.danger {
+    background: linear-gradient(135deg, #d95d39, #b63b24);
+  }
+
+  @media (max-width: 820px) {
+    body {
+      padding: 10px;
+    }
+
+    .lab-header {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .month-control {
+      justify-content: space-between;
+    }
+
+    .calendar-card {
+      overflow-x: auto;
+    }
+
+    .calendar {
+      min-width: 850px;
+    }
+  }
+</style>
+</head>
+
+<body>
+<div class="lab-calendar-shell">
+  <div class="lab-header">
+    <div class="lab-title-wrap">
+      <div class="lab-icon">🧪</div>
+      <div>
+        <div class="lab-title">实验室温湿度日历</div>
+        <div class="lab-subtitle">Lab 1 / Lab 2 温湿度记录 · 点击日期可添加备忘录</div>
+      </div>
+    </div>
+
+    <div class="month-control">
+      <button id="prev-month" class="lab-btn">上一个月</button>
+      <div id="displayYearandMonth" class="month-label"></div>
+      <button id="next-month" class="lab-btn">下一个月</button>
+    </div>
+  </div>
+
+  <div class="calendar-card">
+    <table id="calendar" class="calendar">
+      <thead>
+        <tr>
+          <th>Sun<br>周日</th>
+          <th>Mon<br>周一</th>
+          <th>Tue<br>周二</th>
+          <th>Wed<br>周三</th>
+          <th>Thu<br>周四</th>
+          <th>Fri<br>周五</th>
+          <th>Sat<br>周六</th>
+        </tr>
+      </thead>
+      <tbody id="calendar-body"></tbody>
+    </table>
+  </div>
+</div>
+
+<div id="memoModal" class="memo-modal-wrap">
+  <div class="memo-backdrop"></div>
+  <div class="memo-modal">
+    <h3 id="memoTitle">日期备忘录</h3>
+    <p>记录实验室事件、异常温湿度、设备维护或当天备注。</p>
+    <textarea id="memoText" class="memo-textarea" placeholder="例如：上午进行设备校准；Lab 1 湿度略高；下午完成样品复测。"></textarea>
+    <div class="memo-actions">
+      <button id="memoDelete" class="lab-btn danger">删除</button>
+      <button id="memoCancel" class="lab-btn secondary">取消</button>
+      <button id="memoSave" class="lab-btn">保存</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* 这里放你的原始数组。前 5 个月会优先使用原始数据。 */
+var temperature1 = window.temperature1 || [];
+var humidity1 = window.humidity1 || [];
+var temperature2 = window.temperature2 || [];
+var humidity2 = window.humidity2 || [];
+
+/* 如果你已经在原页面里有完整数组，建议把上面四行替换成你原来的四个数组。 */
+
+document.addEventListener("DOMContentLoaded", function () {
+  var tableBody = document.querySelector("#calendar-body");
+  var prevMonthBtn = document.querySelector("#prev-month");
+  var nextMonthBtn = document.querySelector("#next-month");
+  var yearMonthEl = document.querySelector("#displayYearandMonth");
+
+  var memoModal = document.querySelector("#memoModal");
+  var memoTitle = document.querySelector("#memoTitle");
+  var memoText = document.querySelector("#memoText");
+  var memoSave = document.querySelector("#memoSave");
+  var memoCancel = document.querySelector("#memoCancel");
+  var memoDelete = document.querySelector("#memoDelete");
+  var memoBackdrop = document.querySelector(".memo-backdrop");
+
+  var now = new Date();
+  var currentYear = now.getFullYear();
+  var currentMonth = now.getMonth();
+  var activeMemoKey = "";
+
+  function getDaysInMonth(year, month) {
+    return new Date(year, month + 1, 0).getDate();
+  }
+
+  function seededRandom(seed) {
+    var x = Math.sin(seed) * 10000;
+    return x - Math.floor(x);
+  }
+
+  function getYearSeed(year, lab, type, month, day) {
+    return year * 100000 + lab * 10000 + type * 1000 + month * 40 + day;
+  }
+
+  function randomTemp(year, lab, month, day) {
+    var r = seededRandom(getYearSeed(year, lab, 1, month, day));
+    return (20 + r * 4).toFixed(1);
+  }
+
+  function randomHumidity(year, lab, month, day) {
+    var r = seededRandom(getYearSeed(year, lab, 2, month, day));
+    return Math.round(45 + r * 10);
+  }
+
+  function getValue(data, year, month, day, lab, type) {
+    var index = day - 1;
+
+    /*
+      你的要求：
+      今年前五个月保持原数据。
+      这里 month 是 0-11，所以 month < 5 表示 1-5 月。
+    */
+    if (
+      year === now.getFullYear() &&
+      month < 5 &&
+      data &&
+      data[month] &&
+      data[month][index] !== undefined
+    ) {
+      return data[month][index];
+    }
+
+    if (type === "temp") {
+      return randomTemp(year, lab, month + 1, day);
+    }
+
+    return randomHumidity(year, lab, month + 1, day);
+  }
+
+  function setCookie(name, value, days) {
+    var expires = "";
+    if (days) {
+      var date = new Date();
+      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      expires = "; expires=" + date.toUTCString();
+    }
+    document.cookie = name + "=" + encodeURIComponent(value || "") + expires + "; path=/";
+  }
+
+  function getCookie(name) {
+    var target = name + "=";
+    var parts = document.cookie.split(";");
+    for (var i = 0; i < parts.length; i++) {
+      var c = parts[i].trim();
+      if (c.indexOf(target) === 0) {
+        return decodeURIComponent(c.substring(target.length));
+      }
+    }
+    return "";
+  }
+
+  function deleteCookie(name) {
+    document.cookie = name + "=; Max-Age=0; path=/";
+  }
+
+  function memoKey(year, month, day) {
+    return "labMemo_" + year + "_" + String(month + 1).padStart(2, "0") + "_" + String(day).padStart(2, "0");
+  }
+
+  function getMemo(year, month, day) {
+    return getCookie(memoKey(year, month, day));
+  }
+
+  function updateMonthLabel() {
+    yearMonthEl.textContent = currentYear + " 年 " + (currentMonth + 1) + " 月";
+  }
+
+  function openMemo(year, month, day) {
+    activeMemoKey = memoKey(year, month, day);
+    memoTitle.textContent = year + " 年 " + (month + 1) + " 月 " + day + " 日备忘录";
+    memoText.value = getCookie(activeMemoKey);
+    memoModal.classList.add("is-open");
+    setTimeout(function () {
+      memoText.focus();
+    }, 50);
+  }
+
+  function closeMemo() {
+    memoModal.classList.remove("is-open");
+    activeMemoKey = "";
+  }
+
+  function buildCalendar(year, month) {
+    tableBody.innerHTML = "";
+    updateMonthLabel();
+
+    var firstDay = new Date(year, month, 1);
+    var daysInMonth = getDaysInMonth(year, month);
+    var dayIndex = 0;
+
+    for (var i = 0; i < 6; i++) {
+      var row = document.createElement("tr");
+
+      for (var j = 0; j < 7; j++) {
+        var cell = document.createElement("td");
+
+        if (i === 0 && j < firstDay.getDay()) {
+          cell.className = "empty-cell";
+        } else if (dayIndex < daysInMonth) {
+          dayIndex++;
+
+          var thisDay = dayIndex;
+          var isToday =
+            year === now.getFullYear() &&
+            month === now.getMonth() &&
+            thisDay === now.getDate();
+
+          if (isToday) {
+            cell.classList.add("today");
+          }
+
+          var memo = getMemo(year, month, thisDay);
+
+          var dateDiv = document.createElement("div");
+          dateDiv.className = "date";
+          dateDiv.textContent = thisDay;
+          cell.appendChild(dateDiv);
+
+          var labData = document.createElement("div");
+          labData.className = "lab-data";
+
+          var lab1 = document.createElement("div");
+          lab1.className = "lab-chip";
+          lab1.innerHTML =
+            "<strong>Lab 1</strong>　" +
+            getValue(temperature1, year, month, thisDay, 1, "temp") +
+            "°C　" +
+            getValue(humidity1, year, month, thisDay, 1, "humidity") +
+            "%";
+
+          var lab2 = document.createElement("div");
+          lab2.className = "lab-chip";
+          lab2.innerHTML =
+            "<strong>Lab 2</strong>　" +
+            getValue(temperature2, year, month, thisDay, 2, "temp") +
+            "°C　" +
+            getValue(humidity2, year, month, thisDay, 2, "humidity") +
+            "%";
+
+          labData.appendChild(lab1);
+          labData.appendChild(lab2);
+          cell.appendChild(labData);
+
+          if (memo) {
+            var dot = document.createElement("span");
+            dot.className = "memo-dot";
+            cell.appendChild(dot);
+
+            var preview = document.createElement("div");
+            preview.className = "memo-preview";
+            preview.textContent = "📝 " + memo;
+            cell.appendChild(preview);
+          }
+
+          cell.addEventListener("click", (function (y, m, d) {
+            return function () {
+              openMemo(y, m, d);
+            };
+          })(year, month, thisDay));
+        } else {
+          cell.className = "empty-cell";
+        }
+
+        row.appendChild(cell);
+      }
+
+      tableBody.appendChild(row);
+    }
+  }
+
+  prevMonthBtn.addEventListener("click", function () {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    buildCalendar(currentYear, currentMonth);
+  });
+
+  nextMonthBtn.addEventListener("click", function () {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    buildCalendar(currentYear, currentMonth);
+  });
+
+  memoSave.addEventListener("click", function () {
+    if (!activeMemoKey) return;
+    setCookie(activeMemoKey, memoText.value.trim(), 365);
+    closeMemo();
+    buildCalendar(currentYear, currentMonth);
+  });
+
+  memoDelete.addEventListener("click", function () {
+    if (!activeMemoKey) return;
+    deleteCookie(activeMemoKey);
+    closeMemo();
+    buildCalendar(currentYear, currentMonth);
+  });
+
+  memoCancel.addEventListener("click", closeMemo);
+  memoBackdrop.addEventListener("click", closeMemo);
+
+  buildCalendar(currentYear, currentMonth);
+});
+</script>
+</body>
+</html>

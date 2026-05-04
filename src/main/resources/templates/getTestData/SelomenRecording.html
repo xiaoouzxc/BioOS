@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+<style>
+	
+</style>
+</head>
+<body>
+	
+	
+	<label id="con" name="table_name" th:text="${tablename}" th:value="${tablename}" ></label>
+	<form action="#" th:action="@{/recordingSelomen}"  method="get" enctype="text/plain">
+		<select name="date" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateListforSel" id="questfromDateSellabel"  >查询沙门</label><input id="questfromDateListforSel" type="submit"  hidden></label>
+		</form>
+<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>报告抬头</td>
+		<td>添加为可疑沙门</td>		
+   </tr>
+	<tr id="trid" th:each="simple:${simpleList}" >
+		
+		
+		
+		</form>
+	
+	<td id="num" name="simpleNum" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td  th:text="${simple.getName()}" width="50px" ></td>
+	<td  th:text="${simple.getCompany()}" width="50px" ></td>
+	<label id="name" name="simpleName"   th:value="${simple.getTestItem()}" style="font-size: 30px;"></label>
+		
+		<label id="isF" th:value="${simple.getIfF()}" hidden ></label>
+		<td   width="100px"><label for="suspiciousSelomen" ></label><input type="checkbox" id="suspiciousSelomen" name="data"  onchange="todo(this.id)"/></td>	
+	</tr>
+	<button hidden></button>
+</table>
+<script>
+	
+	var recorddata = document.querySelectorAll('#suspiciousSelomen');
+	var tdNum = document.querySelectorAll('#num');
+	var tdNam = document.querySelectorAll('#name');
+	var isf = document.querySelectorAll('#isF');
+	var tr = document.querySelectorAll('#trid');
+	
+   var recorddataid
+    var tdNumid
+    var tdNamid
+     var isfid
+     var trid
+	 for(var i=0;i<recorddata.length;i++){
+		   recorddataid="record"+i;
+		   tdNumid="tdnum"+i;
+		   tdNamid="tdnam"+i;
+		   isfid="isF"+i;
+		   trid="tr"+i;
+		   
+		       tr[i].setAttribute('id',trid);
+		        if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+		 		 recorddata[i].setAttribute('id',recorddataid);
+			   tdNum[i].setAttribute('id',tdNumid); 
+			   tdNam[i].setAttribute('id',tdNamid);
+			   isf[i].setAttribute('id',isfid);
+			   if(isf[i].getAttribute('value')==="BF"||isf[i].getAttribute('value')==="RBF"){
+				   tdNum[i].style.backgroundColor="red";
+			   }
+	  }
+	   
+	 function f1(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+            "table_name":document.getElementById('con').getAttribute('value')
+            
+        }
+        $.ajax({
+            url:'/ajax/f1',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	 function f2(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+            "table_name":document.getElementById('con').getAttribute('value')
+            
+        }
+        $.ajax({
+            url:'/ajax/f2',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	
+	 function todo(id){
+		 var index;
+		 var checkboxid
+		 for(var i=0;i<recorddata.length;i++){
+		 checkboxid= recorddata[i].getAttribute('id');
+		  if(checkboxid===id){
+			  index=i;			  
+			  break;
+		  }
+		 
+	  }
+
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;
+		var Fid="isF"+index;
+		if(isf[i].getAttribute('value')==="BF"||isf[i].getAttribute('value')==="RBF"){
+			f2(tdNumid,tdNamid);
+		}else{
+			 f1(tdNumid,tdNamid);
+		}
+		
+    }
+    
+	 </script>
+</body>
+</html>

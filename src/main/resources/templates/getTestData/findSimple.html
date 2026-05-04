@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+</head>
+<body>
+	
+<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>添加位置</td>
+		<td>位置</td>
+		
+   </tr>
+	<tr id="trid" th:each="simple:${simpleList}" >
+		
+		
+		
+		</form>
+	
+	<td id="num" name="simpleNum" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td  th:text="${simple.getName()}" width="50px" ></td>		
+		<td  id="control" width="300px">	
+			<label id="name" th:value="${simple.getTestItem()}" name="simpleName" hidden></label>		
+		    添加位置:<input id="loc" type="text"  name="loccon" onblur="todo(this.id)" />
+		</td>
+		<td  id="control" width="300px">			
+		    <label th:text="${simple.getLocation()}"></label>
+		    已找:<input id="finded" type="checkbox" th:value="${simple.getIfF()}"  onchange="setFinded(this.id)" /> 
+		</td>	
+		
+	</tr>
+	<button hidden></button>
+</table>
+<script>	  
+	
+	var tdNum = document.querySelectorAll('#num');
+	var tdNam = document.querySelectorAll('#name');                 
+	var locinput = document.querySelectorAll('#loc');
+	var findedBut = document.querySelectorAll('#finded');
+	var tr = document.querySelectorAll('#trid');
+	
+    var locinputid;
+    var findedButid;
+    var tdNumid;
+     var tdNamid;
+     var trid;
+	 for(var i=0;i<tdNum.length;i++){
+		  trid="tr"+i;
+		  locinputid="loc"+i;
+		  findedButid="finded"+i;
+		   tdNumid="tdnum"+i;
+		   tdNamid="tdnam"+i;	 
+			   locinput[i].setAttribute('id',locinputid); 
+			   findedBut[i].setAttribute('id',findedButid);
+			   tdNum[i].setAttribute('id',tdNumid);
+			   tdNam[i].setAttribute('id',tdNamid);
+			   if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+			    if(findedBut[i].getAttribute('value')==="RBF"){
+			 findedBut[i].checked=true;
+		  }
+	  }
+	  
+	 function e1(id1,id2,id3){
+		    
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+            "loccon":document.getElementById(id3).value
+            
+        }
+        $.ajax({
+            url:'/ajax/e',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	
+	 function todo(id){
+		 var index;
+		 var nowlocinputid;
+		 for(var i=0;i<tdNum.length;i++){
+		  nowlocinputid= locinput[i].getAttribute('id');
+		  if(nowlocinputid===id){
+			  index=i;			  
+			  break;
+		  }
+		 
+	  }
+
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;
+		var locinputid="loc"+index;
+		  
+		 e1(tdNumid,tdNamid,locinputid);
+     
+    }
+     function e2(id1,id2){
+		    
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+            
+            
+        }
+        $.ajax({
+            url:'/ajax/e2',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	  function setFinded(id){
+		 var index;
+		 var nowfindedButid;
+		 for(var i=0;i<tdNum.length;i++){
+		  nowfindedButid= findedBut[i].getAttribute('id');
+		  if(nowfindedButid===id){
+			  index=i;			  
+			  break;
+		  }
+		 
+	  }
+
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;
+		
+		  
+		 e2(tdNumid,tdNamid);
+     
+    }
+    
+	 </script>
+</body>
+</html>

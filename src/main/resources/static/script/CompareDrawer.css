@@ -1,0 +1,287 @@
+@charset "UTF-8";
+/* ===============================
+   Compare Drawer (Bottom Panel)
+================================ */
+.drawer{
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  width: min(1600px, 96vw);
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 18px 55px rgba(0,0,0,.55);
+  backdrop-filter: blur(16px);
+  z-index: 9500;
+
+  overflow: hidden;
+  max-height: 62vh;
+
+  /* 默认收起：向下隐藏 */
+  translate: 0 110%;
+  opacity: 0;
+  pointer-events: none;
+  transition: translate .22s ease, opacity .18s ease;
+}
+
+.drawer.isOpen{
+  translate: 0 0;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer__bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+  background: rgba(0,0,0,.18);
+}
+
+.drawer__left{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.drawer__right{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.drawer__pill{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+  white-space: nowrap;
+}
+
+.drawer__dot{
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(122,167,255,.9);
+  box-shadow: 0 0 0 6px rgba(122,167,255,.10);
+}
+
+.drawer__title{
+  font-weight: 900;
+  color: rgba(234,240,255,.92);
+}
+
+/* Dropzone */
+.dropzone{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px dashed rgba(255,255,255,.18);
+  background: rgba(255,255,255,.04);
+  min-width: 0;
+  flex: 1;
+
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.dropzone__icon{
+  opacity: .9;
+}
+.dropzone__text{
+  color: rgba(234,240,255,.75);
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 拖拽悬停效果 */
+.dropzone.isOver{
+  border-color: rgba(122,167,255,.40);
+  background: rgba(122,167,255,.10);
+  transform: translateY(-1px);
+}
+.dropzone.isError{
+  border-color: rgba(255,84,112,.45);
+  background: rgba(255,84,112,.10);
+}
+
+/* Drawer body */
+.drawer__body{
+  padding: 12px;
+  max-height: 52vh;
+  overflow: auto;
+}
+
+.drawer__hint{
+  color: rgba(234,240,255,.70);
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+.compareList{
+  display:flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.compareItem{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.16);
+  padding: 10px 12px;
+  display:flex;
+  gap: 10px;
+  align-items:flex-start;
+}
+.compareTag{
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  font-weight: 900;
+  color: rgba(234,240,255,.86);
+}
+.compareText{
+  flex: 1;
+  color: rgba(234,240,255,.86);
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* 拖拽时的行视觉提示（可选） */
+#mainTable tbody tr.isDragSource td{
+  background: rgba(122,167,255,.10) !important;
+  box-shadow: inset 0 0 0 1px rgba(122,167,255,.24);
+}
+#mainTable tbody tr[draggable="true"]{
+  cursor: grab;
+}
+#mainTable tbody tr[draggable="true"]:active{
+  cursor: grabbing;
+}
+.compareMeta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom: 10px;
+}
+.metaChip{
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: rgba(234,240,255,.86);
+  font-weight: 900;
+  font-size: 12px;
+}
+
+.compareTableWrap{
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.14);
+  overflow: hidden;
+}
+
+.compareTable{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  table-layout: fixed;
+}
+.compareTable thead th{
+  background: rgba(0,0,0,.22);
+  color: rgba(234,240,255,.92);
+  font-size: 12px;
+  font-weight: 900;
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.10);
+}
+.compareTable tbody td{
+  color: rgba(234,240,255,.86);
+  font-size: 12px;
+  padding: 10px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.compareTable tbody tr:hover td{
+  background: rgba(122,167,255,.06);
+}
+
+/* 检测方法允许换行（可选） */
+.compareTable td:nth-child(5){
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* ===============================
+   Compare Drawer 字体颜色加深
+================================ */
+
+/* 抽屉整体默认字体颜色 */
+#compareDrawer {
+  color: #1f2937;
+}
+
+/* 标题 */
+#compareDrawer .drawer__title {
+  color: #111827;
+}
+
+/* 提示文字 */
+#compareDrawer .drawer__hint {
+  color: #374151;
+}
+
+/* 拖拽区域文字 */
+#compareDrawer .dropzone__text {
+  color: #374151;
+}
+
+/* meta 标签 */
+#compareDrawer .metaChip {
+  color: #1f2937;
+}
+
+/* 比对列表 */
+#compareDrawer .compareTag {
+  color: #111827;
+}
+
+#compareDrawer .compareText {
+  color: #1f2937;
+}
+
+/* 表格表头 */
+#compareDrawer .compareTable thead th {
+  color: #111827;
+}
+
+/* 表格内容 */
+#compareDrawer .compareTable tbody td {
+  color: #1f2937;
+}
+
+/* 按钮文字，如果 navBtn 被全局样式影响，也一起压住 */
+#compareDrawer .navBtn {
+  color: #1f2937;
+}
+
+#compareDrawer .navBtn.ghost {
+  color: #374151;
+}

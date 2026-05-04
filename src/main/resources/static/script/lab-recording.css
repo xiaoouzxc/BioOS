@@ -1,0 +1,406 @@
+.lab-recording-page {
+  background: #eef2f7 !important;
+  color: #13263d !important;
+  padding-bottom: 28px !important;
+}
+
+.lab-recording-page .lab-main.lab-recording-main {
+  padding-top: 16px;
+}
+
+.lab-recording-page .topNav {
+  width: 100%;
+  margin: 0 0 12px;
+  border: 1px solid #d9e0ea;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(16, 24, 40, 0.08);
+  backdrop-filter: none;
+}
+
+.lab-recording-page .brandPill,
+.lab-recording-page .navBtn,
+.lab-recording-page .navSelect,
+.lab-recording-page #buttonContainer,
+.lab-recording-page #tableDiv,
+.lab-recording-page #condisplay,
+.lab-recording-page #manualPanel.panel,
+.lab-recording-page .dock {
+  border-color: #d9e0ea !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.lab-recording-page .brandPill {
+  background: #f7f9fc;
+}
+
+.lab-recording-page .brandTitle,
+.lab-recording-page .panel__title h3 {
+  color: #102a43;
+}
+
+.lab-recording-page .brandSub,
+.lab-recording-page .navLabel,
+.lab-recording-page .panel__title p,
+.lab-recording-page .hintRight,
+.lab-recording-page .dockLeft span {
+  color: #526477 !important;
+}
+
+.lab-recording-page .navBtn {
+  background: #ffffff;
+  color: #16324a;
+}
+
+.lab-recording-page .navBtn.primary {
+  background: #2f80a0;
+  border-color: #2f80a0;
+  color: #ffffff;
+}
+
+.lab-recording-page .navBtn.warn {
+  background: #fff7e6;
+  border-color: #f4d9a6;
+  color: #8a5b13;
+}
+
+.lab-recording-page .navSelect {
+  background: #ffffff !important;
+  color: #16324a !important;
+}
+
+.lab-recording-page .pageGrid {
+  width: 100%;
+  margin: 0;
+  grid-template-columns: 1fr !important;
+}
+
+.lab-recording-page #buttonContainer.pagerControls {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  position: relative !important;
+  top: auto !important;
+}
+
+.lab-recording-page #buttonContainer.pagerControls button {
+  width: auto !important;
+  min-width: 62px !important;
+  height: 34px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border-radius: 12px !important;
+  background: #ffffff;
+  border-color: #d9e0ea;
+  color: #16324a;
+}
+
+.lab-recording-page #buttonContainer.pagerControls button:hover {
+  background: #f6fbff;
+  border-color: #8fb7c9;
+}
+
+.lab-recording-page #buttonContainer.pagerControls #currentValue {
+  margin: 0 !important;
+  white-space: nowrap !important;
+  background: #f1f6fb;
+  color: #295271;
+}
+
+.lab-recording-page #filterRows {
+  color: #102a43 !important;
+  background: #eef4fb !important;
+  border-color: #cfd9e6 !important;
+}
+
+.lab-recording-page #tableDiv {
+  background: #ffffff;
+  overflow: visible !important;
+  overflow-x: visible !important;
+  overflow-y: visible !important;
+  max-height: none !important;
+  height: auto !important;
+}
+
+.lab-recording-page #tagContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+  min-height: 34px;
+}
+
+.lab-recording-page #tagContainer .table-tag {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  margin-top: 0 !important;
+  padding: 6px 10px !important;
+  border-radius: 999px !important;
+  border: 1px solid #cfd9e6 !important;
+  background: #f3f8fd !important;
+  color: #1f3f5b !important;
+  font-size: 12px;
+  font-weight: 700 !important;
+  line-height: 1;
+}
+
+.lab-recording-page #tagContainer .table-tag .close-tag {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid #cbd6e4 !important;
+  background: #ffffff !important;
+  color: #5b6b7d !important;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 0 !important;
+  cursor: pointer;
+}
+
+.lab-recording-page #tagContainer .table-tag .close-tag:hover {
+  border-color: #9eb4c8 !important;
+  background: #f1f6fb !important;
+  color: #2c475f !important;
+}
+
+.lab-recording-page #condisplay {
+  background: #f6f9fc !important;
+  color: #3e546a !important;
+  border: 1px solid #dbe4ef !important;
+  border-radius: 10px !important;
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px !important;
+}
+
+.lab-recording-page #con {
+  color: #2d4a61 !important;
+  font-size: 14px !important;
+  font-weight: 700;
+}
+
+.lab-recording-page #mainTable thead th {
+  background: #f7f9fc !important;
+  color: #334e68 !important;
+  border-bottom: 1px solid #e5ebf2 !important;
+}
+
+.lab-recording-page #mainTable tbody td {
+  color: #102a43 !important;
+  border-bottom: 1px solid #edf2f7 !important;
+}
+
+.lab-recording-page #mainTable {
+  min-width: 0 !important;
+  width: 100% !important;
+}
+
+.lab-recording-page #mainTable {
+  min-width: 1100px !important;
+  table-layout: fixed !important;
+}
+
+.lab-recording-page #mainTable th,
+.lab-recording-page #mainTable td {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  vertical-align: top !important;
+  line-height: 1.35 !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+.lab-recording-page #mainTable th:nth-child(1),
+.lab-recording-page #mainTable td:nth-child(1) {
+  width: 140px !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+
+.lab-recording-page #mainTable th:nth-child(2),
+.lab-recording-page #mainTable td:nth-child(2) {
+  width: 190px !important;
+}
+
+.lab-recording-page #mainTable th:nth-child(4),
+.lab-recording-page #mainTable td:nth-child(4) {
+  width: 210px !important;
+}
+
+.lab-recording-page #mainTable th:nth-child(6),
+.lab-recording-page #mainTable td:nth-child(6) {
+  width: 150px !important;
+}
+
+.lab-recording-page #mainTable th:nth-child(7),
+.lab-recording-page #mainTable td:nth-child(7) {
+  width: 280px !important;
+}
+
+.lab-recording-page #mainTable td:nth-child(7) {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.lab-recording-page #mainTable tr:hover td:nth-child(7),
+.lab-recording-page #mainTable tr:focus-within td:nth-child(7) {
+  display: table-cell !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
+
+.lab-recording-page #mainTable tbody tr:hover td {
+  background: #f5f9fd !important;
+}
+
+.lab-recording-page #manualPanel.panel {
+  background: #ffffff !important;
+  color: #102a43 !important;
+}
+
+.lab-recording-page #manualPanel,
+.lab-recording-page #manualPanel * {
+  color: #102a43;
+}
+
+.lab-recording-page #manualPanel .panel__badge {
+  background: #e8f1fb !important;
+  border: 1px solid #c9d9ea !important;
+  color: #1f4b70 !important;
+}
+
+.lab-recording-page #manualPanel .iconBtn {
+  color: #2d4a61 !important;
+  border-color: #d0dceb !important;
+  background: #f7fafe !important;
+}
+
+.lab-recording-page #manualPanel #queryBtn.btn.primary {
+  color: #ffffff !important;
+}
+
+.lab-recording-page #manualPanel #queryTable thead th {
+  background: #f7f9fc !important;
+  color: #334e68 !important;
+  border-bottom: 1px solid #e5ebf2 !important;
+}
+
+.lab-recording-page #manualPanel #queryTable td {
+  color: #334e68 !important;
+  border-bottom: 1px solid #edf2f7 !important;
+}
+
+.lab-recording-page #manualPanel #queryTable {
+  min-width: 1040px !important;
+  table-layout: fixed !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th,
+.lab-recording-page #manualPanel #queryTable td {
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  vertical-align: top !important;
+  line-height: 1.35 !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(1),
+.lab-recording-page #manualPanel #queryTable td:nth-child(1) {
+  width: 112px !important;
+  white-space: nowrap !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(2),
+.lab-recording-page #manualPanel #queryTable td:nth-child(2) {
+  width: 160px !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(3),
+.lab-recording-page #manualPanel #queryTable td:nth-child(3) {
+  width: 120px !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(4),
+.lab-recording-page #manualPanel #queryTable td:nth-child(4) {
+  width: 190px !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(5),
+.lab-recording-page #manualPanel #queryTable td:nth-child(5) {
+  width: 260px !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(6),
+.lab-recording-page #manualPanel #queryTable td:nth-child(6) {
+  width: 150px !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(7),
+.lab-recording-page #manualPanel #queryTable td:nth-child(7) {
+  width: 130px !important;
+}
+
+.lab-recording-page #manualPanel #queryTable th:nth-child(8),
+.lab-recording-page #manualPanel #queryTable td:nth-child(8) {
+  width: 86px !important;
+  white-space: nowrap !important;
+}
+
+.lab-recording-page #manualPanel #queryTable td:nth-child(5) {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+}
+
+.lab-recording-page #manualPanel #queryTable tr:hover td:nth-child(5),
+.lab-recording-page #manualPanel #queryTable tr:focus-within td:nth-child(5) {
+  display: table-cell !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
+
+.lab-recording-page #queryInput {
+  color: #102a43;
+  background: #ffffff;
+  border: 1px solid #d9e0ea;
+}
+
+.lab-recording-page .statusLine {
+  color: #526477;
+}
+
+.lab-recording-page .dock {
+  width: 80%;
+  margin: 14px 0 0;
+  background: #ffffff;
+}
+
+.lab-recording-page .dock input[type="text"] {
+  color: #16324a;
+  background: #ffffff;
+  border: 1px solid #d9e0ea;
+}
+
+@media (max-width: 980px) {
+  .lab-recording-page .lab-main.lab-recording-main {
+    padding-top: 12px;
+  }
+
+  .lab-recording-page .topNav,
+  .lab-recording-page .pageGrid,
+  .lab-recording-page .dock {
+    width: 100%;
+  }
+}

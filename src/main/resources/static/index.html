@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>微生物做样系统</title>
+  <link rel="stylesheet" href="script/lab-admin.css" />
+  
+</head>
+<body>
+  <div class="lab-shell">
+    <aside class="lab-sidebar" aria-label="主导航">
+      <a class="lab-brand" href="/" title="首页仪表盘">
+        <span class="lab-brand-mark">MB</span>
+        <span class="lab-brand-text">微生物</span>
+      </a>
+
+      <nav class="lab-nav">
+        <a class="lab-nav-item is-active" href="/" title="首页仪表盘">
+          <span class="lab-nav-icon lab-icon-dashboard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>首页仪表盘</strong>
+            <small>系统动态概览</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/sample-receive.html" title="样品接收">
+          <span class="lab-nav-icon lab-icon-receive" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品接收</strong>
+            <small>上传 Excel 清单</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/testing" title="样品处理">
+          <span class="lab-nav-icon lab-icon-process" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品处理</strong>
+            <small>做样与写管入口</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/recordingbeta" title="结果记录">
+          <span class="lab-nav-icon lab-icon-record" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>结果记录</strong>
+            <small>培养与判读记录</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/getTestDatabeta" title="样品查询">
+          <span class="lab-nav-icon lab-icon-query" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品查询</strong>
+            <small>历史数据检索</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/standard" title="标准方法管理">
+          <span class="lab-nav-icon lab-icon-standard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>标准方法管理</strong>
+            <small>项目与方法配置</small>
+          </span>
+        </a>
+      </nav>
+    </aside>
+
+    <main class="lab-main lab-dashboard">
+      <header class="lab-topbar">
+        <div>
+          <strong>微生物实验室业务后台</strong>
+         <!--<span>样品流转、做样进度、结果记录与标准方法维护</span>  --> 
+        </div>
+        <div class="lab-user-area" data-auth-user>
+          <span>当前用户：实验室人员</span>
+        </div>
+      </header>
+
+      <section class="lab-page-header lab-page-header-with-calendar">
+  <div>
+    <h1>实验流程监控中</h1>
+  </div>
+
+  <div class="calendar-preview-wrap">
+    <div class="calendar-preview-title"></div>
+
+    <div class="calendar-preview-card">
+      <iframe
+        src="/calendar.html"
+        class="calendar-preview-frame"
+        title="实验室温湿度日历"
+      ></iframe>
+    </div>
+  </div>
+</section>
+      
+      
+    <!--  <section class="lab-page-header">
+        <div>
+          <h1>实验流程监控中</h1>
+           <p>这里用于展示微生物做样系统的整体动态信息，后续可接入实时样品数量、任务进度、记录状态和异常提醒。</p> 
+        </div>
+      </section>-->
+
+      <!-- <div class="lab-alert lab-alert-success">
+        演示信息区：当前页面先展示系统运行概览，后续可替换为真实接口返回的动态数据。
+      </div> -->
+      
+
+      <section class="lab-stat-grid" aria-label="业务统计">
+        <article class="lab-stat-card">
+          <span>今日接收样品</span>
+          <strong data-dashboard-field="receivedToday">0</strong>
+          <p>待接入样品接收数据</p>
+        </article>
+        <article class="lab-stat-card">
+          <span>待处理任务</span>
+          <strong data-dashboard-field="pendingTasks">0</strong>
+          <p>包含未做样和待复核任务</p>
+        </article>
+        <article class="lab-stat-card">
+          <span>已记录结果</span>
+          <strong data-dashboard-field="recordedResults">0</strong>
+          <p>今日已完成结果记录数量</p>
+        </article>
+        <article class="lab-stat-card">
+          <span>异常/复测提醒</span>
+          <strong data-dashboard-field="reviewAlerts">0</strong>
+          <p>复测、缺项和需确认记录</p>
+        </article>
+      </section>
+
+      <section class="lab-dashboard-grid lab-dashboard-overview">
+        <article class="lab-card lab-panel lab-panel-wide">
+          <div class="lab-panel-header">
+            <h2>今日批次流转状态</h2>
+          </div>
+          <div class="lab-batch-dashboard">
+            <div class="lab-batch-summary">
+              <div>
+                <span>今日样品总量</span>
+                <strong data-batch-summary="sampleTotal">0</strong>
+              </div>
+              <div>
+                <span>今日检测项目总量</span>
+                <strong data-batch-summary="projectTotal">0</strong>
+              </div>
+            </div>
+            <div class="lab-batch-flow-list" data-batch-flow-list>
+              <div class="lab-batch-flow-empty">正在读取今日批次信息...</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="lab-card lab-panel">
+          <div class="lab-panel-header">
+            <h2>今日培养基用量</h2>
+          </div>
+          <div class="lab-media-dashboard" data-media-usage-list>
+            <div>正在计算今日培养基用量...</div>
+          </div>
+        </article>
+      </section>
+
+      <section class="lab-dashboard-grid">
+        <article class="lab-card lab-panel lab-panel-wide">
+          <div class="lab-panel-header">
+            <h2>今日任务看板</h2>
+          </div>
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>任务编号</th>
+                <th>任务名称</th>
+                <th>负责人</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>MBT-TASK-001</td>
+                <td>食品微生物样品处理</td>
+                <td>待分配</td>
+                <td><span class="lab-tag lab-tag-warning">待处理</span></td>
+              </tr>
+              <tr>
+                <td>MBT-TASK-002</td>
+                <td>培养结果记录</td>
+                <td>待分配</td>
+                <td><span class="lab-tag lab-tag-info">记录中</span></td>
+              </tr>
+              <tr>
+                <td>MBT-TASK-003</td>
+                <td>复测样品确认</td>
+                <td>待分配</td>
+                <td><span class="lab-tag lab-tag-success">可开始</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+
+        <article class="lab-card lab-panel">
+          <div class="lab-panel-header">
+            <h2>记录状态</h2>
+          </div>
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>样品</th>
+                <th>检测项目</th>
+                <th>状态</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>A2401</td>
+                <td>菌落总数</td>
+                <td><span class="lab-tag lab-tag-success">已记录</span></td>
+              </tr>
+              <tr>
+                <td>A2402</td>
+                <td>大肠菌群</td>
+                <td><span class="lab-tag lab-tag-warning">待确认</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </article>
+      </section>
+    </main>
+  </div>
+  <script src="script/lab-auth-nav.js"></script>
+  <script>
+    (function loadTodayBatchDashboard() {
+      var sampleTotalEl = document.querySelector('[data-batch-summary="sampleTotal"]');
+      var sampleTotalMl = document.querySelector('[data-dashboard-field="receivedToday"]');
+      var sampleTotalRetest = document.querySelector('[data-dashboard-field="reviewAlerts"]');   
+      var sampleTotalPendingTask = document.querySelector('[data-dashboard-field="pendingTasks"]');     
+      var projectTotalEl = document.querySelector('[data-batch-summary="projectTotal"]');
+      var listEl = document.querySelector('[data-batch-flow-list]');
+      if (!sampleTotalEl || !projectTotalEl || !listEl) {
+        return;
+      }
+
+      function renderEmpty(text) {
+        listEl.innerHTML = '<div class="lab-batch-flow-empty">' + text + '</div>';
+      }
+
+      fetch('/api/dashboard/today-batches')
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error('dashboard request failed');
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          sampleTotalEl.textContent = data.sampleTotal || 0;                     
+          projectTotalEl.textContent = data.projectTotal || 0;         
+          var batches = data.batches || [];
+          if (batches.length === 0) {
+            renderEmpty('今日暂无传入批次');
+            return;
+          }else{
+        	  var testSampleTotal = data.sampleTotal-batches[0].retestCount;
+        	  sampleTotalMl.textContent = testSampleTotal || 0;
+        	  sampleTotalRetest.textContent = batches[0].retestCount || 0;
+        	  var totalDoneSample = 0;
+        	  batches.forEach(function (batch){
+        		 totalDoneSample =totalDoneSample + batch.doneCount;
+        		  
+        	  });
+		  
+        	  sampleTotalPendingTask.textContent =data.sampleTotal - totalDoneSample || 0;
+ 
+          }
+          listEl.innerHTML = batches.map(function (batch) {
+            return '<div class="lab-batch-flow-item">'
+              + '<span>第 ' + batch.batch + ' 批</span>'
+              + '<span>样品 ' + batch.sampleCount + '</span>'
+              + '<span>' + batch.ownerText + '</span>'
+              + '<span>做样 ' + batch.doneCount + '/' + batch.sampleCount + '</span>'
+              + '<span>复测 ' + batch.retestCount + '</span>'
+              + '<span>' + batch.actionText + '</span>'
+              + '</div>';
+          }).join('');
+          startDashboardAutoScroll(listEl);
+        })
+        .catch(function () {
+          renderEmpty('今日批次信息读取失败');
+        });
+
+      window.startDashboardAutoScroll = window.startDashboardAutoScroll || function (container) {
+        if (container.scrollHeight <= container.clientHeight) {
+          return;
+        }
+        var paused = false;
+        var resumeTimer = null;
+        var frameId = null;
+        var lastFrameTime = 0;
+        var autoScrolling = false;
+        var pixelsPerSecond = 150;
+
+        function pause() {
+          paused = true;
+          if (resumeTimer) {
+            clearTimeout(resumeTimer);
+            resumeTimer = null;
+          }
+        }
+
+        function resumeSoon() {
+          if (resumeTimer) {
+            clearTimeout(resumeTimer);
+          }
+          resumeTimer = setTimeout(function () {
+            paused = false;
+          }, 1800);
+        }
+
+        function step(timestamp) {
+          if (!lastFrameTime) {
+            lastFrameTime = timestamp;
+          }
+          var elapsed = timestamp - lastFrameTime;
+          lastFrameTime = timestamp;
+          if (paused) {
+            frameId = requestAnimationFrame(step);
+            return;
+          }
+          var maxScroll = container.scrollHeight - container.clientHeight;
+          if (container.scrollTop >= maxScroll - 1) {
+            autoScrolling = true;
+            container.scrollTop = 0;
+            autoScrolling = false;
+          } else {
+            autoScrolling = true;
+            container.scrollTop += (pixelsPerSecond * elapsed) / 1000;
+            autoScrolling = false;
+          }
+          frameId = requestAnimationFrame(step);
+        }
+
+        container.addEventListener('mouseenter', pause);
+        container.addEventListener('mouseleave', resumeSoon);
+        container.addEventListener('touchstart', pause, { passive: true });
+        container.addEventListener('touchend', resumeSoon, { passive: true });
+        container.addEventListener('wheel', function () {
+          pause();
+          resumeSoon();
+        }, { passive: true });
+        container.addEventListener('scroll', function () {
+          if (autoScrolling) {
+            return;
+          }
+          pause();
+          resumeSoon();
+        }, { passive: true });
+
+        frameId = requestAnimationFrame(step);
+        window.addEventListener('beforeunload', function () {
+          cancelAnimationFrame(frameId);
+        });
+      };
+    })();
+
+    (function loadMediaUsageDashboard() {
+      var listEl = document.querySelector('[data-media-usage-list]');
+      if (!listEl) {
+        return;
+      }
+
+      function renderMessage(text) {
+        listEl.innerHTML = '<div class="lab-media-empty">' + text + '</div>';
+      }
+
+      function renderUsagePills(items) {
+        if (!items || !items.length) {
+          return '<span class="lab-media-empty">无可计算用量</span>';
+        }
+        return items.map(function (item) {
+          return '<span class="lab-media-pill"><strong>' + item.medium + '</strong><em>' + item.display + '</em></span>';
+        }).join('');
+      }
+
+      fetch('/api/dashboard/media-usage')
+        .then(function (response) {
+          if (!response.ok) {
+            throw new Error('media usage request failed');
+          }
+          return response.json();
+        })
+        .then(function (data) {
+          var totals = data.totals || [];
+          var batches = data.batches || [];
+          var missingItems = data.missingItems || [];
+          if (totals.length === 0 && batches.length === 0) {
+            renderMessage('今日暂无可计算的培养基用量');
+            return;
+          }
+          var html = '<div class="lab-media-section-title">今日各培养基总用量</div>';
+          html += '<div class="lab-media-scroll lab-media-pill-list" data-media-scroll>' + renderUsagePills(totals) + '</div>';
+          html += '<div class="lab-media-section-title">各批次培养基用量</div>';
+          html += '<div class="lab-media-scroll lab-media-batch-list" data-media-scroll>';
+          html += batches.map(function (batch) {
+            return '<div class="lab-media-batch-item">'
+              + '<strong>第 ' + batch.batch + ' 批</strong>'
+              + '<span class="lab-media-pill-list">' + renderUsagePills(batch.items || []) + '</span>'
+              + '</div>';
+          }).join('');
+          html += '</div>';
+          if (missingItems.length) {
+            html += '<div class="lab-media-section-title">未配置检测项目</div>';
+            html += '<div class="lab-media-missing">' + missingItems.join('、') + '</div>';
+          }
+          listEl.innerHTML = html;
+          Array.prototype.forEach.call(listEl.querySelectorAll('[data-media-scroll]'), function (scrollEl) {
+            window.startDashboardAutoScroll(scrollEl);
+          });
+        })
+        .catch(function () {
+          renderMessage('培养基用量读取失败');
+        });
+    })();
+  </script>
+</body>
+</html>

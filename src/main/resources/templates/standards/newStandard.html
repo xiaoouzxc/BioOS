@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>&#x6807;&#x51C6;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;</title>
+    <style>
+        :root { --bg:#f4f7fb; --panel:#fff; --line:#d7dde8; --line-strong:#b8c2d3; --text:#172033; --muted:#6b7485; --accent:#0f766e; --accent-soft:#e4f5f2; --danger:#b42318; --danger-soft:#fde7e5; --focus:#2563eb; }
+        * { box-sizing: border-box; }
+        body { margin:0; min-height:100vh; font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif; background:var(--bg); color:var(--text); }
+        button,input { font:inherit; }
+        button { cursor:pointer; }
+        .app-shell { padding:18px; }
+        .topbar { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:14px; }
+        .title-block h1 { margin:0; font-size:22px; font-weight:700; }
+        .title-block p { margin:4px 0 0; color:var(--muted); font-size:13px; }
+        .add-form { display:flex; gap:8px; align-items:center; }
+        .input { height:34px; min-width:220px; border:1px solid var(--line-strong); border-radius:6px; padding:0 10px; background:#fff; color:var(--text); }
+        .input:focus { outline:2px solid rgba(37,99,235,.18); border-color:var(--focus); }
+        .btn { min-height:32px; border:1px solid var(--line-strong); border-radius:6px; background:#fff; color:var(--text); padding:5px 10px; }
+        .btn:hover { border-color:var(--accent); color:var(--accent); }
+        .btn-primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+        .btn-primary:hover { color:#fff; filter:brightness(.96); }
+        .icon-btn { width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border:1px solid transparent; border-radius:6px; background:transparent; color:var(--muted); }
+        .icon-btn:hover { background:var(--accent-soft); color:var(--accent); border-color:#b7e2dc; }
+        .icon-btn.danger:hover { background:var(--danger-soft); color:var(--danger); border-color:#f4b7b2; }
+        .workbench { display:grid; grid-template-columns:minmax(240px,290px) minmax(320px,420px) minmax(520px,1fr); gap:14px; min-height:calc(100vh - 92px); }
+        .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; min-width:0; overflow:hidden; }
+        .panel-head { min-height:48px; padding:10px 12px; border-bottom:1px solid var(--line); display:flex; align-items:center; justify-content:space-between; gap:8px; }
+        .panel-title { font-size:15px; font-weight:700; }
+        .panel-subtitle { color:var(--muted); font-size:12px; }
+        .panel-body { padding:10px; }
+        .standard-search { width:100%; margin-bottom:10px; }
+        .standard-list,.tree-list { display:flex; flex-direction:column; gap:6px; }
+        .standard-item,.tree-item { width:100%; border:1px solid var(--line); border-radius:7px; background:#fff; padding:8px; display:flex; align-items:center; justify-content:space-between; gap:8px; text-align:left; }
+        .standard-item.active,.tree-item.active { border-color:var(--accent); background:var(--accent-soft); }
+        .standard-name,.tree-name { font-weight:650; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .standard-meta,.tree-meta { font-size:12px; color:var(--muted); margin-top:2px; }
+        .tree-section-title { display:flex; align-items:center; justify-content:space-between; gap:8px; margin:12px 0 6px; color:var(--muted); font-size:12px; font-weight:700; }
+        .empty { border:1px dashed var(--line-strong); border-radius:8px; padding:18px; color:var(--muted); text-align:center; background:#fbfcfe; }
+        .context-bar { display:flex; flex-wrap:wrap; align-items:center; gap:6px; color:var(--muted); font-size:13px; }
+        .pill { border:1px solid var(--line); border-radius:999px; padding:3px 8px; background:#fff; color:var(--text); max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .table-wrap { overflow:auto; border:1px solid var(--line); border-radius:8px; }
+        table { width:100%; border-collapse:collapse; min-width:920px; background:#fff; }
+        th,td { border-bottom:1px solid var(--line); padding:8px; text-align:left; font-size:13px; vertical-align:top; }
+        th { background:#f7f9fc; color:#3b4557; font-weight:700; position:sticky; top:0; z-index:1; }
+        tr:last-child td { border-bottom:0; }
+        tr.active-row td { background:#eef8f6; }
+        .editable { display:inline-block; min-width:48px; max-width:220px; padding:2px 4px; border-radius:4px; cursor:text; overflow-wrap:anywhere; }
+        .editable:hover { background:#eef2ff; outline:1px solid #c7d2fe; }
+        .editable input { width:100%; min-width:90px; border:1px solid var(--focus); border-radius:4px; padding:3px 5px; }
+        .detail-grid { margin-top:12px; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+        .detail-field { border:1px solid var(--line); border-radius:7px; padding:8px; background:#fff; }
+        .detail-label { color:var(--muted); font-size:12px; margin-bottom:5px; }
+        .detail-value { font-size:14px; line-height:1.4; overflow-wrap:anywhere; }
+        .toast { position:fixed; right:18px; bottom:18px; min-width:160px; max-width:320px; padding:10px 12px; border-radius:8px; background:#102033; color:#fff; box-shadow:0 12px 30px rgba(15,23,42,.2); opacity:0; transform:translateY(8px); pointer-events:none; transition:opacity .18s ease,transform .18s ease; }
+        .toast.show { opacity:1; transform:translateY(0); }
+        @media (max-width:1100px) { .workbench { grid-template-columns:1fr; } .topbar { align-items:stretch; flex-direction:column; } .add-form { width:100%; } .input { min-width:0; flex:1; } }
+    </style>
+</head>
+<body>
+<div class="app-shell">
+    <header class="topbar">
+        <div class="title-block"><h1>&#x6807;&#x51C6;&#x6570;&#x636E;&#x5E93;&#x64CD;&#x4F5C;</h1><p>&#x6309;&#x6807;&#x51C6;&#x3001;&#x68C0;&#x6D4B;&#x9879;&#x76EE;&#x3001;&#x65B9;&#x6CD5;&#x548C;&#x6B65;&#x9AA4;&#x9010;&#x7EA7;&#x7EF4;&#x62A4;</p></div>
+        <form id="addStandardDivForm" class="add-form"><input class="input" type="text" id="standardNumber" placeholder="&#x6807;&#x51C6;&#x53F7;" required><button class="btn btn-primary" type="submit">+ &#x6DFB;&#x52A0;&#x6807;&#x51C6;</button></form>
+    </header>
+    <main class="workbench">
+        <section class="panel"><div class="panel-head"><div><div class="panel-title">&#x6807;&#x51C6;&#x5217;&#x8868;</div><div class="panel-subtitle" id="standardCount"></div></div></div><div class="panel-body"><input class="input standard-search" id="standardSearch" type="search" placeholder="&#x641C;&#x7D22;&#x6807;&#x51C6;&#x53F7;"><div id="standardList" class="standard-list"></div></div></section>
+        <section class="panel"><div class="panel-head"><div><div class="panel-title">&#x5C42;&#x7EA7;&#x5BFC;&#x822A;</div><div class="panel-subtitle" id="treeSubtitle">&#x9009;&#x62E9;&#x4E00;&#x4E2A;&#x6807;&#x51C6;</div></div></div><div class="panel-body" id="treePanel"><div class="empty">&#x8BF7;&#x5148;&#x5728;&#x5DE6;&#x4FA7;&#x9009;&#x62E9;&#x6807;&#x51C6;</div></div></section>
+        <section class="panel"><div class="panel-head"><div><div class="panel-title">&#x6B65;&#x9AA4;&#x7EF4;&#x62A4;</div><div class="context-bar" id="contextBar"></div></div><button class="btn" id="addStepBtn" type="button" disabled>+ &#x6DFB;&#x52A0;&#x6B65;&#x9AA4;</button></div><div class="panel-body" id="detailPanel"><div class="empty">&#x9009;&#x62E9;&#x65B9;&#x6CD5;&#x540E;&#x5728;&#x8FD9;&#x91CC;&#x7EF4;&#x62A4;&#x6B65;&#x9AA4;&#x3002;</div></div></section>
+    </main>
+</div>
+<div id="toast" class="toast"></div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="/script/newStandardWorkbench.js"></script>
+</body>
+</html>

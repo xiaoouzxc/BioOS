@@ -1,0 +1,4971 @@
+﻿<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="script/getDataSelectplus.css"/>
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+<script src="/script/lab-auth-nav.js"></script>
+<style>
+	:root{
+      --bg0:#070A12;
+      --bg1:#0B1224;
+
+      --text:#EAF0FF;
+      --muted: rgba(234,240,255,.70);
+
+      --card: rgba(255,255,255,.06);
+      --card2: rgba(255,255,255,.04);
+      --stroke: rgba(255,255,255,.12);
+
+      /* enterprise highlight */
+      --accent:#7AA7FF;
+      --accent2:#A78BFA;
+
+      --good:#7CFFB2;
+      --warn:#FFD84D;
+      --danger:#FF5470;
+
+      --shadow: 0 18px 55px rgba(0,0,0,.55);
+      --radius: 18px;
+    }
+
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    body{
+      min-height:100vh;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 600px at 15% 10%, rgba(122,167,255,.12), transparent 58%),
+        radial-gradient(1100px 700px at 85% 35%, rgba(167,139,250,.10), transparent 62%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      overflow-x:hidden;
+      padding-bottom: 50px; /* space for dock */
+    }
+    a{ color:inherit; text-decoration:none; }
+
+    .wrap{
+      width:min(1200px, 92vw);
+      margin: 30px auto;
+    }
+	
+	
+	#mbut{
+	display: inline-block;
+	position:absolute;
+	left: 56%;
+     top:0%;
+	border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+    width:10%;
+  height: 5%;
+    background-color: aqua;	
+	}	
+
+	#manualPanel{
+		position:absolute;
+  left: 25%;
+  top:20%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:800px;
+  height: 100px;
+  z-index: 99;
+  background-color: rgb(255, 255, 255);
+	}
+	#queryTable{
+		border-collapse: collapse;
+		padding: 0px;
+		margin: 0px;
+  
+  z-index: 99;
+  background-color:  rgb(255, 255, 255);
+	}
+	
+	#lclose{
+		position: absolute;
+		left:96%;
+		top: -2px;
+		
+	}
+	
+	#selectDatePanel{
+		position:absolute;
+  left: 20%;
+  top:0%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:10%;
+  height: 5%;
+  z-index: 99;
+  background-color: rgb(255, 255, 128);
+	}
+	
+	
+	
+	
+	td{
+		
+		 border:2px solid ;
+	}
+	#selomenlabel{
+		position:absolute;
+		display: inline-block;	
+		left: 32%;
+         top:0%;	 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(0, 255, 0);
+	}
+	#setFlabel{
+		position:absolute;
+		display: inline-block;	
+		left: 44%;
+         top:0%;	 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(255, 128, 0);
+	}
+	
+	/* 设置按钮容器的样式*/
+#buttonContainer {
+    position: sticky; /* 固定在滚动时相对表格的顶部位置*/
+    top: 50%;
+   left:14.5%;
+    background-color: #f9f9f9; /* 背景色，确保可见 */
+    z-index: 10; /* 确保在其他元素上方*/
+    padding: 10px; /* 内边距*/
+    border-right: 1px solid #ccc; /* 右侧边框 */
+    width: 100px; /* 固定宽度 */
+}
+/* 表格部分设置 */
+#mainTable {
+    margin-left: 0px; /* 确保表格与按钮容器不重叠 */
+    width: calc(100% - 0px); /* 表格宽度 */
+    border-collapse: collapse; /* 表格边框合并 */
+}
+
+#mainTable th, #mainTable td {
+    padding: 8px; /* 表格单元格内边距 */
+    text-align: left; /* 左对齐*/
+    border: 1px solid #ddd; /* 表格边框 */
+}
+
+#mainTable thead th {
+    background-color: #f1f1f1; /* 表头背景色*/
+}
+/* 设置滚动条*/
+#tableDiv {
+    overflow-y: auto; /* 垂直滚动 */
+    overflow-x: hidden; /* 水平滚动隐藏 */
+}
+#progressBarContainer {
+    position: fixed; /* 固定在页面上 */
+    top: 0;          /* 距离页面顶部 0 */
+    left: 0;         /* 距离页面左侧 0 */
+    z-index: 9999;   /* 确保位于其他内容的上方*/
+}
+/* 定义环绕光束的动画*/
+@keyframes glow {
+  0%   { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 18px 55px rgba(255,84,112,.10); }
+  50%  { box-shadow: 0 0 0 1px rgba(255,84,112,.22), 0 18px 55px rgba(255,84,112,.18); }
+  100% { box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 18px 55px rgba(255,84,112,.10); }
+}
+.tr-glow[data-attr-result*="检测"] {
+  animation: glow 1.6s ease-in-out infinite;
+  border-radius: 14px;
+}
+.tr-glow:hover { transform: translateY(-1px) scale(1.01); }
+#manualPanel.panel{
+  position: fixed !important;
+  left: 50% !important;
+  top: 14% !important;
+  transform: translateX(-50%) !important;
+  width: min(1800px, 92vw) !important;
+  height: auto !important;            /* 不要固定100px */
+  max-height: 72vh !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04)) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(16px) !important;
+  z-index: 9999 !important;
+  color: #EAF0FF !important;
+}
+
+/* 2) 面板内部滚动区域 */
+#manualPanel .panel__body{
+  padding: 14px 16px 16px !important;
+}
+#manualPanel .tableWrap{
+  margin-top: 12px !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.03) !important;
+  overflow: auto !important;
+  max-height: 48vh !important;   /* 表格区域可滚动*/
+}
+
+/* 3) 关键：把 queryTable 彻底改成深色表格，强制字体颜色可见*/
+#manualPanel #queryTable{
+  width: 100% !important;
+  border-collapse: collapse !important;
+  background: transparent !important; /* 不要白底 */
+}
+#manualPanel #queryTable thead th{
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 2 !important;
+  text-align: left !important;
+  padding: 12px 12px !important;
+  background: rgba(0,0,0,.22) !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+  color: #EAF0FF !important;
+  font-weight: 900 !important;
+}
+#manualPanel #queryTable td{
+  padding: 12px 12px !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  color: rgba(234,240,255,.86) !important; /* 强制可见 */
+  font-size: 12px !important;
+  background: transparent !important;
+}
+#manualPanel #queryTable tbody tr:hover td{
+  background: rgba(122,167,255,.06) !important;
+}
+
+/* 4) 避免你全局 td{border:2px solid;} 影响面板表格观感 */
+#manualPanel #queryTable td{
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* 5) 让“查询数据”按钮变企业风（你现在有两种：.mbut 和 #mbut*/
+.mbut, #mbut{
+  border: 1px solid rgba(255,255,255,.14) !important;
+  background: rgba(255,255,255,.06) !important;
+  color: #EAF0FF !important;
+  padding: 10px 14px !important;
+  border-radius: 14px !important;
+  cursor: pointer !important;
+  font-weight: 900 !important;
+  transition: transform .18s ease, background .18s ease, border-color .18s ease !important;
+}
+.mbut:hover, #mbut:hover{
+  transform: translateY(-2px) !important;
+  border-color: rgba(122,167,255,.26) !important;
+  background: rgba(255,255,255,.08) !important;
+}
+
+/* 6) Spotlight 微动效（如果 queryTheme.css 有也没关系，重复不会坏） */
+.glassSpotlight{
+  position: relative;
+  overflow: hidden;
+}
+.glassSpotlight::after{
+  content:"";
+  position:absolute;
+  inset:-2px;
+  opacity: 0;
+  transition: opacity .18s ease;
+  pointer-events:none;
+  background:
+    radial-gradient(240px 240px at var(--mx, 50%) var(--my, 50%),
+      rgba(255,255,255,.14),
+      rgba(122,167,255,.10) 35%,
+      rgba(167,139,250,.06) 55%,
+      transparent 70%);
+}
+.glassSpotlight:hover::after{ opacity: 1; }
+/* =====================================================
+   Enterprise Upgrade: Main Table + Left Button Panel
+   Paste at END of your <style>
+===================================================== */
+
+/* 全局：让主区域更像“控制台*/
+#displayTable{
+  left: 0 !important;                 /* 你原来 absolute left:20% 会导致布局奇怪*/
+  position: relative !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+/* 主表外层：卡片容器*/
+#tableDiv{
+  width: min(1400px, 94vw) !important;
+  margin: 18px auto !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(14px) !important;
+
+  overflow: auto !important;          /* 主表能滚动*/
+  max-height: 78vh !important;        /* 防止无限高*/
+}
+
+/* 你顶部 condisplay 很大很挤：改成顶部条 */
+#condisplay{
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  left: 0 !important;
+  margin: 0 0 12px 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(0,0,0,.18) !important;
+  color: rgba(234,240,255,.86) !important;
+  text-align: left !important;
+}
+
+/* 主表：企业深色*/
+#mainTable{
+  width: 100% !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: transparent !important;
+  margin: 0 !important;
+}
+
+/* 表头 sticky + 深色 */
+#mainTable thead th{
+  position: sticky !important;
+  top: 52px !important; /* 因为 #condisplay sticky 占了高度 */
+  z-index: 40 !important;
+
+  padding: 12px 12px !important;
+  text-align: left !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: .2px !important;
+
+  background: rgba(0,0,0,.22) !important;
+  color: rgba(234,240,255,.92) !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+}
+
+/* 表格单元格*/
+#mainTable tbody td{
+  padding: 12px 12px !important;
+  font-size: 12px !important;
+  color: rgba(234,240,255,.86) !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  background: transparent !important;
+}
+
+/* hover 高亮 */
+/* ===============================
+   mainTable words States (Enterprise)
+================================ */
+#mainTable{
+  table-layout: fixed;
+  width: 100%;
+}
+/* 所有单元格的基础行为 */
+#mainTable th,
+#mainTable td{
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+/* 检测方法：允许换行（重点） */
+#mainTable th:nth-child(8),
+#mainTable td:nth-child(8){
+  white-space: normal;        /* 允许换行 */
+  word-break: break-word;    /* 长英文数字也能断行*/
+  max-width: 420px;           /* 控制最大宽度*/
+}
+
+/* 样品名称也可以适度换行 */
+#mainTable th:nth-child(2),
+#mainTable td:nth-child(2){
+  white-space: normal;
+  max-width: 260px;
+}
+/* 样品名称也可以适度换行 */
+#mainTable th:nth-child(4),
+#mainTable td:nth-child(4){
+  white-space: normal;
+  max-width: 260px;
+}
+/* 样品名称也可以适度换行 */
+#mainTable th:nth-child(6),
+#mainTable td:nth-child(6){
+  white-space: normal;
+  max-width: 260px;
+}
+
+/* 状态列极窄 */
+#mainTable th:nth-child(7),
+#mainTable td:nth-child(7){
+  white-space: normal;
+  max-width: 100px;
+}
+/* 样品短号列极窄*/
+#mainTable th:nth-child(1),
+#mainTable td:nth-child(1){
+  width: 150px;
+  text-align: center;
+}
+/* ====== Num Cell State Badges (override) ====== */
+#mainTable td.numCell{
+  position: relative;
+  border-radius: 12px;
+  font-weight: 200;
+  text-align: center;
+}
+
+/* 复测 BF：红色提示*/
+#mainTable td.numCell.isBF{
+  background: rgba(255,84,112,.18) !important;
+  border: 1px solid rgba(255,84,112,.35) !important;
+  color: #102a43 !important;
+  box-shadow: 0 0 0 3px rgba(255,84,112,.10) !important;
+}
+
+/* 未做 done=0：黄色提示*/
+#mainTable td.numCell.isTodo{
+  background: rgba(255,216,77,.16) !important;
+  border: 1px solid rgba(255,216,77,.32) !important;
+  color: #102a43 !important;
+  box-shadow: 0 0 0 3px rgba(255,216,77,.10) !important;
+}
+
+/* 如果同时满足 BF + 未做，优先显示红（你也可以反过来*/
+#mainTable td.numCell.isBF.isTodo{
+  background: rgba(255,84,112,.18) !important;
+  border-color: rgba(255,84,112,.40) !important;
+}
+
+/* 可选：在角上加一个小标识 */
+#mainTable td.numCell.isBF::after{
+  content: "复测";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,84,112,.25);
+  border: 1px solid rgba(255,84,112,.35);
+}
+#mainTable td.numCell.isTodo::after{
+  content: "未做";
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,216,77,.18);
+  border: 1px solid rgba(255,216,77,.30);
+}
+#mainTable td.numCell.isBF.isTodo::after{
+  content: "未做";
+}
+</style>
+<style>
+.topNav{
+  position: sticky;
+  top: 0;
+  z-index: 9000;
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  width: min(1600px, 96vw);
+  margin: 14px auto 10px auto;
+  padding: 12px 12px;
+  border-radius: 18px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.06);
+  box-shadow: 0 18px 55px rgba(0,0,0,.55);
+  backdrop-filter: blur(16px);
+}
+/* ===== topNav 小屏换行修复 ===== */
+.topNav {
+  flex-wrap: wrap !important;
+}
+
+.topNav__left {
+  flex: 1 1 620px !important;
+  min-width: 0 !important;
+}
+
+.topNav__right {
+  flex: 1 1 100% !important;
+  width: 100% !important;
+  justify-content: flex-start !important;
+  margin-top: 8px !important;
+}
+
+@media (min-width: 1800px) {
+  .topNav {
+    flex-wrap: nowrap !important;
+  }
+
+  .topNav__right {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    justify-content: flex-end !important;
+    margin-top: 0 !important;
+  }
+}
+.topNav__left{ display:flex; align-items:flex-start; gap:14px; min-width:0; }
+.topNav__right{ display:flex; align-items:flex-start; gap:10px; flex-wrap:wrap; justify-content:flex-end; }
+.brandPill{
+  display:flex; align-items:center; gap:10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.18);
+  min-width: 210px;
+}
+.brandDot{
+  width: 10px; height: 10px; border-radius: 999px;
+  background: rgba(122,167,255,.9);
+  box-shadow: 0 0 0 6px rgba(122,167,255,.10);
+}
+.brandTitle{ font-weight: 900; font-size: 13px; }
+.brandSub{ font-size: 12px; color: var(--muted); margin-top:2px; }
+.navActions{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; min-width:0; }
+.navGroup{ display:flex; align-items:center; gap:8px; }
+.navLabel{ font-size: 12px; color: var(--muted); font-weight: 800; }
+.navSelect{
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(0,0,0,.20);
+  color: rgba(234,240,255,.90);
+  padding: 8px 10px;
+  outline:none;
+  min-height: 38px;
+}
+.navSelect:focus{ border-color: rgba(122,167,255,.30); }
+.filtersRow{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  overflow: hidden;
+  max-height: 300px;
+  transition: max-height .22s ease, opacity .18s ease, transform .18s ease;
+  opacity: 1;
+  transform: translateY(0);
+  min-width: 0 !important;
+  flex-wrap: wrap !important;
+}
+.pagerControls{
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  width: auto !important;
+  padding: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  color: rgba(234,240,255,.86) !important;
+}
+.pagerControls button{
+  width: auto !important;
+  min-width: 62px !important;
+  height: 34px !important;
+  margin: 0 !important;
+  padding: 0 12px !important;
+  border-radius: 12px !important;
+}
+.pagerControls #currentValue{
+  margin: 0 !important;
+  white-space: nowrap !important;
+}
+#buttonContainer{
+  position: relative !important;
+  top: auto !important;
+}
+.navBtn.ghost{
+  background: rgba(0,0,0,.18);
+  border-color: rgba(255,255,255,.12);
+}
+.navBtn.ghost:hover{
+  border-color: rgba(122,167,255,.26);
+  background: rgba(255,255,255,.06);
+}
+.filterToggle{
+  display:none;
+  min-width: 92px;
+}
+.topNav.isCollapsed .filtersRow{
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+@media (max-width: 980px){
+  .filterToggle{ display:inline-flex; align-items:center; justify-content:center; }
+  .topNav{ align-items: flex-start; }
+  .topNav__left{ flex: 1; }
+  .topNav__right{ width: auto; }
+  .topNav:not(.expandedOnMobile) .filtersRow{
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(-4px);
+    pointer-events: none;
+  }
+}
+</style>
+<link rel="stylesheet" href="script/queryTheme.css?v=1.0.0">
+<link rel="stylesheet" href="script/dockStyle.css?v=1.0.0">
+<link rel="stylesheet" href="script/CompareDrawer.css?v=1.0.0">
+<link rel="stylesheet" href="/script/lab-admin.css" />
+<link rel="stylesheet" href="/script/lab-recording.css" />
+<style>
+/* Keep getDataBeta's console aligned with recordingbeta after shared CSS loads. */
+.topNav{
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 9000 !important;
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 14px !important;
+  width: min(1600px, 96vw) !important;
+  margin: 14px auto 10px auto !important;
+  padding: 12px 12px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.06) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(16px) !important;
+}
+.topNav__left{ display:flex !important; align-items:flex-start !important; gap:14px !important; min-width:0 !important; }
+.topNav__right{ display:flex !important; align-items:center !important; gap:10px !important; flex-wrap:wrap !important; justify-content:flex-end !important; }
+.brandPill{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  padding:10px 12px !important;
+  border-radius:16px !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  background:rgba(0,0,0,.18) !important;
+  min-width:210px !important;
+}
+.brandDot{
+  width:10px !important;
+  height:10px !important;
+  border-radius:999px !important;
+  background:rgba(122,167,255,.9) !important;
+  box-shadow:0 0 0 6px rgba(122,167,255,.10) !important;
+}
+.brandTitle{ font-weight:900 !important; font-size:13px !important; }
+.brandSub{ font-size:12px !important; color:var(--muted) !important; margin-top:2px !important; }
+.navActions{ display:flex !important; align-items:center !important; gap:10px !important; flex-wrap:wrap !important; min-width:0 !important; }
+.filtersRow{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  flex-wrap:wrap !important;
+  overflow:hidden !important;
+  max-height:300px !important;
+  opacity:1 !important;
+  transform:translateY(0) !important;
+}
+.navGroup{ display:flex !important; align-items:center !important; gap:8px !important; }
+.navLabel{ font-size:12px !important; color:var(--muted) !important; font-weight:800 !important; }
+.navSelect,
+#calendarDateInput{
+  border-radius:12px !important;
+  border:1px solid rgba(255,255,255,.12) !important;
+  background:rgba(0,0,0,.20) !important;
+  color:rgba(234,240,255,.90) !important;
+  padding:8px 10px !important;
+  min-height:38px !important;
+  outline:none !important;
+}
+.navBtn{
+  border:1px solid rgba(255,255,255,.14) !important;
+  background:rgba(255,255,255,.05) !important;
+  color:var(--text) !important;
+  padding:10px 12px !important;
+  border-radius:14px !important;
+  cursor:pointer !important;
+  font-weight:900 !important;
+  white-space:nowrap !important;
+}
+.navBtn.primary{
+  background:linear-gradient(135deg, rgba(122,167,255,.16), rgba(167,139,250,.12)) !important;
+  border-color:rgba(122,167,255,.26) !important;
+}
+.navBtn.warn{ background:rgba(255,216,77,.10) !important; border-color:rgba(255,216,77,.22) !important; }
+.navBtn.ghost{ background:rgba(0,0,0,.18) !important; border-color:rgba(255,255,255,.12) !important; }
+.inlineForm{ display:inline-flex !important; align-items:center !important; gap:8px !important; }
+.pagerControls{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:8px !important;
+  width:auto !important;
+  padding:0 !important;
+  border:none !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  color:rgba(234,240,255,.86) !important;
+  position:relative !important;
+  top:auto !important;
+  left:auto !important;
+}
+.pagerControls button{
+  width:auto !important;
+  min-width:62px !important;
+  height:34px !important;
+  margin:0 !important;
+  padding:0 12px !important;
+  border-radius:12px !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  background:rgba(255,255,255,.05) !important;
+  color:var(--text) !important;
+  font-weight:900 !important;
+}
+.pagerControls #currentValue{
+  margin:0 !important;
+  white-space:nowrap !important;
+  font-size:13px !important;
+  font-weight:900 !important;
+}
+#legacyButtonContainer{ display:none !important; }
+.filterToggle{ display:none !important; min-width:92px !important; }
+.topNav.isCollapsed .filtersRow{
+  max-height:0 !important;
+  opacity:0 !important;
+  transform:translateY(-4px) !important;
+  pointer-events:none !important;
+}
+@media (max-width: 980px){
+  .filterToggle{ display:inline-flex !important; align-items:center !important; justify-content:center !important; }
+  .topNav{ align-items:flex-start !important; }
+  .topNav__left{ flex:1 !important; }
+  .topNav__right{ width:auto !important; }
+}
+
+/* Final console readability pass: keep all header text dark on the light console. */
+.topNav,
+.topNav *,
+.topNav .brandTitle,
+.topNav .brandSub,
+.topNav .navLabel,
+.topNav .navBtn,
+.topNav .navSelect,
+.topNav #calendarDateInput,
+.topNav .pagerControls,
+.topNav #currentValue{
+  color: #102a43 !important;
+  opacity: 1 !important;
+}
+.topNav .navBtn,
+.topNav .navSelect,
+.topNav #calendarDateInput,
+.topNav .pagerControls button{
+  background: rgba(255,255,255,.82) !important;
+  border-color: rgba(16,42,67,.18) !important;
+}
+.topNav .navBtn:disabled,
+.topNav .pagerControls button:disabled,
+.topNav .navSelect:disabled,
+.topNav #calendarDateInput:disabled{
+  color: #4a5568 !important;
+  opacity: 1 !important;
+  background: rgba(255,255,255,.62) !important;
+  border-color: rgba(16,42,67,.14) !important;
+}
+.topNav .brandDot{
+  background: #4d8dff !important;
+  box-shadow: 0 0 0 6px rgba(77,141,255,.16) !important;
+}
+
+.pageGrid{
+  width: min(1600px, 96vw) !important;
+  margin: 0 auto 24px auto !important;
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: 14px !important;
+  align-items: start !important;
+}
+.sideTools{
+  display: none !important;
+}
+.mainArea,
+#displayTable{
+  position: relative !important;
+  left: auto !important;
+  top: auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+#tableDiv{
+  width: min(1400px, 94vw) !important;
+  margin: 18px auto !important;
+  padding: 14px !important;
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.05) !important;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55) !important;
+  backdrop-filter: blur(14px) !important;
+  overflow: auto !important;
+  max-height: 78vh !important;
+}
+#condisplay{
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 50 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: auto !important;
+  margin: 0 0 12px 0 !important;
+  padding: 10px 12px !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(0,0,0,.18) !important;
+  color: rgba(234,240,255,.86) !important;
+  font-size: 14px !important;
+  line-height: 1.2 !important;
+  text-align: left !important;
+}
+#mainTable{
+  width: 100% !important;
+  min-width: 1180px !important;
+  margin: 0 !important;
+  table-layout: fixed !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  background: transparent !important;
+}
+#mainTable thead th{
+  position: sticky !important;
+  top: 52px !important;
+  z-index: 40 !important;
+  padding: 12px 12px !important;
+  text-align: left !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0 !important;
+  background: rgba(0,0,0,.22) !important;
+  color: rgba(234,240,255,.92) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,.10) !important;
+}
+#mainTable tbody td{
+  padding: 12px 12px !important;
+  font-size: 12px !important;
+  line-height: 1.35 !important;
+  color: rgba(234,240,255,.86) !important;
+  border: 0 !important;
+  border-bottom: 1px solid rgba(255,255,255,.06) !important;
+  background: transparent !important;
+  vertical-align: top !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+#mainTable tbody tr{
+  transition: background-color .18s ease, box-shadow .18s ease, transform .18s ease !important;
+}
+#mainTable tbody tr:hover td,
+#mainTable tbody tr.tr-active td{
+  background: rgba(122,167,255,.06) !important;
+}
+#mainTable tbody tr.tr-active{
+  box-shadow: inset 0 0 0 1px rgba(122,167,255,.20) !important;
+}
+#mainTable th:nth-child(1),
+#mainTable td:nth-child(1){ width: 140px !important; text-align: center !important; white-space: nowrap !important; }
+#mainTable th:nth-child(2),
+#mainTable td:nth-child(2){ width: 180px !important; }
+#mainTable th:nth-child(3),
+#mainTable td:nth-child(3){ width: 120px !important; }
+#mainTable th:nth-child(4),
+#mainTable td:nth-child(4){ width: 230px !important; }
+#mainTable th:nth-child(5),
+#mainTable td:nth-child(5){ width: 230px !important; }
+#mainTable th:nth-child(6),
+#mainTable td:nth-child(6){ width: 120px !important; }
+#mainTable th:nth-child(7),
+#mainTable td:nth-child(7){ width: 160px !important; }
+#mainTable th:nth-child(8),
+#mainTable td:nth-child(8){ width: 320px !important; }
+
+#mainTable td.numCell{
+  position: relative !important;
+  border-radius: 12px !important;
+  font-weight: 200 !important;
+  text-align: center !important;
+}
+#mainTable td.numCell.isBF{
+  background: rgba(255,84,112,.18) !important;
+  border: 1px solid rgba(255,84,112,.35) !important;
+  color: #102a43 !important;
+  box-shadow: 0 0 0 3px rgba(255,84,112,.10) !important;
+}
+#mainTable td.numCell.isTodo{
+  background: rgba(255,216,77,.16) !important;
+  border: 1px solid rgba(255,216,77,.32) !important;
+  color: #102a43 !important;
+  box-shadow: 0 0 0 3px rgba(255,216,77,.10) !important;
+}
+
+/* =====================================================
+   FINAL FIX: getDataBeta 主表格列错位修复
+   必须放在所有 CSS 的最后
+===================================================== */
+
+#tableDiv {
+  width: 100% !important;
+  max-width: calc(100vw - 280px) !important;
+  margin: 18px auto !important;
+  padding: 14px !important;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  max-height: 78vh !important;
+}
+
+/* 让表头和内容使用同一个真实表格宽度*/
+#mainTable {
+  width: 1420px !important;
+  min-width: 1420px !important;
+  max-width: 1420px !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  border-spacing: 0 !important;
+}
+
+/* 所有 th/td 都必须保持 table-cell */
+#mainTable th,
+#mainTable td {
+  display: table-cell !important;
+  box-sizing: border-box !important;
+  vertical-align: top !important;
+}
+
+/* 表头固定在 tableDiv 内部，不用 top:52px，否则容易和内容错位 */
+#mainTable thead th {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 30 !important;
+
+  padding: 12px 10px !important;
+  background: rgba(245, 247, 250, 0.98) !important;
+  color: #102a43 !important;
+  font-size: 13px !important;
+  font-weight: 900 !important;
+  text-align: left !important;
+  border-bottom: 1px solid rgba(16, 42, 67, 0.14) !important;
+
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
+/* 内容单元格*/
+#mainTable tbody td {
+  padding: 14px 10px !important;
+  background: rgba(255, 255, 255, 0.74) !important;
+  color: #102a43 !important;
+  font-size: 13px !important;
+  line-height: 1.45 !important;
+  border-bottom: 1px solid rgba(16, 42, 67, 0.08) !important;
+
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+/* 固定列宽：总和 = 1420px */
+#mainTable th:nth-child(1),
+#mainTable td:nth-child(1) {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+  text-align: center !important;
+}
+
+#mainTable th:nth-child(2),
+#mainTable td:nth-child(2) {
+  width: 170px !important;
+  min-width: 170px !important;
+  max-width: 170px !important;
+}
+
+#mainTable th:nth-child(3),
+#mainTable td:nth-child(3) {
+  width: 105px !important;
+  min-width: 105px !important;
+  max-width: 105px !important;
+}
+
+#mainTable th:nth-child(4),
+#mainTable td:nth-child(4) {
+  width: 220px !important;
+  min-width: 220px !important;
+  max-width: 220px !important;
+}
+
+#mainTable th:nth-child(5),
+#mainTable td:nth-child(5) {
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+}
+
+#mainTable th:nth-child(6),
+#mainTable td:nth-child(6) {
+  width: 110px !important;
+  min-width: 110px !important;
+  max-width: 110px !important;
+}
+
+#mainTable th:nth-child(7),
+#mainTable td:nth-child(7) {
+  width: 130px !important;
+  min-width: 130px !important;
+  max-width: 130px !important;
+}
+
+#mainTable th:nth-child(8),
+#mainTable td:nth-child(8) {
+  width: 315px !important;
+  min-width: 315px !important;
+  max-width: 315px !important;
+}
+
+/* 检测方法 td 本身保持 table-cell，只折叠内部 div */
+#mainTable td.method-cell {
+  display: table-cell !important;
+  cursor: pointer !important;
+}
+
+#mainTable td.method-cell .methodText {
+  display: -webkit-box !important;
+  -webkit-line-clamp: 3 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: anywhere !important;
+}
+
+#mainTable td.method-cell.expanded .methodText {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
+
+/* hover 不要再改 display，只改变背景 */
+#mainTable tbody tr:hover td {
+  background: rgba(122, 167, 255, 0.12) !important;
+}
+
+/* 复测框*/
+#mainTable input.Fselect {
+  width: 16px !important;
+  height: 16px !important;
+  vertical-align: middle !important;
+}
+
+/* =====================================================
+   mainArea / displayTable / tableDiv / mainTable 对齐修复
+   放在所有 CSS 最后
+===================================================== */
+
+/* 外层主区域统一宽度 */
+.mainArea,
+#displayTable {
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* tag 和 condisplay 跟表格同宽*/
+#tagContainer,
+#condisplay {
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* tableDiv 只负责卡片和滚动，不要让 padding 影响表格左边距*/
+#tableDiv {
+  width: 100% !important;
+  max-width: 1400px !important;
+  margin: 18px auto !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+
+  border-radius: 18px !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
+  background: rgba(255,255,255,.05) !important;
+}
+
+/* condisplay 原来在 tableDiv 内部，所以单独给 padding */
+#condisplay {
+  margin: 0 !important;
+  padding: 10px 14px !important;
+  border-radius: 18px 18px 0 0 !important;
+}
+
+/* 表格从 tableDiv 最左侧开始*/
+#mainTable {
+  width: 100% !important;
+  min-width: 1180px !important;
+  margin: 0 !important;
+  table-layout: fixed !important;
+  border-collapse: collapse !important;
+  box-sizing: border-box !important;
+}
+
+#progressBarContainer {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 4px !important;
+  z-index: 999999 !important;
+  display: none;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  overflow: hidden !important;
+}
+
+#progressBar {
+  height: 100% !important;
+  width: 0%;
+  background: linear-gradient(90deg, #7AA7FF, #A78BFA) !important;
+  transition: width 0.3s ease-in-out;
+}
+
+/* drawer 顶部拆分左右两个拖放区*/
+.drawerDropGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: min(760px, 58vw);
+  min-width: 500px;
+}
+
+.drawerDropGrid .dropzone {
+  width: 100% !important;
+  min-height: 48px;
+  justify-content: center;
+}
+
+.fdataAddDropzoneHalf {
+  border-color: rgba(255,216,77,.35) !important;
+  background: rgba(255,216,77,.10) !important;
+}
+
+.fdataAddDropzoneHalf .dropzone__icon,
+.fdataAddDropzoneHalf .dropzone__text {
+  color: #102a43 !important;
+  font-weight: 900 !important;
+}
+
+.fdataAddDropzoneHalf.isDragOver,
+.compareDropzoneHalf.isDragOver {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 3px rgba(122,167,255,.18);
+}
+
+/* 底部复测信息维护 panel */
+.fdataManagePanel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99980;
+  height: min(520px, 62vh);
+  transform: translateY(105%);
+  transition: transform .22s ease;
+  border-radius: 22px 22px 0 0;
+  border: 1px solid rgba(255,255,255,.16);
+  background: linear-gradient(180deg, rgba(245,247,250,.96), rgba(228,233,238,.96));
+  box-shadow: 0 -24px 70px rgba(0,0,0,.34);
+  color: #102a43;
+  overflow: hidden;
+}
+
+.fdataManagePanel.isOpen {
+  transform: translateY(0);
+}
+
+.fdataManagePanel__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(16,42,67,.12);
+  background: rgba(255,255,255,.58);
+  backdrop-filter: blur(10px);
+}
+
+.fdataManagePanel__titleWrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.fdataManagePanel__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.78);
+  border: 1px solid rgba(16,42,67,.12);
+  white-space: nowrap;
+}
+
+.fdataManagePanel__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: #2d829b;
+  box-shadow: 0 0 0 5px rgba(45,130,155,.12);
+}
+
+.fdataManagePanel__title {
+  font-weight: 900;
+}
+
+.fdataManagePanel__status {
+  font-size: 12px;
+  color: #52616f;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fdataManagePanel__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.fdataManagePanel__body {
+  height: calc(100% - 62px);
+  padding: 12px 16px 16px;
+  overflow: hidden;
+}
+
+.fdataLastAdded {
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  border-radius: 14px;
+  background: rgba(45,130,155,.10);
+  border: 1px solid rgba(45,130,155,.18);
+  color: #256f87;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.fdataTableWrap {
+  height: 100%;
+  overflow: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(16,42,67,.14);
+  background: rgba(255,255,255,.50);
+}
+
+.fdataTableInDrawer {
+  width: 100%;
+  min-width: 1100px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.fdataTableInDrawer thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  padding: 11px 10px;
+  background: linear-gradient(180deg, #aeb4ba, #a6acb2);
+  color: #111827;
+  font-size: 13px;
+  font-weight: 900;
+  text-align: left;
+  border-right: 1px solid rgba(47,58,70,.38);
+  border-bottom: 2px solid rgba(47,58,70,.48);
+}
+
+.fdataTableInDrawer tbody td {
+  padding: 10px;
+  background: rgba(255,255,255,.58);
+  color: #23303d;
+  font-size: 13px;
+  line-height: 1.45;
+  vertical-align: middle;
+  word-break: break-word;
+  white-space: pre-line;
+  border-right: 1px solid rgba(47,58,70,.25);
+  border-bottom: 1px solid rgba(47,58,70,.16);
+}
+
+.fdataTableInDrawer tbody tr:nth-child(even) td {
+  background: rgba(239,242,245,.74);
+}
+
+.fdataTableInDrawer tbody tr:hover td {
+  background: rgba(231,246,250,.88);
+}
+
+.fdataEmptyRow td {
+  text-align: center;
+  color: #64748b !important;
+  padding: 30px 12px !important;
+}
+
+.fdataDeleteBtn {
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(224,82,82,.14);
+  color: #e05252;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.fdataDeleteBtn:hover {
+  background: #e05252;
+  color: #fff;
+}
+
+.fdataInlineMethodBox {
+  position: relative;
+  width: 100%;
+  padding: 18px 8px 8px;
+  border: 1px dashed rgba(37,111,135,.45);
+  border-radius: 14px;
+  background: rgba(231,246,250,.72);
+}
+
+.fdataInlineMethodHint {
+  position: absolute;
+  top: 5px;
+  right: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #fff;
+  color: #256f87;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.fdataInlineMethodLabel {
+  display: block;
+  min-height: 32px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.fdataInlineMethodInput {
+  display: none;
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(16,42,67,.16);
+  outline: none;
+}
+
+.fdataInlineMethodBox.editing .fdataInlineMethodLabel {
+  display: none;
+}
+
+.fdataInlineMethodBox.editing .fdataInlineMethodInput {
+  display: block;
+}
+
+.fdataTieBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fdataTieBox select {
+  min-width: 72px;
+  min-height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(16,42,67,.16);
+  background: #fff;
+  color: #102a43;
+  outline: none;
+}
+
+/* 手动添加弹窗 */
+.fdataManualMask {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background: rgba(7,10,18,.55);
+  backdrop-filter: blur(6px);
+}
+
+.fdataManualPanel {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99991;
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,.18);
+  background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(245,247,250,.94));
+  color: #102a43;
+  box-shadow: 0 28px 80px rgba(0,0,0,.34);
+}
+
+.fdataManualPanel__head {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(16,42,67,.12);
+  background: rgba(255,255,255,.92);
+}
+
+.fdataManualPanel__title {
+  font-size: 19px;
+  font-weight: 900;
+}
+
+.fdataManualPanel__sub {
+  margin-top: 4px;
+  font-size: 12px;
+  color: #52616f;
+}
+
+.fdataManualPanel__close {
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(16,42,67,.08);
+  color: #102a43;
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.fdataManualPanel__body {
+  padding: 18px 20px 20px;
+}
+
+.fdataManualGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.fdataField {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 900;
+  color: #102a43;
+}
+
+.fdataField input,
+.fdataField select {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(16,42,67,.16);
+  background: rgba(255,255,255,.92);
+  color: #102a43;
+  outline: none;
+}
+
+.fdataManualPanel__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+/* 主表复测列：隐藏 checkbox，用拖拽提示替代 */
+.retestCell {
+  text-align: left !important;
+}
+
+.retestDragHint {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px dashed rgba(37,111,135,.35);
+  background: rgba(231,246,250,.72);
+  color: #256f87;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.retestStateLabel {
+  display: inline-flex;
+  margin-top: 0;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .drawerDropGrid {
+    grid-template-columns: 1fr;
+    width: min(520px, 72vw);
+    min-width: 260px;
+  }
+
+  .fdataManualGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fdataManagePanel {
+    height: min(620px, 76vh);
+  }
+}
+
+.metaChipInput{
+  min-width: 120px;
+  max-width: 260px;
+  height: 28px;
+  padding: 3px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(16,42,67,.18);
+  background: rgba(255,255,255,.9);
+  color: #102a43;
+  font-weight: 800;
+  outline: none;
+}
+
+.editableMetaChip{
+  cursor: pointer;
+}
+</style>
+</head>
+<body class="lab-recording-page">
+  <div class="lab-shell">
+    <aside class="lab-sidebar" aria-label="主导航">
+      <a class="lab-brand" href="/" title="首页仪表盘">
+        <span class="lab-brand-mark">MB</span>
+        <span class="lab-brand-text">微生物</span>
+      </a>
+      <nav class="lab-nav">
+        <a class="lab-nav-item" href="/" title="首页仪表盘">
+          <span class="lab-nav-icon lab-icon-dashboard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>首页仪表盘</strong>
+            <small>系统动态概览</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/sample-receive.html" title="样品接收">
+          <span class="lab-nav-icon lab-icon-receive" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品接收</strong>
+            <small>上传 Excel 清单</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/testing" title="样品处理">
+          <span class="lab-nav-icon lab-icon-process" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品处理</strong>
+            <small>做样与写管入库</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/recordingbeta" title="结果记录">
+          <span class="lab-nav-icon lab-icon-record" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>结果记录</strong>
+            <small>培养与判读记录</small>
+          </span>
+        </a>
+        <a class="lab-nav-item is-active" href="/getTestDatabeta" title="样品查询">
+          <span class="lab-nav-icon lab-icon-query" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>样品查询</strong>
+            <small>历史数据检索</small>
+          </span>
+        </a>
+        <a class="lab-nav-item" href="/standard" title="标准方法管理">
+          <span class="lab-nav-icon lab-icon-standard" aria-hidden="true"></span>
+          <span class="lab-nav-copy">
+            <strong>标准方法管理</strong>
+            <small>项目与方法配置</small>
+          </span>
+        </a>
+      </nav>
+    </aside>
+    <main class="lab-main lab-recording-main">
+    <header class="lab-topbar">
+      <div>
+        <strong>样品查询中心</strong>
+        <span>样品历史数据检索、结果导出与复测信息维护</span>
+      </div>
+      <div class="lab-user-area" data-auth-user>
+        <span>样品查询</span>
+      </div>
+    </header>
+	<header class="topNav">
+  <div class="topNav__left">
+    <div class="brandPill">
+      <span class="brandDot"></span>
+      <div class="brandText">
+        <div class="brandTitle">Data Console</div>
+        <div class="brandSub" th:text="${tablename}">table</div>
+      </div>
+    </div>
+
+    <nav class="navActions">
+		<div class="filtersRow" id="filtersRow">
+      <button class="navBtn" type="button" onclick="window.location.href='/getData'">返回查询页</button>
+      <button class="navBtn" type="button" onclick="window.location.href='/'">返回主页</button>
+
+      <div class="navGroup">
+        <label class="navLabel" for="chuselectDate">选择日期</label>
+        <select id="chuselectDate" name="date" class="navSelect">
+          <option value=" " selected>选择日期</option>
+          <option th:each="dateTable:${nameList}"
+                  th:value="${dateTable.toString()}"
+                  th:text="${dateTable.toString()}"></option>
+        </select>
+      </div>
+
+      <div class="navGroup">
+        <label class="navLabel" for="slectedUnit">单位/限额</label>
+        <select id="slectedUnit" class="navSelect">
+          <option value="CFU">CFU</option>
+          <option value="MPN">MPN</option>
+          <option value="/">/</option>
+          <option value="none">无方法</option>
+        </select>
+      </div>
+
+      <div class="navGroup">
+        <label class="navLabel" for="filterSelect">检测项目</label>
+        <select id="filterSelect" class="navSelect">
+          <option value="">全部</option>
+        </select>
+      </div>
+      <div id="buttonContainer" class="pagerControls">
+        <button id="upBtn" type="button">向下</button>
+        <button id="downBtn" type="button" disabled>向上</button>
+        <span id="currentValue">第1~500条数据</span>
+      </div>
+      </div>
+    </nav>
+  </div>
+
+  <div class="topNav__right">
+	  <button class="navBtn ghost filterToggle" type="button" id="filterToggleBtn" aria-expanded="true">
+  Filters
+</button>
+    <form class="inlineForm" action="#" th:action="@{/loadRecordData}" method="post" enctype="multipart/form-data">
+      <button class="navBtn" type="submit">结果导出</button>
+      <input id="exportTableName" name="table_name" value="" hidden>
+    </form>
+
+    <button class="navBtn warn" type="button" onclick="window.location.href='/setFData'">编辑复测信息</button>
+    <button class="navBtn primary" type="button" onclick="openmanualPanel()">查询数据</button>
+  </div>
+</header>
+	<!--<div  id="home">
+		<img src="image/Buttonplus.png" id="appselectLabel"  ></img>
+		<div id="selectapp" style="grid-auto-flow: column;" hidden>
+		<label for="backTodata" id="backTodataLabel">返回查询页</label>
+		<button id="backTodata" onclick="window.location.href='/getData'" hidden></button>
+		<label for="backToHome" id="backToHomeLabel">返回主页</label>
+		<button id="backToHome" onclick="window.location.href='/'" hidden></button>
+		<div  class="selectDatePanel" >	
+		<select id="chuselectDate" name="date" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+	</div>
+	<div>
+	<form action="#" th:action="@{/loadRecordData}" method="post" enctype="multipart/form-data">
+		<label for="tipLabelc" id="importResultLabel">结果导出</label>
+		<input  id="tipLabelc" name="table_name"  th:value="${tablename}"  type="submit" hidden>
+	</form>
+	</div>
+	<label for="setFdata" class="setFlabel">编辑复测信息</label>
+		<button id="setFdata" onclick="window.location.href='/setFData'" hidden></button>
+		
+		
+		
+	<button type="button" class="mbut" onclick="openmanualPanel()">查询数据</button>
+
+		</div>
+	</div>-->
+	
+	
+<!-- 查询面板（默认隐藏） -->
+<div id="manualPanel" class="panel" style="display:none;">
+  <div class="panel__top">
+    <div class="panel__title">
+      <div class="panel__badge">Query</div>
+      <div>
+        <h3>样品数据查询</h3>
+        <p>输入短号或名称，自动查询旧日表、旧年表与年度总表</p>
+      </div>
+    </div>
+
+    <button class="iconBtn" type="button" onclick="closemanualPanel()" aria-label="Close">×</button>
+  </div>
+
+  <div class="panel__body">
+    <div class="searchRow glassSpotlight" id="searchCard">
+      <div class="searchRow__left">
+        <div class="searchIcon">🔎</div>
+        <input
+          id="queryInput"
+          type="text"
+          placeholder="输入数字按短号查询，输入文字按样品名称查询，输入文字后接co按公司查询"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="searchRow__right">
+        <label class="toggle" style="display:none;">
+          <input id="historyToggle" type="checkbox" />
+          <span class="toggle__ui"></span>
+          <span class="toggle__text">历史</span>
+        </label>
+
+        <button id="queryBtn" class="btn primary glassSpotlight" type="button" onclick="runQuery()">
+          查询
+        </button>
+      </div>
+    </div>
+
+    <div class="statusLine" id="statusLine">
+      <span class="dot idle" id="statusDot"></span>
+      <span id="statusText">就绪：回车或点击“查询”</span>
+      <span class="hintRight">数字=短号｜文字=名称 | 文字+co=按公司搜索</span>
+    </div>
+
+    <div class="tableWrap glassSpotlight" id="tableCard">
+      <table class="table" id="queryTable">
+        <thead>
+          <tr>
+            <th style="width:110px;">样品短号</th>
+            <th style="width:220px;">样品名称</th>
+            <th style="width:140px;">检测项目</th>
+            <th style="width:180px;">报告抬头</th>
+            <th>检测方法</th>
+            <th style="width:120px;">信息</th>
+            <th style="width:120px;">结果</th>
+            <th style="width:90px;">状态</th>
+          </tr>
+        </thead>
+        <tbody id="context">
+          <tr class="emptyRow">
+            <td colspan="8">请输入短号或样品名称开始查询</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<div id="progressBarContainer" style="display: none; width: 100%; height: 20px; background-color: #f3f3f3; border: 1px solid #ccc; border-radius: 5px; overflow: hidden;">
+    <div id="progressBar" style="width: 0%; height: 100%; background-color: #4caf50; transition: width 0.3s;"></div>
+</div>
+ <div class="pageGrid">
+  <!-- 左侧工具栏 -->
+  <aside class="sideTools">
+    <div id="legacyButtonContainer" style="display:none;">
+      <button type="button">向下</button>
+      <button type="button" disabled>向上</button>
+      <p>当前值：<span>第1~500条数据</span></p>
+    </div>
+  </aside>
+
+  <!-- 主表格 -->
+  <main class="mainArea">
+    <div id="displayTable">
+      <div id="tagContainer"></div>
+
+      <div id="tableDiv">
+        <div id="condisplay">
+          <label id="con" name="table_name"></label>
+        </div>
+
+        <div id="recorded"></div>
+
+<table id="mainTable">
+  <colgroup>
+    <col style="width:130px;">
+    <col style="width:170px;">
+    <col style="width:105px;">
+    <col style="width:220px;">
+    <col style="width:240px;">
+    <col style="width:110px;">
+    <col style="width:130px;">
+    <col style="width:250px;">
+  </colgroup>
+
+  <thead>
+    <tr>
+      <th>样品短号</th>
+      <th>结果</th>
+      <th>复测</th>
+      <th>样品名称</th>
+      <th>报告抬头</th>
+      <th>单位/限额</th>
+      <th>检测项目</th>
+      <th>检测方法</th>
+    </tr>
+  </thead>
+
+  <tbody id="dataBody"></tbody>
+</table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Bottom dock -->
+  <div class="dock">
+    <div class="dockLeft">
+  <strong>Console</strong>
+  <!--<span id="newSampleAlert">NEW：样品待领取</span>-->
+  <button id="openCompare" class="btn" onclick="">〽️数据比对</button>
+  <button id="openFdataManage" class="btn" type="button" onclick="openFdataManagePanelFromDock()">➕复测维护</button>
+</div>
+    <div class="dockRight">
+      <input type="text" placeholder="快速搜索（后续接入..." />
+      <button class="btn" onclick="window.scrollTo({top:0, behavior:'smooth'})">⬆️ 回到顶部</button>
+    </div>
+  </div>
+  
+<!-- Data Compare Drawer -->
+<div id="compareDrawer" class="drawer" aria-hidden="true">
+  <div class="drawer__bar">
+    <div class="drawer__left">
+      <div class="drawer__pill">
+        <span class="drawer__dot"></span>
+        <span class="drawer__title">数据比对</span>
+      </div>
+
+      <!-- Drop Zone: 拖拽到这里 -->
+      <div class="drawerDropGrid">
+  <!-- 左侧：原数据比对拖放区，保留 Drawer.js 原逻辑 -->
+  <div id="compareDropzone" class="dropzone compareDropzoneHalf">
+    <span class="dropzone__icon">⇪</span>
+    <span class="dropzone__text">拖拽一行到这里进行比对</span>
+  </div>  <!-- 右侧：替代原 checkbox 添加复测 -->  <div id="fdataAddDropzone" class="dropzone fdataAddDropzoneHalf">
+    <span class="dropzone__icon">⇪</span>
+    <span class="dropzone__text">拖拽一行到这里添加复测</span>
+  </div>
+</div>
+    </div>
+
+    <div class="drawer__right">
+      <button id="compareClear" class="navBtn ghost" type="button">清空</button>
+      <button id="compareClose" class="navBtn" type="button">收起</button>
+    </div>
+  </div>
+
+  <div class="drawer__body">
+  <div class="drawer__hint">已接收数据：</div>
+
+  <div id="compareMeta"></div>
+  <div id="compareTableWrap"></div>
+
+  <div id="compareList" class="compareList"></div>
+</div>
+</div>
+<div id="fdataManagePanel" class="fdataManagePanel" aria-hidden="true">
+  <div class="fdataManagePanel__bar">
+    <div class="fdataManagePanel__titleWrap">
+      <div class="fdataManagePanel__pill">
+        <span class="fdataManagePanel__dot"></span>
+        <span class="fdataManagePanel__title">复测信息维护</span>
+      </div>
+      <div id="fdataManageStatus" class="fdataManagePanel__status">拖拽样品到右侧复测区后，会在这里显示复测维护表格</div>
+    </div><div class="fdataManagePanel__actions">
+  <button class="navBtn primary" type="button" onclick="openFdataManualAddPanel()">手动添加复测</button>
+  <button class="navBtn ghost" type="button" onclick="reloadFdataList()">刷新</button>
+  <button class="navBtn" type="button" onclick="closeFdataManagePanel()">收起</button>
+</div>
+
+  </div>  <div class="fdataManagePanel__body">
+    <div id="fdataLastAdded" class="fdataLastAdded" hidden></div><div class="fdataTableWrap">
+  <table class="fdataTableInDrawer">
+    <thead>
+      <tr>
+        <th style="width:70px;">删除</th>
+        <th style="width:130px;">样品短号</th>
+        <th style="width:190px;">样品名称</th>
+        <th style="width:190px;">检测项目</th>
+        <th>检测方法</th>
+        <th style="width:280px;">复测信息</th>
+      </tr>
+    </thead>
+    <tbody id="fdataManageBody">
+      <tr class="fdataEmptyRow">
+        <td colspan="6">暂无复测信息。请先将主表中的一行拖到右侧“添加复测”区域。</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+  </div>
+</div>
+
+<div id="fdataManualMask" class="fdataManualMask" hidden></div><div id="fdataManualPanel" class="fdataManualPanel" hidden>
+  <div class="fdataManualPanel__head">
+    <div>
+      <div class="fdataManualPanel__title">手动添加复测</div>
+      <div class="fdataManualPanel__sub">手动输入样品短号，并选择检测标准、检测项目和检测方法</div>
+    </div>
+    <button class="fdataManualPanel__close" type="button" onclick="closeFdataManualAddPanel()">×</button>
+  </div>  <div class="fdataManualPanel__body">
+    <form id="fdataManualForm" action="#" th:action="@{/manualAddFData}" method="get" enctype="text/plain">
+      <div class="fdataManualGrid">
+        <label class="fdataField" for="fdataManualNum">
+          样品短号
+          <input id="fdataManualNum" type="text" name="simpleNum" placeholder="请输入样品短号">
+        </label><label class="fdataField" for="fdataManualStandard">
+      选择标准
+      <select id="fdataManualStandard" name="standardNumber">
+        <option value="">-- 请选择检测标准 --</option>
+      </select>
+    </label>
+
+    <label class="fdataField" for="fdataManualItem">
+      检测项目
+      <select id="fdataManualItem" name="simpleItem">
+        <option value="">-- 请选择检测项目 --</option>
+      </select>
+    </label>
+
+    <label class="fdataField" for="fdataManualMethod">
+      检测方法
+      <select id="fdataManualMethod" name="testMethord">
+        <option value="">-- 请选择检测方法 --</option>
+      </select>
+    </label>
+  </div>
+
+  <div class="fdataManualPanel__actions">
+    <button class="navBtn ghost" type="button" onclick="closeFdataManualAddPanel()">取消</button>
+    <button class="navBtn primary" type="submit">提交</button>
+  </div>
+</form>
+
+  </div>
+</div>
+<script src="script/Drawer.js?v=1.0.0" ></script>
+
+<script>
+(function initDragAddFAndFdataManagePanel() {
+  let lastDraggedMainRow = null;
+  let fdataRows = [];
+
+  function safeText(value) {
+    return value === null || value === undefined ? '' : String(value);
+  }
+
+  function textOf(el) {
+    return (el && (el.innerText || el.textContent) || '').trim();
+  }
+
+  function escapeHtml(value) {
+    return safeText(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function getCurrentTableName() {
+    return textOf(document.getElementById('con')) || $('#exportTableName').val() || '';
+  }
+
+  function collectMainRowData(tr) {
+    if (!tr) return null;
+
+    const numCell = tr.querySelector('.numCell') || tr.children[0];
+    const resultCell = tr.children[1];
+    const nameCell = tr.children[3];
+    const companyCell = tr.children[4];
+    const unitCell = tr.children[5];
+    const itemCell = tr.querySelector('.testItem') || tr.children[6];
+    const methodCell = tr.querySelector('td.method-cell .methodText') || tr.children[7];
+    const checkInput = tr.querySelector('input.Fselect');
+
+    return {
+      tr: tr,
+      trId: tr.id || '',
+      simpleNum: textOf(numCell),
+      simpleId: numCell ? (numCell.dataset.id || '') : '',
+      result: textOf(resultCell),
+      simpleName: textOf(nameCell),
+      company: textOf(companyCell),
+      unit: textOf(unitCell),
+      testItem: textOf(itemCell),
+      testMethod: textOf(methodCell),
+      ifF: checkInput ? checkInput.value : (tr.dataset.test || ''),
+      firstTie: '0',
+      lastTie: '',
+      tableName: getCurrentTableName()
+    };
+  }
+
+  function getDraggedRowFromEvent(event) {
+    const trId = event.dataTransfer && event.dataTransfer.getData('text/plain');
+    if (trId) {
+      const byId = document.getElementById(trId);
+      if (byId && byId.tagName === 'TR') return byId;
+    }
+    return lastDraggedMainRow || document.querySelector('#mainTable tbody tr.tr-active');
+  }
+
+  function openFdataManagePanel() {
+    const panel = document.getElementById('fdataManagePanel');
+    if (!panel) return;
+    panel.classList.add('isOpen');
+    panel.setAttribute('aria-hidden', 'false');
+  }
+
+  window.openFdataManagePanelFromDock = function openFdataManagePanelFromDock() {
+    renderFdataTable();
+    openFdataManagePanel();
+
+    if (fdataRows.length) {
+      setFdataStatus('已打开复测信息维护表格');
+    } else {
+      setFdataStatus('请将主表中的一行拖到右侧“添加复测”区域，或点击上方“手动添加复测”');
+    }
+  };
+
+  window.closeFdataManagePanel = function closeFdataManagePanel() {
+    const panel = document.getElementById('fdataManagePanel');
+    if (!panel) return;
+    panel.classList.remove('isOpen');
+    panel.setAttribute('aria-hidden', 'true');
+  };
+
+  function setFdataStatus(text) {
+    $('#fdataManageStatus').text(text || '');
+  }
+
+  function showLastAdded(rowData) {
+    const box = $('#fdataLastAdded');
+    box.html(
+      '刚刚添加：<strong>' + escapeHtml(rowData.simpleNum) + '</strong>' +
+      ' ｜' + escapeHtml(rowData.simpleName) +
+      ' ｜' + escapeHtml(rowData.testItem)
+    );
+    box.prop('hidden', false);
+  }
+
+  function addOrUpdateFdataRow(rowData) {
+    const key = rowData.simpleNum + '||' + rowData.testItem;
+    const existsIndex = fdataRows.findIndex(function (row) {
+      return row.simpleNum + '||' + row.testItem === key;
+    });
+
+    if (existsIndex >= 0) {
+      fdataRows[existsIndex] = Object.assign({}, fdataRows[existsIndex], rowData);
+    } else {
+      fdataRows.unshift(rowData);
+    }
+
+    renderFdataTable();
+  }
+
+  function renderFdataTable() {
+    const body = $('#fdataManageBody');
+    body.empty();
+
+    if (!fdataRows.length) {
+      body.html('<tr class="fdataEmptyRow"><td colspan="6">暂无复测信息。请先将主表中的一行拖到右侧“添加复测”区域。</td></tr>');
+      return;
+    }
+
+    fdataRows.forEach(function (row, index) {
+      body.append(`
+        <tr data-fdata-index="${index}">
+          <td>
+            <button class="fdataDeleteBtn" type="button" onclick="deleteFdataRow(${index})">×</button>
+          </td>
+          <td>${escapeHtml(row.simpleNum)}</td>
+          <td>${escapeHtml(row.simpleName)}</td>
+          <td>${escapeHtml(row.testItem)}</td>
+          <td>
+            <div class="fdataInlineMethodBox" title="点击检测方法可编辑，失焦或按 Enter 提交">
+              <span class="fdataInlineMethodHint">点击编辑</span>
+              <label class="fdataInlineMethodLabel" onclick="startFdataMethodEdit(this)">${escapeHtml(row.testMethod)}</label>
+              <input class="fdataInlineMethodInput" type="text" onblur="finishFdataMethodEdit(this)" onkeydown="handleFdataMethodKeydown(event, this)">
+            </div>
+          </td>
+          <td>
+            <div class="fdataTieBox">
+              <span>梯度</span>
+              <select class="fdataTie1" onchange="updateFdataTie(${index})">
+                ${buildTieOptions(row.firstTie || '0', true)}
+              </select>
+              <span>~</span>
+              <select class="fdataTie2" onchange="updateFdataTie(${index})">
+                ${buildTieOptions(row.lastTie || '', false)}
+              </select>
+            </div>
+          </td>
+        </tr>
+      `);
+    });
+  }
+
+  function buildTieOptions(selected, includeZero) {
+    const values = includeZero ? ['0','1','2','3','4','5','6','7','8','9','10','11','12'] : ['', '1','2','3','4','5','6','7','8','9','10','11','12'];
+    return values.map(function (v) {
+      const text = v === '' ? '选择梯度' : v;
+      return '<option value="' + v + '" ' + (String(selected) === String(v) ? 'selected' : '') + '>' + text + '</option>';
+    }).join('');
+  }
+
+  function retestTokens(value) {
+    return String(value || '').split(/[,，]/).map(function (item) {
+      return item.trim();
+    }).filter(Boolean);
+  }
+
+  function formatRetestState(value) {
+    const tokens = retestTokens(value);
+    const hasBF = tokens.includes('BF') || tokens.includes('RBF');
+    const hasC = tokens.includes('C');
+    if (hasBF && hasC) return '\u590d\u6d4b\u5df2\u5728\u6b64\u6dfb\u52a0\u4e3a\u590d\u6d4b';
+    if (hasC) return '\u590d\u6d4b\u5df2\u6dfb\u52a0';
+    if (hasBF) return '\u590d\u6d4b';
+    return '';
+  }
+
+  function appendRetestCreatedState(value) {
+    const tokens = retestTokens(value);
+    if (!tokens.includes('C')) {
+      tokens.push('C');
+    }
+    return tokens.join(',');
+  }
+
+
+  // 关键修复：renderCFUData / renderMPNData / renderattrData / addF 都在后面的全局 script 中，
+  // 但 retestTokens / formatRetestState 原来被包在当前 IIFE 里，外部访问不到，
+  // 所以浏览器会报：ReferenceError: formatRetestState is not defined。
+  window.retestTokens = retestTokens;
+  window.formatRetestState = formatRetestState;
+  window.appendRetestCreatedState = appendRetestCreatedState;
+
+  function markSourceRow(rowData) {
+    const tr = rowData.tr;
+    if (!tr) return;
+
+    const input = tr.querySelector('input.Fselect');
+    const label = tr.querySelector('.retestStateLabel, #fDatelabel');
+
+    if (input) {
+      input.checked = true;
+      input.value = appendRetestCreatedState(input.value);
+    }
+    if (label) {
+      label.textContent = formatRetestState(input ? input.value : 'C');
+    }
+
+    tr.classList.add('tr-active');
+    const numCell = tr.querySelector('.numCell');
+    if (numCell) numCell.classList.add('isBF');
+  }
+
+  function dragAddF(rowData) {
+    if (!rowData || !rowData.simpleNum) {
+      alert('没有识别到样品短号，请重新拖拽主表中的一行。');
+      return;
+    }
+
+    const modeljson = {
+      simpleNum: rowData.simpleNum,
+      simpleID: rowData.simpleId,
+      simpleName: rowData.testItem,
+      table_name: rowData.tableName
+    };
+
+    setFdataStatus('正在添加复测：' + rowData.simpleNum + ' ...');
+
+    $.ajax({
+      url: '/b',
+      data: modeljson,
+      success: function () {
+        markSourceRow(rowData);
+        showLastAdded(rowData);
+        openFdataManagePanel();
+        loadFdataListFromSetFData();
+      },
+      error: function () {
+        alert('添加复测失败，请检查 /b 接口');
+        setFdataStatus('添加复测失败：' + rowData.simpleNum);
+      }
+    });
+  }
+
+  window.deleteFdataRow = function deleteFdataRow(index) {
+    const row = fdataRows[index];
+    if (!row) return;
+
+    if (!confirm('确认删除该复测信息？')) return;
+
+    $.ajax({
+      url: '/deleteDuo',
+      type: 'GET',
+      data: {
+        num: row.simpleNum,
+        nam: row.testItem
+      },
+      success: function () {
+        fdataRows.splice(index, 1);
+        renderFdataTable();
+        setFdataStatus('已删除复测信息：' + row.simpleNum);
+      },
+      error: function () {
+        alert('删除失败，请检查 /deleteDuo 接口');
+      }
+    });
+  };
+
+  window.updateFdataTie = function updateFdataTie(index) {
+    const row = fdataRows[index];
+    if (!row) return;
+
+    const tr = $('#fdataManageBody tr[data-fdata-index="' + index + '"]');
+    const firstTie = tr.find('.fdataTie1').val();
+    const lastTie = tr.find('.fdataTie2').val();
+
+    row.firstTie = firstTie;
+    row.lastTie = lastTie;
+
+    $.ajax({
+      url: '/ajax/c',
+      data: {
+        simpleNum: row.simpleNum,
+        simpleName: row.testItem,
+        firstTie: firstTie,
+        lastTie: lastTie
+      },
+      success: function () {
+        setFdataStatus('已更新梯度：' + row.simpleNum + '：' + firstTie + '~' + lastTie);
+      }
+    });
+  };
+
+  window.startFdataMethodEdit = function startFdataMethodEdit(labelEl) {
+    const box = labelEl.closest('.fdataInlineMethodBox');
+    const input = box.querySelector('.fdataInlineMethodInput');
+
+    input.value = labelEl.innerText.trim();
+    input.setAttribute('data-old-value', labelEl.innerText.trim());
+    box.classList.add('editing');
+
+    setTimeout(function () {
+      input.focus();
+      input.select();
+    }, 0);
+  };
+
+  window.finishFdataMethodEdit = function finishFdataMethodEdit(inputEl) {
+    const box = inputEl.closest('.fdataInlineMethodBox');
+    const label = box.querySelector('.fdataInlineMethodLabel');
+    const tr = inputEl.closest('tr');
+    const index = Number(tr.getAttribute('data-fdata-index'));
+    const row = fdataRows[index];
+    const newValue = inputEl.value.trim();
+    const oldValue = inputEl.getAttribute('data-old-value') || '';
+
+    box.classList.remove('editing');
+
+    if (!row || !newValue || newValue === oldValue) {
+      inputEl.value = oldValue;
+      return;
+    }
+
+    $.ajax({
+      url: '/ajax/c_addFmet',
+      data: {
+        simpleNum: row.simpleNum,
+        simpleName: row.testItem,
+        Fmethod: newValue + '!!!!' + oldValue
+      },
+      success: function () {
+        row.testMethod = newValue;
+        label.innerText = newValue;
+        setFdataStatus('已更新检测方法：' + row.simpleNum);
+      },
+      error: function () {
+        inputEl.value = oldValue;
+        alert('检测方法更新失败，请检查 /ajax/c_addFmet 接口');
+      }
+    });
+  };
+
+  window.handleFdataMethodKeydown = function handleFdataMethodKeydown(event, inputEl) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      inputEl.blur();
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      const box = inputEl.closest('.fdataInlineMethodBox');
+      inputEl.value = inputEl.getAttribute('data-old-value') || '';
+      box.classList.remove('editing');
+    }
+  };
+
+  window.reloadFdataList = function reloadFdataList() {
+    renderFdataTable();
+    openFdataManagePanel();
+    setFdataStatus('已刷新当前页面内的复测维护表格');
+  };
+
+  function bindFdataDropzone() {
+    const zone = document.getElementById('fdataAddDropzone');
+    if (!zone) return;
+
+    zone.addEventListener('dragover', function (event) {
+      event.preventDefault();
+      zone.classList.add('isDragOver');
+    });
+
+    zone.addEventListener('dragleave', function () {
+      zone.classList.remove('isDragOver');
+    });
+
+    zone.addEventListener('drop', function (event) {
+      event.preventDefault();
+      zone.classList.remove('isDragOver');
+
+      const tr = getDraggedRowFromEvent(event);
+      const rowData = collectMainRowData(tr);
+      dragAddF(rowData);
+    });
+  }
+
+  function rememberDraggingRows() {
+    document.addEventListener('dragstart', function (event) {
+      const tr = event.target && event.target.closest ? event.target.closest('#mainTable tbody tr') : null;
+      if (!tr) return;
+
+      lastDraggedMainRow = tr;
+      if (!tr.id) {
+        tr.id = 'drag-row-' + Date.now();
+      }
+      if (event.dataTransfer) {
+        event.dataTransfer.setData('text/plain', tr.id);
+      }
+    }, true);
+  }
+
+  /* 手动添加复测：单独逻辑 */
+  window.openFdataManualAddPanel = function openFdataManualAddPanel() {
+    $('#fdataManualNum').val('');
+    $('#fdataManualItem').empty().append('<option value="">-- 请选择检测项目 --</option>');
+    $('#fdataManualMethod').empty().append('<option value="">-- 请选择检测方法 --</option>');
+    loadManualStandards();
+
+    document.getElementById('fdataManualMask').hidden = false;
+    document.getElementById('fdataManualPanel').hidden = false;
+  };
+
+  window.closeFdataManualAddPanel = function closeFdataManualAddPanel() {
+    document.getElementById('fdataManualMask').hidden = true;
+    document.getElementById('fdataManualPanel').hidden = true;
+  };
+
+  function loadManualStandards() {
+    const standardSelect = $('#fdataManualStandard');
+    standardSelect.empty().append('<option value="">-- 正在加载检测标准 --</option>');
+
+    $.ajax({
+      url: '/getStandard',
+      type: 'GET',
+      success: function (response) {
+        standardSelect.empty().append('<option value="">-- 请选择检测标准 --</option>');
+        (response || []).forEach(function (item) {
+          standardSelect.append($('<option>').val(item).text(item));
+        });
+      },
+      error: function () {
+        standardSelect.empty().append('<option value="">-- 检测标准加载失败 --</option>');
+      }
+    });
+  }
+
+  $('#fdataManualStandard').off('change.fdataManual').on('change.fdataManual', function () {
+    const selectedStandard = $(this).val();
+    const itemSelect = $('#fdataManualItem');
+    const methodSelect = $('#fdataManualMethod');
+
+    itemSelect.empty().append('<option value="">-- 请选择检测项目 --</option>');
+    methodSelect.empty().append('<option value="">-- 请选择检测方法 --</option>');
+
+    if (!selectedStandard) return;
+
+    $.ajax({
+      url: '/getTestItems',
+      type: 'GET',
+      data: { method: selectedStandard },
+      success: function (response) {
+        itemSelect.empty().append('<option value="">-- 请选择检测项目 --</option>');
+        (response || []).forEach(function (item) {
+          itemSelect.append($('<option>').val(item).text(item));
+        });
+      },
+      error: function () {
+        alert('无法加载检测项目，请稍后再试。');
+      }
+    });
+  });
+
+  $('#fdataManualItem').off('change.fdataManual').on('change.fdataManual', function () {
+    const selectedStandard = $('#fdataManualStandard').val();
+    const selectedItem = $(this).val();
+    const methodSelect = $('#fdataManualMethod');
+
+    methodSelect.empty().append('<option value="">-- 请选择检测方法 --</option>');
+
+    if (!selectedStandard || !selectedItem) return;
+
+    $.ajax({
+      url: '/getTestMethod',
+      type: 'GET',
+      data: {
+        method: selectedStandard,
+        testItem: selectedItem
+      },
+      success: function (response) {
+        methodSelect.empty().append('<option value="">-- 请选择检测方法 --</option>');
+        (response || []).forEach(function (item) {
+          methodSelect.append($('<option>').val(item).text(item));
+        });
+      },
+      error: function () {
+        alert('无法加载检测方法，请稍后再试。');
+      }
+    });
+  });
+
+  $('#fdataManualForm').off('submit.fdataManual').on('submit.fdataManual', function (event) {
+    event.preventDefault();
+
+    if (!$('#fdataManualNum').val()) {
+      alert('样品短号不能为空');
+      return;
+    }
+    if (!$('#fdataManualStandard').val() || !$('#fdataManualItem').val() || !$('#fdataManualMethod').val()) {
+      alert('请完整选择检测标准、检测项目和检测方法。');
+      return;
+    }
+
+    $.ajax({
+      url: '/manualAddFData',
+      type: 'GET',
+      data: $(this).serialize(),
+      success: function () {
+        const rowData = {
+          simpleNum: $('#fdataManualNum').val(),
+          simpleName: '',
+          testItem: $('#fdataManualItem').val(),
+          testMethod: $('#fdataManualMethod').val(),
+          firstTie: '0',
+          lastTie: '',
+          tableName: getCurrentTableName()
+        };
+
+        addOrUpdateFdataRow(rowData);
+        showLastAdded(rowData);
+        openFdataManagePanel();
+        loadFdataListFromSetFData();
+      },
+      error: function () {
+        alert('手动添加复测失败，请检查 /manualAddFData 接口');
+      }
+    });
+  });
+
+  bindFdataDropzone();
+  rememberDraggingRows();
+})();
+</script>
+
+<script>
+(function overrideFdataPanelRefreshBySetFData(){
+  function safeTextForRefresh(value) {
+    return value === null || value === undefined ? '' : String(value);
+  }
+
+  function textOfForRefresh(el) {
+    return (el && (el.innerText || el.textContent) || '').trim();
+  }
+
+  function openPanelForRefresh() {
+    const panel = document.getElementById('fdataManagePanel');
+    if (!panel) return;
+    panel.classList.add('isOpen');
+    panel.setAttribute('aria-hidden', 'false');
+  }
+
+  function setStatusForRefresh(text) {
+    const el = document.getElementById('fdataManageStatus');
+    if (el) el.innerText = text || '';
+  }
+
+  function buildTieOptionsForRefresh(selected, includeZero) {
+    const values = includeZero
+      ? ['0','1','2','3','4','5','6','7','8','9','10','11','12']
+      : ['','1','2','3','4','5','6','7','8','9','10','11','12'];
+
+    return values.map(function(v){
+      const text = v === '' ? '选择梯度' : v;
+      return '<option value="' + v + '" ' + (String(selected) === String(v) ? 'selected' : '') + '>' + text + '</option>';
+    }).join('');
+  }
+
+  function escapeHtmlForRefresh(value) {
+    return safeTextForRefresh(value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function parseSetFDataRowsForRefresh(html) {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const rows = [];
+
+    let trs = Array.from(doc.querySelectorAll('.fdata-table tbody tr'));
+
+    if (!trs.length) {
+      const tables = Array.from(doc.querySelectorAll('table'));
+      const targetTable = tables.find(function(table){
+        const firstTr = table.querySelector('tr');
+        const headText = firstTr ? firstTr.innerText.split('').join('').split(' ').join('') : '';
+        return headText.includes('删除') && headText.includes('样品短号') && headText.includes('检测项目') && headText.includes('检测方法');
+      });
+      if (targetTable) {
+        trs = Array.from(targetTable.querySelectorAll('tr')).slice(1);
+      }
+    }
+
+    trs.forEach(function(tr){
+      const cells = Array.from(tr.children);
+      if (cells.length < 5) return;
+
+      const simpleNum = textOfForRefresh(cells[1]);
+      if (!simpleNum || simpleNum.includes('样品短号')) return;
+
+      const methodLabel = cells[4].querySelector('.method-label');
+
+      rows.push({
+        simpleNum: simpleNum,
+        simpleName: textOfForRefresh(cells[2]),
+        testItem: textOfForRefresh(cells[3]),
+        testMethod: textOfForRefresh(methodLabel) || textOfForRefresh(cells[4]),
+        firstTie: '0',
+        lastTie: '',
+        tableName: textOfForRefresh(document.getElementById('con'))
+      });
+    });
+
+    return rows;
+  }
+
+  function renderRowsFromSetFData(rows) {
+    const body = document.getElementById('fdataManageBody');
+    if (!body) return;
+
+    if (!rows.length) {
+      body.innerHTML = '<tr class="fdataEmptyRow"><td colspan="6">暂无复测信息。已请求 /setFData，但没有解析到表格数据。</td></tr>';
+      return;
+    }
+
+    body.innerHTML = rows.map(function(row, index){
+      return '<tr data-fdata-index="' + index + '">' +
+        '<td><button class="fdataDeleteBtn" type="button" onclick="deleteFdataRowFromSetFData(\'' + escapeHtmlForRefresh(row.simpleNum) + '\', \'' + escapeHtmlForRefresh(row.testItem) + '\')">×</button></td>' +
+        '<td>' + escapeHtmlForRefresh(row.simpleNum) + '</td>' +
+        '<td>' + escapeHtmlForRefresh(row.simpleName) + '</td>' +
+        '<td>' + escapeHtmlForRefresh(row.testItem) + '</td>' +
+        '<td><div class="fdataInlineMethodBox" title="点击检测方法可编辑，失焦或按 Enter 提交">' +
+          '<span class="fdataInlineMethodHint">点击编辑</span>' +
+          '<label class="fdataInlineMethodLabel" data-simple-num="' + escapeHtmlForRefresh(row.simpleNum) + '" data-test-item="' + escapeHtmlForRefresh(row.testItem) + '" onclick="startFdataMethodEdit(this)">' + escapeHtmlForRefresh(row.testMethod) + '</label>' +
+          '<input class="fdataInlineMethodInput" type="text" onblur="finishFdataMethodEdit(this)" onkeydown="handleFdataMethodKeydown(event, this)">' +
+        '</div></td>' +
+        '<td><div class="fdataTieBox">' +
+          '<span>梯度</span>' +
+          '<select class="fdataTie1" data-simple-num="' + escapeHtmlForRefresh(row.simpleNum) + '" data-test-item="' + escapeHtmlForRefresh(row.testItem) + '" onchange="updateFdataTieFromSetFData(this)">' + buildTieOptionsForRefresh(row.firstTie || '0', true) + '</select>' +
+          '<span>~</span>' +
+          '<select class="fdataTie2" data-simple-num="' + escapeHtmlForRefresh(row.simpleNum) + '" data-test-item="' + escapeHtmlForRefresh(row.testItem) + '" onchange="updateFdataTieFromSetFData(this)">' + buildTieOptionsForRefresh(row.lastTie || '', false) + '</select>' +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  window.loadFdataListFromSetFData = function loadFdataListFromSetFData() {
+    openPanelForRefresh();
+    setStatusForRefresh('正在请求 /setFData 更新复测维护表格...');
+
+    const body = document.getElementById('fdataManageBody');
+    if (body) {
+      body.innerHTML = '<tr class="fdataEmptyRow"><td colspan="6">正在加载 /setFData ...</td></tr>';
+    }
+
+    $.ajax({
+      url: '/setFData',
+      type: 'GET',
+      cache: false,
+      success: function(html){
+        const rows = parseSetFDataRowsForRefresh(html);
+        renderRowsFromSetFData(rows);
+        setStatusForRefresh(rows.length ? ('已从 /setFData 更新，共 ' + rows.length + ' 条复测信息') : '已请求 /setFData，但没有解析到复测信息');
+      },
+      error: function(){
+        if (body) {
+          body.innerHTML = '<tr class="fdataEmptyRow"><td colspan="6">请求 /setFData 失败，请检查 /setFData 是否能正常返回页面。</td></tr>';
+        }
+        setStatusForRefresh('请求 /setFData 失败');
+      }
+    });
+  };
+
+  window.openFdataManagePanelFromDock = function openFdataManagePanelFromDock(){
+    loadFdataListFromSetFData();
+  };
+
+  window.reloadFdataList = function reloadFdataList(){
+    loadFdataListFromSetFData();
+  };
+
+  window.deleteFdataRowFromSetFData = function deleteFdataRowFromSetFData(simpleNum, testItem){
+    if (!confirm('确认删除该复测信息？')) return;
+    $.ajax({
+      url: '/deleteDuo',
+      type: 'GET',
+      data: { num: simpleNum, nam: testItem },
+      success: function(){ loadFdataListFromSetFData(); },
+      error: function(){ alert('删除失败，请检查 /deleteDuo 接口'); }
+    });
+  };
+
+  window.updateFdataTieFromSetFData = function updateFdataTieFromSetFData(selectEl){
+    const box = selectEl.closest('.fdataTieBox');
+    const firstTie = box.querySelector('.fdataTie1').value;
+    const lastTie = box.querySelector('.fdataTie2').value;
+    const simpleNum = selectEl.getAttribute('data-simple-num');
+    const testItem = selectEl.getAttribute('data-test-item');
+
+    $.ajax({
+      url: '/ajax/c',
+      data: {
+        simpleNum: simpleNum,
+        simpleName: testItem,
+        firstTie: firstTie,
+        lastTie: lastTie
+      },
+      success: function(){
+        setStatusForRefresh('已更新梯度：' + simpleNum + '：' + firstTie + '~' + lastTie);
+      }
+    });
+  };
+})();
+</script>
+
+<script>
+(function fixFdataTieSubmit(){
+  function getTieRowData(selectEl) {
+    const tr = selectEl.closest('tr');
+    if (!tr) return null;
+
+    const cells = tr.children;
+    const simpleNum = (cells[1] ? cells[1].innerText : '').trim();
+    const testItem = (cells[3] ? cells[3].innerText : '').trim();
+    const firstTieEl = tr.querySelector('.fdataTie1');
+    const lastTieEl = tr.querySelector('.fdataTie2');
+
+    return {
+      simpleNum: simpleNum,
+      testItem: testItem,
+      firstTie: firstTieEl ? firstTieEl.value : '',
+      lastTie: lastTieEl ? lastTieEl.value : ''
+    };
+  }
+
+  function submitFdataTie(selectEl) {
+    const data = getTieRowData(selectEl);
+
+    if (!data || !data.simpleNum || !data.testItem) {
+      console.warn('复测梯度提交失败：没有识别到样品短号或检测项目。', data);
+      if (typeof setStatusForRefresh === 'function') {
+        setStatusForRefresh('梯度提交失败：没有识别到样品短号或检测项目。');
+      }
+      return;
+    }
+
+    $.ajax({
+      url: '/ajax/c',
+      type: 'GET',
+      data: {
+        simpleNum: data.simpleNum,
+        simpleName: data.testItem,
+        firstTie: data.firstTie,
+        lastTie: data.lastTie
+      },
+      success: function (res, status) {
+        console.log('复测梯度已提交：', data, res, status);
+        const statusEl = document.getElementById('fdataManageStatus');
+        if (statusEl) {
+          statusEl.innerText = '已提交梯度：' + data.simpleNum + '：' + data.firstTie + '~' + data.lastTie;
+        }
+      },
+      error: function (xhr) {
+        console.error('复测梯度提交失败：', xhr);
+        const statusEl = document.getElementById('fdataManageStatus');
+        if (statusEl) {
+          statusEl.innerText = '梯度提交失败：' + data.simpleNum;
+        }
+        alert('梯度提交失败，请检查 /ajax/c 接口是否正常');
+      }
+    });
+  }
+
+  // 事件委托：后续从 /setFData 刷新出来的新 select 也能自动生效
+  $(document)
+    .off('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2')
+    .on('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2', function () {
+      submitFdataTie(this);
+    });
+
+  // 覆盖旧的 inline onchange 调用，避免旧函数数据不完整
+  window.updateFdataTieFromSetFData = function updateFdataTieFromSetFData(selectEl) {
+    submitFdataTie(selectEl);
+  };
+})();
+</script>
+
+<script>
+(function fixTieRefreshAfterSave(){
+  function textSafe(el){
+    return (el && (el.innerText || el.textContent) || '').trim();
+  }
+
+  function selectValueSafe(selectEl){
+    if (!selectEl) return '';
+    if (selectEl.value !== undefined && selectEl.value !== null && String(selectEl.value) !== '') {
+      return String(selectEl.value);
+    }
+    const selected = selectEl.querySelector('option[selected]');
+    if (selected) return selected.value || selected.textContent.trim();
+    return '';
+  }
+
+  function parseTieFromText(text, type){
+    const raw = String(text || '');
+    const parts = raw.replace('～', '~').replace('-', '~').split('~');
+    if (type === 'first') {
+      return parts[0] ? parts[0].replace(/[^0-9]/g, '') : '0';
+    }
+    return parts[1] ? parts[1].replace(/[^0-9]/g, '') : '';
+  }
+
+  function parseSetFDataRowsWithSavedTie(html){
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const rows = [];
+
+    let trs = Array.from(doc.querySelectorAll('.fdata-table tbody tr'));
+
+    if (!trs.length) {
+      const tables = Array.from(doc.querySelectorAll('table'));
+      const targetTable = tables.find(function(table){
+        const firstTr = table.querySelector('tr');
+        const headText = firstTr ? firstTr.innerText.split(' ').join('').split('').join('') : '';
+        return headText.includes('删除') && headText.includes('样品短号') && headText.includes('检测项目') && headText.includes('检测方法');
+      });
+      if (targetTable) {
+        trs = Array.from(targetTable.querySelectorAll('tr')).slice(1);
+      }
+    }
+
+    trs.forEach(function(tr){
+      const cells = Array.from(tr.children);
+      if (cells.length < 6) return;
+
+      const simpleNum = textSafe(cells[1]);
+      if (!simpleNum || simpleNum.includes('样品短号')) return;
+
+      const methodLabel = cells[4].querySelector('.method-label');
+      const tie1 = cells[5].querySelector('.tie1, select[name="firstTie"], select[id^="tie1"]');
+      const tie2 = cells[5].querySelector('.tie2, select[name="lastTie"], select[id^="tie2"]');
+      const tipText = textSafe(cells[5]);
+
+      const firstTie = selectValueSafe(tie1) || parseTieFromText(tipText, 'first') || '0';
+      const lastTie = selectValueSafe(tie2) || parseTieFromText(tipText, 'last') || '';
+
+      rows.push({
+        simpleNum: simpleNum,
+        simpleName: textSafe(cells[2]),
+        testItem: textSafe(cells[3]),
+        testMethod: textSafe(methodLabel) || textSafe(cells[4]),
+        firstTie: firstTie,
+        lastTie: lastTie,
+        tableName: textSafe(document.getElementById('con'))
+      });
+    });
+
+    return rows;
+  }
+
+  window.loadFdataListFromSetFData = function loadFdataListFromSetFData(){
+    const panel = document.getElementById('fdataManagePanel');
+    const body = document.getElementById('fdataManageBody');
+    const statusEl = document.getElementById('fdataManageStatus');
+
+    if (panel) {
+      panel.classList.add('isOpen');
+      panel.setAttribute('aria-hidden', 'false');
+    }
+    if (statusEl) statusEl.innerText = '正在请求 /setFData 更新复测维护表格...';
+    if (body) body.innerHTML = '<tr class="fdataEmptyRow"><td colspan="6">正在加载 /setFData ...</td></tr>';
+
+    $.ajax({
+      url: '/setFData',
+      type: 'GET',
+      cache: false,
+      success: function(html){
+        const rows = parseSetFDataRowsWithSavedTie(html);
+        if (typeof renderRowsFromSetFData === 'function') {
+          renderRowsFromSetFData(rows);
+        }
+        if (statusEl) {
+          statusEl.innerText = rows.length
+            ? '已从 /setFData 更新，共 ' + rows.length + ' 条，梯度已回显'
+            : '已请求 /setFData，但没有解析到复测信息';
+        }
+      },
+      error: function(){
+        if (body) body.innerHTML = '<tr class="fdataEmptyRow"><td colspan="6">请求 /setFData 失败。</td></tr>';
+        if (statusEl) statusEl.innerText = '请求 /setFData 失败';
+      }
+    });
+  };
+
+  function submitTieAndReload(selectEl){
+    const tr = selectEl.closest('tr');
+    if (!tr) return;
+
+    const cells = tr.children;
+    const simpleNum = textSafe(cells[1]);
+    const testItem = textSafe(cells[3]);
+    const firstTieEl = tr.querySelector('.fdataTie1');
+    const lastTieEl = tr.querySelector('.fdataTie2');
+    const firstTie = firstTieEl ? firstTieEl.value : '';
+    const lastTie = lastTieEl ? lastTieEl.value : '';
+    const statusEl = document.getElementById('fdataManageStatus');
+
+    if (!simpleNum || !testItem) {
+      if (statusEl) statusEl.innerText = '梯度提交失败：没有识别到样品短号或检测项目';
+      return;
+    }
+
+    $.ajax({
+      url: '/ajax/c',
+      type: 'GET',
+      data: {
+        simpleNum: simpleNum,
+        simpleName: testItem,
+        firstTie: firstTie,
+        lastTie: lastTie
+      },
+      success: function(){
+        if (statusEl) statusEl.innerText = '梯度已提交：' + simpleNum + '：' + firstTie + '~' + lastTie + '，正在刷新回显...';
+        loadFdataListFromSetFData();
+      },
+      error: function(){
+        if (statusEl) statusEl.innerText = '梯度提交失败：' + simpleNum;
+        alert('梯度提交失败，请检查 /ajax/c 接口');
+      }
+    });
+  }
+
+  $(document)
+    .off('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2')
+    .on('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2', function(){
+      submitTieAndReload(this);
+    });
+
+  window.updateFdataTieFromSetFData = function updateFdataTieFromSetFData(selectEl){
+    submitTieAndReload(selectEl);
+  };
+})();
+</script>
+
+<script>
+(function finalFixSetFDataTieEcho(){
+  function textSafe(el){
+    return (el && (el.innerText || el.textContent) || '').trim();
+  }
+
+  function htmlSafe(value){
+    return String(value == null ? '' : value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function buildTieOptions(selected, includeZero){
+    const values = includeZero
+      ? ['0','1','2','3','4','5','6','7','8','9','10','11','12']
+      : ['','1','2','3','4','5','6','7','8','9','10','11','12'];
+
+    return values.map(function(v){
+      const label = v === '' ? '选择梯度' : v;
+      return '<option value="' + v + '" ' + (String(selected) === String(v) ? 'selected' : '') + '>' + label + '</option>';
+    }).join('');
+  }
+
+  function extractTieFromTip(tipText){
+    const raw = String(tipText || '').trim();
+
+    // 兼容类似 1~3、1～3、1-3
+    let match = raw.match(/(\d+)\s*[~?]\s*(\d+)/);
+    if (match) {
+      return {
+        firstTie: match[1],
+        lastTie: match[2]
+      };
+    }
+
+    // 兼容你原来 charAt(2), charAt(5) 的格式
+    const nums = raw.match(/\d+/g);
+    if (nums && nums.length >= 2) {
+      return {
+        firstTie: nums[0],
+        lastTie: nums[1]
+      };
+    }
+
+    if (nums && nums.length === 1) {
+      return {
+        firstTie: nums[0],
+        lastTie: ''
+      };
+    }
+
+    return {
+      firstTie: '0',
+      lastTie: ''
+    };
+  }
+
+  function getTieFromSetFDataCell(cell){
+    if (!cell) {
+      return { firstTie: '0', lastTie: '' };
+    }
+
+    // 关键：优先读取 setFData 里的 label 属性
+    const tipLabel =
+      cell.querySelector('.tip-label') ||
+      cell.querySelector('label[data-tip]') ||
+      cell.querySelector('label[value]') ||
+      cell.querySelector('[id^="tl"]');
+
+    const tipValue =
+      (tipLabel && (
+        tipLabel.getAttribute('data-tip') ||
+        tipLabel.getAttribute('value') ||
+        tipLabel.getAttribute('th:value')
+      )) || '';
+
+    if (tipValue) {
+      return extractTieFromTip(tipValue);
+    }
+
+    // 其次读取 select 当前值
+    const tie1 = cell.querySelector('.tie1, select[name="firstTie"], select[id^="tie1"]');
+    const tie2 = cell.querySelector('.tie2, select[name="lastTie"], select[id^="tie2"]');
+
+    const firstFromSelect = tie1 ? tie1.value : '';
+    const lastFromSelect = tie2 ? tie2.value : '';
+
+    if (firstFromSelect || lastFromSelect) {
+      return {
+        firstTie: firstFromSelect || '0',
+        lastTie: lastFromSelect || ''
+      };
+    }
+
+    // 最后兜底解析文本
+    return extractTieFromTip(textSafe(cell));
+  }
+
+  function parseSetFDataRows(html){
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const rows = [];
+
+    let trs = Array.from(doc.querySelectorAll('.fdata-table tbody tr'));
+
+    if (!trs.length) {
+      const tables = Array.from(doc.querySelectorAll('table'));
+      const targetTable = tables.find(function(table){
+        const firstTr = table.querySelector('tr');
+        const headText = firstTr ? firstTr.innerText.replace(/\s+/g, '') : '';
+        return headText.includes('删除') &&
+               headText.includes('样品短号') &&
+               headText.includes('检测项目') &&
+               headText.includes('检测方法');
+      });
+
+      if (targetTable) {
+        trs = Array.from(targetTable.querySelectorAll('tr')).slice(1);
+      }
+    }
+
+    trs.forEach(function(tr){
+      const cells = Array.from(tr.children);
+      if (cells.length < 6) return;
+
+      const simpleNum = textSafe(cells[1]);
+      if (!simpleNum || simpleNum.includes('样品短号')) return;
+
+      const methodLabel = cells[4].querySelector('.method-label');
+      const tie = getTieFromSetFDataCell(cells[5]);
+
+      rows.push({
+        simpleNum: simpleNum,
+        simpleName: textSafe(cells[2]),
+        testItem: textSafe(cells[3]),
+        testMethod: textSafe(methodLabel) || textSafe(cells[4]),
+        firstTie: tie.firstTie || '0',
+        lastTie: tie.lastTie || ''
+      });
+    });
+
+    return rows;
+  }
+
+  function renderFdataRows(rows){
+    const body = document.getElementById('fdataManageBody');
+    if (!body) return;
+
+    if (!rows.length) {
+      body.innerHTML =
+        '<tr class="fdataEmptyRow">' +
+          '<td colspan="6">暂无复测信息。已请求 /setFData，但没有解析到表格数据。</td>' +
+        '</tr>';
+      return;
+    }
+
+    body.innerHTML = rows.map(function(row){
+      return '' +
+        '<tr>' +
+          '<td>' +
+            '<button class="fdataDeleteBtn" type="button" onclick="deleteFdataRowFromSetFData(\'' +
+              htmlSafe(row.simpleNum) + '\', \'' + htmlSafe(row.testItem) + '\')">×</button>' +
+          '</td>' +
+          '<td>' + htmlSafe(row.simpleNum) + '</td>' +
+          '<td>' + htmlSafe(row.simpleName) + '</td>' +
+          '<td>' + htmlSafe(row.testItem) + '</td>' +
+          '<td>' +
+            '<div class="fdataInlineMethodBox" title="点击检测方法可编辑，失焦或按 Enter 提交">' +
+              '<span class="fdataInlineMethodHint">点击编辑</span>' +
+              '<label class="fdataInlineMethodLabel" onclick="startFdataMethodEdit(this)">' +
+                htmlSafe(row.testMethod) +
+              '</label>' +
+              '<input class="fdataInlineMethodInput" type="text" onblur="finishFdataMethodEdit(this)" onkeydown="handleFdataMethodKeydown(event, this)">' +
+            '</div>' +
+          '</td>' +
+          '<td>' +
+            '<div class="fdataTieBox">' +
+              '<span>梯度</span>' +
+              '<select class="fdataTie1">' +
+                buildTieOptions(row.firstTie || '0', true) +
+              '</select>' +
+              '<span>~</span>' +
+              '<select class="fdataTie2">' +
+                buildTieOptions(row.lastTie || '', false) +
+              '</select>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  window.loadFdataListFromSetFData = function loadFdataListFromSetFData(){
+    const panel = document.getElementById('fdataManagePanel');
+    const body = document.getElementById('fdataManageBody');
+    const statusEl = document.getElementById('fdataManageStatus');
+
+    if (panel) {
+      panel.classList.add('isOpen');
+      panel.setAttribute('aria-hidden', 'false');
+    }
+
+    if (statusEl) {
+      statusEl.innerText = '正在请求 /setFData 更新复测维护表格...';
+    }
+
+    if (body) {
+      body.innerHTML =
+        '<tr class="fdataEmptyRow">' +
+          '<td colspan="6">正在加载 /setFData ...</td>' +
+        '</tr>';
+    }
+
+    $.ajax({
+      url: '/setFData',
+      type: 'GET',
+      cache: false,
+      success: function(html){
+        const rows = parseSetFDataRows(html);
+        renderFdataRows(rows);
+
+        if (statusEl) {
+          statusEl.innerText = rows.length
+            ? '已从 /setFData 更新，共 ' + rows.length + ' 条，梯度已回显'
+            : '已请求 /setFData，但没有解析到复测信息';
+        }
+
+        console.log('/setFData 解析出的复测数据：', rows);
+      },
+      error: function(xhr){
+        console.error('请求 /setFData 失败：', xhr);
+
+        if (body) {
+          body.innerHTML =
+            '<tr class="fdataEmptyRow">' +
+              '<td colspan="6">请求 /setFData 失败，请检查接口。</td>' +
+            '</tr>';
+        }
+
+        if (statusEl) {
+          statusEl.innerText = '请求 /setFData 失败';
+        }
+      }
+    });
+  };
+
+  $(document)
+    .off('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2')
+    .on('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2', function(){
+      const tr = this.closest('tr');
+      const cells = tr.children;
+
+      const simpleNum = textSafe(cells[1]);
+      const testItem = textSafe(cells[3]);
+      const firstTie = tr.querySelector('.fdataTie1').value;
+      const lastTie = tr.querySelector('.fdataTie2').value;
+      const statusEl = document.getElementById('fdataManageStatus');
+
+      $.ajax({
+        url: '/ajax/c',
+        type: 'GET',
+        data: {
+          simpleNum: simpleNum,
+          simpleName: testItem,
+          firstTie: firstTie,
+          lastTie: lastTie
+        },
+        success: function(){
+          if (statusEl) {
+            statusEl.innerText =
+              '梯度已提交：' + simpleNum + '：' + firstTie + '~' + lastTie + '，正在刷新回显...';
+          }
+
+          loadFdataListFromSetFData();
+        },
+        error: function(xhr){
+          console.error('梯度提交失败：', xhr);
+          alert('梯度提交失败，请检查 /ajax/c 接口');
+        }
+      });
+    });
+})();
+</script>
+
+<script>
+(function finalFixFdataMethodSubmit(){
+  function textSafe(el) {
+    return (el && (el.innerText || el.textContent) || '').trim();
+  }
+
+  function setPanelStatus(text) {
+    const statusEl = document.getElementById('fdataManageStatus');
+    if (statusEl) statusEl.innerText = text || '';
+  }
+
+  // 覆盖旧的开始编辑函数：不再依赖 fdataRows
+  window.startFdataMethodEdit = function startFdataMethodEdit(labelEl) {
+    const box = labelEl.closest('.fdataInlineMethodBox');
+    const input = box ? box.querySelector('.fdataInlineMethodInput') : null;
+    if (!box || !input) return;
+
+    const oldValue = textSafe(labelEl);
+
+    input.value = oldValue;
+    input.setAttribute('data-old-value', oldValue);
+    box.classList.add('editing');
+
+    setTimeout(function () {
+      input.focus();
+      input.select();
+    }, 0);
+  };
+
+  // 覆盖旧的提交函数：直接从当前 tr 的单元格读取样品短号、检测项目
+  window.finishFdataMethodEdit = function finishFdataMethodEdit(inputEl) {
+    const box = inputEl.closest('.fdataInlineMethodBox');
+    const label = box ? box.querySelector('.fdataInlineMethodLabel') : null;
+    const tr = inputEl.closest('tr');
+
+    if (!box || !label || !tr) return;
+
+    const cells = tr.children;
+
+    // panel 表格列顺序：
+    // 0 删除，1 样品短号，2 样品名称，3 检测项目，4 检测方法，5 复测信息
+    const simpleNum = textSafe(cells[1]);
+    const testItem = textSafe(cells[3]);
+
+    const oldValue = inputEl.getAttribute('data-old-value') || '';
+    const newValue = inputEl.value.trim();
+
+    box.classList.remove('editing');
+
+    if (!newValue) {
+      inputEl.value = oldValue;
+      return;
+    }
+
+    if (newValue === oldValue) {
+      inputEl.value = oldValue;
+      return;
+    }
+
+    if (!simpleNum || !testItem) {
+      inputEl.value = oldValue;
+      setPanelStatus('检测方法提交失败：没有识别到样品短号或检测项目');
+      alert('检测方法提交失败：没有识别到样品短号或检测项目');
+      return;
+    }
+
+    setPanelStatus('正在提交检测方法：' + simpleNum + ' ...');
+
+    $.ajax({
+      url: '/ajax/c_addFmet',
+      type: 'GET',
+      data: {
+        simpleNum: simpleNum,
+        simpleName: testItem,
+        Fmethod: newValue + '!!!!' + oldValue
+      },
+      success: function () {
+        label.innerText = newValue;
+        inputEl.setAttribute('data-old-value', newValue);
+        setPanelStatus('已更新检测方法：' + simpleNum);
+
+        // 提交成功后重新请求 /setFData，确保数据库回显
+        if (typeof loadFdataListFromSetFData === 'function') {
+          loadFdataListFromSetFData();
+        }
+      },
+      error: function (xhr) {
+        console.error('检测方法更新失败：', xhr);
+        inputEl.value = oldValue;
+        label.innerText = oldValue;
+        setPanelStatus('检测方法更新失败：' + simpleNum);
+        alert('检测方法更新失败，请检查 /ajax/c_addFmet 接口');
+      }
+    });
+  };
+
+  window.handleFdataMethodKeydown = function handleFdataMethodKeydown(event, inputEl) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      inputEl.blur();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+
+      const box = inputEl.closest('.fdataInlineMethodBox');
+      const label = box ? box.querySelector('.fdataInlineMethodLabel') : null;
+      const oldValue = inputEl.getAttribute('data-old-value') || '';
+
+      inputEl.value = oldValue;
+      if (label) label.innerText = oldValue;
+      if (box) box.classList.remove('editing');
+    }
+  };
+})();
+</script>
+
+<script>
+(function finalFixFdataPanelNoRefreshAndReverse(){
+  function textSafe(el){
+    return (el && (el.innerText || el.textContent) || '').trim();
+  }
+
+  function setPanelStatus(text){
+    const statusEl = document.getElementById('fdataManageStatus');
+    if (statusEl) statusEl.innerText = text || '';
+  }
+
+  function escapeHtml(value){
+    return String(value == null ? '' : value)
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  function buildTieOptions(selected, includeZero){
+    const values = includeZero
+      ? ['0','1','2','3','4','5','6','7','8','9','10','11','12']
+      : ['','1','2','3','4','5','6','7','8','9','10','11','12'];
+
+    return values.map(function(v){
+      const label = v === '' ? '选择梯度' : v;
+      return '<option value="' + v + '" ' + (String(selected) === String(v) ? 'selected' : '') + '>' + label + '</option>';
+    }).join('');
+  }
+
+  function extractTieFromText(text){
+	  const raw = String(text || '').trim();
+
+	  // 兼容：1~3、1～3、1-3、梯度 1 ~ 3
+	  const rangeMatch = raw.match(/(\d+)\s*[~～\-]\s*(\d+)/);
+	  if (rangeMatch) {
+	    return {
+	      firstTie: rangeMatch[1],
+	      lastTie: rangeMatch[2]
+	    };
+	  }
+
+	  const nums = raw.match(/\d+/g);
+
+	  if (nums && nums.length >= 2) {
+	    return {
+	      firstTie: nums[0],
+	      lastTie: nums[1]
+	    };
+	  }
+
+	  if (nums && nums.length === 1) {
+	    return {
+	      firstTie: nums[0],
+	      lastTie: ''
+	    };
+	  }
+
+	  return {
+	    firstTie: '0',
+	    lastTie: ''
+	  };
+	}
+
+  function getTieFromCell(cell){
+	  if (!cell) {
+	    return { firstTie: '0', lastTie: '' };
+	  }
+
+	  // 关键修复：
+	  // 优先读取 /setFData 页面里保存梯度的 label / 隐藏值 / 文本，
+	  // 不要优先读取 select，因为 select 默认经常是 0 / 选择梯度。
+	  const tipLabel =
+	    cell.querySelector('.tip-label') ||
+	    cell.querySelector('label[data-tip]') ||
+	    cell.querySelector('label[value]') ||
+	    cell.querySelector('[id^="tl"]');
+
+	  const tipValue =
+	    tipLabel && (
+	      tipLabel.getAttribute('data-tip') ||
+	      tipLabel.getAttribute('value') ||
+	      tipLabel.getAttribute('th:value') ||
+	      tipLabel.textContent
+	    );
+
+	  const tieFromTip = extractTieFromText(tipValue || textSafe(cell));
+
+	  // 如果从 label / 文本里能解析到有效梯度，就用它
+	  if (
+	    tieFromTip &&
+	    (
+	      String(tieFromTip.firstTie || '') !== '0' ||
+	      String(tieFromTip.lastTie || '') !== ''
+	    )
+	  ) {
+	    return {
+	      firstTie: tieFromTip.firstTie || '0',
+	      lastTie: tieFromTip.lastTie || ''
+	    };
+	  }
+
+	  // 只有 label / 文本没有有效值时，才兜底读取 select
+	  const tie1 = cell.querySelector('.tie1, select[name="firstTie"], select[id^="tie1"]');
+	  const tie2 = cell.querySelector('.tie2, select[name="lastTie"], select[id^="tie2"]');
+
+	  return {
+	    firstTie: tie1 ? (tie1.value || '0') : '0',
+	    lastTie: tie2 ? (tie2.value || '') : ''
+	  };
+	}
+
+  function parseSetFDataRows(html){
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const rows = [];
+
+    let trs = Array.from(doc.querySelectorAll('.fdata-table tbody tr'));
+
+    if (!trs.length) {
+      const tables = Array.from(doc.querySelectorAll('table'));
+      const targetTable = tables.find(function(table){
+        const firstTr = table.querySelector('tr');
+        const headText = firstTr ? firstTr.innerText.replace(/\s+/g, '') : '';
+        return headText.includes('删除') &&
+               headText.includes('样品短号') &&
+               headText.includes('检测项目') &&
+               headText.includes('检测方法');
+      });
+
+      if (targetTable) {
+        trs = Array.from(targetTable.querySelectorAll('tr')).slice(1);
+      }
+    }
+
+    trs.forEach(function(tr){
+      const cells = Array.from(tr.children);
+      if (cells.length < 6) return;
+
+      const simpleNum = textSafe(cells[1]);
+      if (!simpleNum || simpleNum.includes('样品短号')) return;
+
+      const methodLabel = cells[4].querySelector('.method-label');
+      const tie = getTieFromCell(cells[5]);
+
+      rows.push({
+        simpleNum: simpleNum,
+        simpleName: textSafe(cells[2]),
+        testItem: textSafe(cells[3]),
+        testMethod: textSafe(methodLabel) || textSafe(cells[4]),
+        firstTie: tie.firstTie || '0',
+        lastTie: tie.lastTie || ''
+      });
+    });
+
+    // 关键：从 /setFData 解析后，前端倒序显示
+    // 后端如果是旧数据在前，新添加的通常会被放到最后，这里反转后新添加显示第一行
+    return rows.reverse();
+  }
+
+  function renderFdataRows(rows){
+    const body = document.getElementById('fdataManageBody');
+    if (!body) return;
+
+    if (!rows.length) {
+      body.innerHTML =
+        '<tr class="fdataEmptyRow">' +
+          '<td colspan="6">暂无复测信息。已请求 /setFData，但没有解析到表格数据。</td>' +
+        '</tr>';
+      return;
+    }
+
+    body.innerHTML = rows.map(function(row){
+      return '' +
+        '<tr>' +
+          '<td>' +
+            '<button class="fdataDeleteBtn" type="button" onclick="deleteFdataRowFromSetFData(\'' +
+              escapeHtml(row.simpleNum) + '\', \'' + escapeHtml(row.testItem) + '\')">×</button>' +
+          '</td>' +
+          '<td>' + escapeHtml(row.simpleNum) + '</td>' +
+          '<td>' + escapeHtml(row.simpleName) + '</td>' +
+          '<td>' + escapeHtml(row.testItem) + '</td>' +
+          '<td>' +
+            '<div class="fdataInlineMethodBox" title="点击检测方法可编辑，失焦或按 Enter 提交">' +
+              '<span class="fdataInlineMethodHint">点击编辑</span>' +
+              '<label class="fdataInlineMethodLabel" onclick="startFdataMethodEdit(this)">' +
+                escapeHtml(row.testMethod) +
+              '</label>' +
+              '<input class="fdataInlineMethodInput" type="text" onblur="finishFdataMethodEdit(this)" onkeydown="handleFdataMethodKeydown(event, this)">' +
+            '</div>' +
+          '</td>' +
+          '<td>' +
+            '<div class="fdataTieBox">' +
+              '<span>梯度</span>' +
+              '<select class="fdataTie1">' +
+                buildTieOptions(row.firstTie || '0', true) +
+              '</select>' +
+              '<span>~</span>' +
+              '<select class="fdataTie2">' +
+                buildTieOptions(row.lastTie || '', false) +
+              '</select>' +
+            '</div>' +
+          '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  // 刷新按钮、打开 panel、拖拽添加后仍然可以请求 /setFData
+  // 但显示顺序改为倒序
+  window.loadFdataListFromSetFData = function loadFdataListFromSetFData(){
+    const panel = document.getElementById('fdataManagePanel');
+    const body = document.getElementById('fdataManageBody');
+
+    if (panel) {
+      panel.classList.add('isOpen');
+      panel.setAttribute('aria-hidden', 'false');
+    }
+
+    setPanelStatus('正在请求 /setFData 更新复测维护表格...');
+
+    if (body) {
+      body.innerHTML =
+        '<tr class="fdataEmptyRow">' +
+          '<td colspan="6">正在加载 /setFData ...</td>' +
+        '</tr>';
+    }
+
+    $.ajax({
+      url: '/setFData',
+      type: 'GET',
+      cache: false,
+      success: function(html){
+        const rows = parseSetFDataRows(html);
+        renderFdataRows(rows);
+
+        setPanelStatus(
+          rows.length
+            ? '已从 /setFData 更新，共 ' + rows.length + ' 条，新添加优先显示'
+            : '已请求 /setFData，但没有解析到复测信息'
+        );
+
+        console.log('/setFData 倒序解析出的复测数据：', rows);
+      },
+      error: function(xhr){
+        console.error('请求 /setFData 失败：', xhr);
+
+        if (body) {
+          body.innerHTML =
+            '<tr class="fdataEmptyRow">' +
+              '<td colspan="6">请求 /setFData 失败，请检查接口。</td>' +
+            '</tr>';
+        }
+
+        setPanelStatus('请求 /setFData 失败');
+      }
+    });
+  };
+
+  // 关键：覆盖梯度修改逻辑
+  // 修改梯度后只提交数据库，不再刷新整个 panel
+  $(document)
+    .off('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2')
+    .on('change.fdataTieSubmit', '#fdataManageBody .fdataTie1, #fdataManageBody .fdataTie2', function(){
+      const tr = this.closest('tr');
+      if (!tr) return;
+
+      const cells = tr.children;
+      const simpleNum = textSafe(cells[1]);
+      const testItem = textSafe(cells[3]);
+
+      const firstTieEl = tr.querySelector('.fdataTie1');
+      const lastTieEl = tr.querySelector('.fdataTie2');
+
+      const firstTie = firstTieEl ? firstTieEl.value : '';
+      const lastTie = lastTieEl ? lastTieEl.value : '';
+
+      if (!simpleNum || !testItem) {
+        setPanelStatus('梯度提交失败：没有识别到样品短号或检测项目');
+        return;
+      }
+
+      setPanelStatus('正在提交梯度：' + simpleNum + '：' + firstTie + '~' + lastTie);
+
+      $.ajax({
+        url: '/ajax/c',
+        type: 'GET',
+        data: {
+          simpleNum: simpleNum,
+          simpleName: testItem,
+          firstTie: firstTie,
+          lastTie: lastTie
+        },
+        success: function(){
+          // 不再调用 loadFdataListFromSetFData()
+          // 只更新状态文字，当前 select 保持用户刚选的值
+          setPanelStatus('梯度已提交：' + simpleNum + '：' + firstTie + '~' + lastTie);
+        },
+        error: function(xhr){
+          console.error('梯度提交失败：', xhr);
+          setPanelStatus('梯度提交失败：' + simpleNum);
+          alert('梯度提交失败，请检查 /ajax/c 接口');
+        }
+      });
+    });
+
+  window.updateFdataTieFromSetFData = function updateFdataTieFromSetFData(selectEl){
+    $(selectEl).trigger('change.fdataTieSubmit');
+  };
+})();
+</script>
+
+<script>
+	let mySQLquestid = 500;// 全局声明 id
+	let cfusimple = []; // 全局声明 simpleList
+	let attrsimple= []; // 全局声明 simpleList
+	
+	// 设置按钮事件监听
+    $('#upBtn').on('click', function () {
+		
+        mySQLquestid += 500;
+        $('#currentValue').text('第' + (mySQLquestid-500) + '~' + mySQLquestid + '条数据');
+        toggleDownButton();
+     const selectedValue =  document.getElementById('con').textContent;
+            fetch500record(selectedValue,mySQLquestid);
+            tagdisable(this);
+    });
+
+    $('#downBtn').on('click', function () {
+        if (mySQLquestid > 500) {
+            mySQLquestid -= 500;
+             $('#currentValue').text('第' + (mySQLquestid-500) + '~' + mySQLquestid + '条数据');
+            toggleDownButton();
+           
+       
+        const selectedValue =  document.getElementById('con').textContent;
+            fetch500record(selectedValue,mySQLquestid);
+            tagdisable(this);
+        }
+    });
+
+    function toggleDownButton() {
+        if (mySQLquestid <= 500) {
+            $('#downBtn').prop('disabled', true);
+        } else {
+            $('#downBtn').prop('disabled', false);
+        }
+    }
+	 $(document).ready(function () {
+		tableDespict();
+    
+	 });
+	 function tagdisable(element){
+		 const tagElement = $(element);
+
+    // 检查是否已被禁用
+    if (tagElement.data("disabled")) {
+        alert("请稍等片刻后再点击！");
+        return;
+    }
+
+    // 添加点击反馈样式
+    tagElement.css({
+        background: "#d1e7dd",
+        borderColor: "#91c9a9",
+        cursor: "not-allowed"
+    });
+    tagElement.data("disabled", true); // 设置禁用状态
+
+    // 冷却计时器：5秒后恢复可点击状态
+    setTimeout(() => {
+        tagElement.css({
+            background: "#e3e3e3",
+            borderColor: "#ccc",
+            cursor: "pointer"
+        });
+        tagElement.data("disabled", false); // 恢复可点击状态
+    }, 5000); 
+	 }
+	 
+	 function formatDateForLegacyTable(rawValue){
+			if(!rawValue || rawValue.trim()===""){
+				return "";
+			}
+			return rawValue.replaceAll("-", "/");
+		}
+	function tableDespict(){
+		 
+		 document.getElementById('chuselectDate').addEventListener('change', function() {
+        // 获取选中的值
+			 const selectedValue = formatDateForLegacyTable(this.value);
+        console.log(selectedValue);
+		        if(!selectedValue){
+					return;
+				}
+        // 设置 label 值
+        document.getElementById('con').textContent = selectedValue;
+         $("#exportTableName").val(selectedValue);
+         // 动态获取标准数据
+    $.ajax({
+        url: '/record/api/samples',
+        type: 'GET',
+        data:{ "date": selectedValue,
+        "id":"500",
+        "unit":$("#slectedUnit").val() || "CFU"
+        },
+         beforeSend: function () {
+         // 显示进度条容器
+        const progressBarContainer = $("#progressBarContainer");
+        const progressBar = $("#progressBar");
+progressBar.css("width", "0%");
+        progressBarContainer.show();
+        
+
+        // 启动进度条动画
+        animateProgressBar(() => {
+            // 当动画到 90% 时等待成功回调
+           progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        });
+    },
+    
+        success: function (list) {
+			mySQLquestid = 500;
+     $('#currentValue').text('第' + (mySQLquestid-500) + '~' + mySQLquestid + '条数据');
+			 // 动态创建标签
+                createTableTag(selectedValue);
+             const progressBar = $("#progressBar");
+
+        // 平滑完成到 100%
+        progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        
+        setTimeout(() => {
+            // 隐藏进度条容器
+            $("#progressBarContainer").fadeOut();
+        }, 500);
+			  const cfusimpleList = list.cfusimpleList;
+			  cfusimple=cfusimpleList;
+			  const mpnsimpleList = list.mpnsimpleList;
+			   const attrsimpleList = list.attrsimpleList;
+			   attrsimple=attrsimpleList;
+			    const nonesimpleList = list.nonesimpleList;
+        const cfumethodProceedList = list.cfumethodProceedList;
+        const mpnmethodProceedList = list.mpnmethodProceedList;
+        const attrmethodProceedList = list.attrmethodProceedList;
+        const nonemethodProceedList = list.nonemethodProceedList;
+        const defaultValue = "CFU";
+
+ 
+    // 手动触发逻辑
+    if (defaultValue === "CFU") {
+        console.log(list.cfusimpleList); // 检查返回的内容
+        renderCFUData(cfusimpleList, cfumethodProceedList); // 调用渲染函数
+        populateFilter(cfusimpleList); // 初始化下拉菜单选项
+    }
+			 document.getElementById('slectedUnit').addEventListener('click', function() {
+			
+        const selectedValue = this.value;
+        if(selectedValue==="CFU"){
+			console.log(list.cfusimpleList); // 检查返回的内容
+			renderCFUData(cfusimpleList,cfumethodProceedList); // 调用渲染函数
+              populateFilter(cfusimpleList); // 初始化下拉菜单选项
+		}else if(selectedValue==="MPN"){
+			renderMPNData(mpnsimpleList,mpnmethodProceedList); // 调用渲染函数
+              populateFilter(mpnsimpleList); // 初始化下拉菜单选项
+		}else if(selectedValue==="/"){
+			renderattrData(attrsimpleList,attrmethodProceedList); // 调用渲染函数
+              populateFilter(attrsimpleList); // 初始化下拉菜单选项
+		}else if(selectedValue==="none"){
+			rendernoneData(nonesimpleList,nonemethodProceedList); // 调用渲染函数
+              populateFilter(nonesimpleList); // 初始化下拉菜单选项
+		}
+		 });
+			   makeRowsDraggableGeneric('#mainTable tbody tr', 'main');
+        
+        },
+        error: function () {
+            alert('无法加载标准数据');
+            $("#progressBarContainer").fadeOut(); // 请求失败时隐藏进度条
+        }
+        
+    });
+     // 动态创建标签
+function createTableTag(selectedValue) {
+    const tagContainer = $("#tagContainer"); // 假设标签容器的 ID 是 tagContainer
+    //tagContainer.empty(); // 确保每次只生成一个标签
+
+   const tag = $(`
+    <div id="tag-${selectedValue}" class="table-tag" 
+         style="display: inline-flex;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: rgba(234,240,255,.86);
+  font-weight: 900;">
+        <span style="margin-right: 5px;">${selectedValue}</span>
+        <button class="close-tag" style="background: red; color: white; 
+                border: none; cursor: pointer; padding: 0 5px;">X</button>
+    </div>
+`);
+
+    // 点击标签切换表格显示状态
+    tag.on("click", function () {
+		 const tagElement = $(this);
+
+    // 检查是否已被禁用
+    if (tagElement.data("disabled")) {
+        alert("请稍等片刻后再点击！");
+        return;
+    }
+
+    // 添加点击反馈样式
+    tagElement.css({
+        background: "#d1e7dd",
+        borderColor: "#91c9a9",
+        cursor: "not-allowed"
+    });
+    tagElement.data("disabled", true); // 设置禁用状态
+
+    // 冷却计时器：5秒后恢复可点击状态
+    setTimeout(() => {
+        tagElement.css({
+            background: "#e3e3e3",
+            borderColor: "#ccc",
+            cursor: "pointer"
+        });
+        tagElement.data("disabled", false); // 恢复可点击状态
+    }, 5000);
+        // 设置 label 值
+        document.getElementById('con').textContent = selectedValue;
+        
+		 
+      dateLableAjax(selectedValue);
+        mySQLquestid=500;
+        $('#currentValue').text('第' + (mySQLquestid-500) + '~' + mySQLquestid + '条数据');
+    });
+
+    // 阻止点击关闭按钮触发标签的点击事件
+    tag.find(".close-tag").on("click", function (e) {
+        e.stopPropagation(); // 阻止冒泡
+        $("#dataTableContainer").hide(); // 隐藏表格
+        //$("#mainTable").hide(); // 隐藏表格
+       
+        tag.remove(); // 移除标签
+    });
+
+    tagContainer.append(tag);
+}
+    });
+    
+	}
+	function dateLableAjax(selectedValue){
+		 // 动态获取标准数据
+    $.ajax({
+        url: '/record/api/samples',
+        type: 'GET',
+        data:{ "date": selectedValue,
+        "id":"500"},
+         beforeSend: function () {
+         // 显示进度条容器
+        const progressBarContainer = $("#progressBarContainer");
+        const progressBar = $("#progressBar");
+progressBar.css("width", "0%");
+        progressBarContainer.show();
+        
+
+        // 启动进度条动画
+        animateProgressBar(() => {
+            // 当动画到 90% 时等待成功回调
+           progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        });
+    },
+        success: function (list) {
+			const progressBar = $("#progressBar");
+
+        // 平滑完成到 100%
+        progressBar.css({
+            width: "100%",
+            transition: "width 0.5s ease-in-out" // 添加过渡效果
+        });
+        
+        setTimeout(() => {
+            // 隐藏进度条容器
+            $("#progressBarContainer").fadeOut();
+        }, 500);
+        $("#exportTableName").val(selectedValue);
+			  const cfusimpleList = list.cfusimpleList;
+			  cfusimple=cfusimpleList;
+			  const mpnsimpleList = list.mpnsimpleList;
+			   const attrsimpleList = list.attrsimpleList;
+			    const nonesimpleList = list.nonesimpleList;
+        const cfumethodProceedList = list.cfumethodProceedList;
+        const mpnmethodProceedList = list.mpnmethodProceedList;
+        const attrmethodProceedList = list.attrmethodProceedList;
+        const nonemethodProceedList = list.nonemethodProceedList;
+        const defaultValue = "CFU";
+
+ 
+    // 手动触发逻辑
+    if (defaultValue === "CFU") {
+        console.log(list.cfusimpleList); // 检查返回的内容
+        renderCFUData(cfusimpleList, cfumethodProceedList); // 调用渲染函数
+        populateFilter(cfusimpleList); // 初始化下拉菜单选项
+    }
+			 document.getElementById('slectedUnit').addEventListener('click', function() {
+			
+        const selectedValue = this.value;
+        if(selectedValue==="CFU"){
+			console.log(list.cfusimpleList); // 检查返回的内容
+			renderCFUData(cfusimpleList,cfumethodProceedList); // 调用渲染函数
+              populateFilter(cfusimpleList); // 初始化下拉菜单选项
+		}else if(selectedValue==="MPN"){
+			renderMPNData(mpnsimpleList,mpnmethodProceedList); // 调用渲染函数
+              populateFilter(mpnsimpleList); // 初始化下拉菜单选项
+		}else if(selectedValue==="/"){
+			renderattrData(attrsimpleList,attrmethodProceedList); // 调用渲染函数
+              populateFilter(attrsimpleList); // 初始化下拉菜单选项
+		}else if(selectedValue==="none"){
+			rendernoneData(nonesimpleList,nonemethodProceedList); // 调用渲染函数
+              populateFilter(nonesimpleList); // 初始化下拉菜单选项
+		}
+		 });
+			      makeRowsDraggableGeneric('#mainTable tbody tr', 'main');
+        },
+        error: function () {
+            alert('无法加载标准数据');
+        }
+    });
+	}
+	//动态模拟加载动画的函数
+	function animateProgressBar(onComplete) {
+    const progressBar = $("#progressBar");
+    let progress = 0;
+
+    // 每隔 100ms 增加宽度，最多到 90%
+    const interval = setInterval(() => {
+        progress += Math.random() * 5; // 随机增加进度，模拟动态效果
+        if (progress >= 90) {
+            clearInterval(interval); // 达到 90% 停止
+            if (typeof onComplete === "function") {
+                onComplete(); // 执行完成的回调函数
+            }
+        }
+        progressBar.css("width", `${Math.min(progress, 90)}%`); // 限制最大值为 90%
+    }, 100);
+   
+}
+	function fetch500record(selectedValue,mySQLquestid){
+		 // 动态获取标准数据
+   $.ajax({
+       url: '/record/api/samples',
+       type: 'GET',
+       data:{ "date": selectedValue
+       ,"id":mySQLquestid,
+       "unit":$("#slectedUnit").val() || "CFU"},
+        beforeSend: function () {
+        // 显示进度条容器
+       const progressBarContainer = $("#progressBarContainer");
+       const progressBar = $("#progressBar");
+progressBar.css("width", "0%");
+       progressBarContainer.show();
+       
+
+       // 启动进度条动画
+       animateProgressBar(() => {
+           // 当动画到 90% 时等待成功回调
+          progressBar.css({
+           width: "100%",
+           transition: "width 0.5s ease-in-out" // 添加过渡效果
+       });
+       });
+   },
+       success: function (list) {
+			const progressBar = $("#progressBar");
+
+       // 平滑完成到 100%
+       progressBar.css({
+           width: "100%",
+           transition: "width 0.5s ease-in-out" // 添加过渡效果
+       });
+       
+       setTimeout(() => {
+           // 隐藏进度条容器
+           $("#progressBarContainer").fadeOut();
+       }, 500);
+			  const cfusimpleList = list.cfusimpleList;
+			  cfusimple=cfusimpleList;
+			  const mpnsimpleList = list.mpnsimpleList;
+			  mpnsimple=mpnsimpleList;
+			   const attrsimpleList = list.attrsimpleList;
+			   attrsimple=attrsimpleList;
+			    const nonesimpleList = list.nonesimpleList;
+       const cfumethodProceedList = list.cfumethodProceedList;
+       const mpnmethodProceedList = list.mpnmethodProceedList;
+       const attrmethodProceedList = list.attrmethodProceedList;
+       const nonemethodProceedList = list.nonemethodProceedList;
+       const defaultValue = $("#slectedUnit").val() || "CFU";
+
+
+   // 手动触发逻辑
+   if (defaultValue === "CFU") {
+       console.log(list.cfusimpleList); // 检查返回的内容
+       renderCFUData(cfusimpleList, cfumethodProceedList); // 调用渲染函数
+       loadNormalizedFilterOptions(selectedValue, "CFU", cfusimpleList); // 初始化下拉菜单选项
+   }else if(defaultValue==="MPN"){
+		renderMPNData(mpnsimpleList,mpnmethodProceedList);
+       loadNormalizedFilterOptions(selectedValue, defaultValue, mpnsimpleList);
+	}else if(defaultValue==="/"){
+		renderattrData(attrsimpleList,attrmethodProceedList);
+       loadNormalizedFilterOptions(selectedValue, defaultValue, attrsimpleList);
+	}else if(defaultValue==="none"){
+		rendernoneData(nonesimpleList,nonemethodProceedList);
+       loadNormalizedFilterOptions(selectedValue, defaultValue, nonesimpleList);
+   }
+       },
+       error: function () {
+           alert('无法加载标准数据');
+       }
+   });
+	}
+	//动态模拟加载动画的函数
+	function animateProgressBar(onComplete) {
+   const progressBar = $("#progressBar");
+   let progress = 0;
+
+   // 每隔 100ms 增加宽度，最多到 90%
+   const interval = setInterval(() => {
+       progress += Math.random() * 5; // 随机增加进度，模拟动态效果
+       if (progress >= 90) {
+           clearInterval(interval); // 达到 90% 停止
+           if (typeof onComplete === "function") {
+               onComplete(); // 执行完成的回调函数
+           }
+       }
+       progressBar.css("width", `${Math.min(progress, 90)}%`); // 限制最大值为 90%
+   }, 100);
+  
+}
+</script>
+<!--渲染 XML.CFU 数据为层级结构 -->
+<script>
+	  // 渲染 XML 数据为层级结构
+    function renderCFUData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        const recordedcontainer = $("#recorded");
+        container.empty();
+       recordedcontainer.empty();
+// 添加筛选按钮
+    const filterButton = $(`<button id="filterRows" style="display: inline-flex;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  color: rgba(234,240,255,.86);
+  font-weight: 900;">显示复测/结果</button>`);
+   
+    recordedcontainer.append(filterButton); // 添加到表格上方
+
+        simpleList.forEach((simple, simpleIndex) => {
+			
+            const row = $(`
+                <tr id="tr-${simpleIndex}" data-test="${simple.ifF}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num-${simpleIndex}" class="numCell" data-done="${simple.done}" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>  
+                     <td id="text-${simpleIndex}">
+                    <label type="text" id="recorddata-${simpleIndex}" class="recorddatacss" name="data" value="${simple.result||","}" >${simple.result||" "}</label>
+                </td> 
+                <td width="120px" class="retestCell">
+                <input id="check-${simpleIndex}" class="Fselect" data-id="${simple.id}" type="checkbox" name="fsimple" value="${simple.ifF || ''}" hidden>
+                <label class="retestStateLabel" text="${simple.ifF || ''}">${formatRetestState(simple.ifF)}</label>
+              </td>
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                    <td  text="${simple.company}" width="50px" >${simple.company}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name-${simpleIndex}" class="testItem" name="simpleName" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+           
+             // 动态生成与 Simple 数据对应的 MethodProceed inputs
+        const methodInputsContainer = row.find(`#method-${simpleIndex}`);
+         const textContainer=row.find(`#text-${simpleIndex}`);
+        const groupDiv = $(`<div>Group ${simpleIndex}</div>`);
+        
+		
+     
+       
+            methodInputsContainer.append(groupDiv);
+       textContainer.append(methodInputsContainer);
+       
+      
+
+            container.append(row);
+            //console.log($("#check-"+simpleIndex).val());
+             if($("#check-"+simpleIndex).val().includes("F")){
+				console.log("selected");
+				 $("#check-"+simpleIndex).prop("checked", true); // 使用 jQuery 设置复选框为选中状态
+			}
+            if($("#check-"+simpleIndex).is(':checked')){
+				 $("#tr-" + simpleIndex).hide();
+			}
+            const $tr = $("#tr-" + simpleIndex);
+const $num = $("#num-" + simpleIndex);
+
+// 先清一下（防止重复渲染时叠加）
+$num.removeClass("isBF isTodo");
+
+if(String($tr.data("test") || "").split(/[,，]/).includes("BF")){
+  $num.addClass("isBF");
+}
+if(String($num.data("done")) === "0"){
+  $num.addClass("isTodo");
+}
+		     
+		  
+       });
+       
+           // 筛选按钮点击事件
+    $("#filterRows").on("click", function () {
+        container.find("tr").each(function () {
+            const input = $(this).find("input.Fselect");
+            if (input.is(':checked')) {
+                $(this).show(); // 显示符合条件的行
+            } else {
+                $(this).hide(); // 隐藏不符合条件的行
+            }
+        });
+    });
+        }
+    
+
+</script>
+<!--渲染 XML.MPN 数据为层级结构 -->
+<script>
+	  // 渲染 XML 数据为层级结构
+    function renderMPNData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        container.empty();
+        var result=null;
+
+        simpleList.forEach((simple, simpleIndex) => {
+			var q=null;
+			 var proceedLenth=methodProceedList[simpleIndex].length;
+			if(simple.result!=null&&simple.result.includes(">")){
+				result= simple.result.split(">");
+			}else{methodProceedList[simpleIndex].forEach((proceed)=>{
+				result="";
+			})}
+			
+            const row = $(`
+                <tr id="tr-${simpleIndex}" data-test="${simple.ifF}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num-${simpleIndex}" class="numCell" data-done="${simple.done}" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>   
+                    <td id="text-${simpleIndex}" width="100px" >
+	 <div class="method-inputs" id="method-${simpleIndex}">
+                    <!-- MethodProceed inputs will be appended here -->
+                </div>
+	</td>
+	<td width="120px" class="retestCell">
+	  <input id="check-${simpleIndex}" class="Fselect" data-id="${simple.id}" type="checkbox" name="fsimple" value="${simple.ifF || ''}" hidden>
+	  <label class="retestStateLabel" text="${simple.ifF || ''}">${formatRetestState(simple.ifF)}</label>
+	</td>	                                   
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                     <td  text="${simple.company}" width="50px" >${simple.company}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name-${simpleIndex}" name="simpleName" class="testItem" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+            
+             // 动态生成与 Simple 数据对应的 MethodProceed inputs
+        const methodInputsContainer = row.find(`#method-${simpleIndex}`);
+        methodInputsContainer.empty();
+         
+        const groupDiv = $(`<div></div>`);
+        var index=0;
+       
+        methodProceedList[simpleIndex].forEach((Proceed)=>{
+			const proceedDiv = `<div><label id="method-${simpleIndex}-${simpleList[simpleIndex].id}-${index}" data-input-index="${index}" data-input-id="${simpleList[simpleIndex].id}" data-input-proceed-name="${Proceed.methodProceed}" data-input-proceed-length="${proceedLenth}" type="text" name="method-${simpleIndex}" onclick="MPNshowSelectMenu(${simpleIndex},this)" value="${result[index]||" "}" >${result[index]||" "}</label></div>`;
+			 groupDiv.append(proceedDiv);
+			 index++;
+		});
+        
+		
+            methodInputsContainer.append(groupDiv);
+      
+
+            container.append(row);
+            if($("#check-"+simpleIndex).val().includes("F")){
+				console.log("selected");
+				 $("#check-"+simpleIndex).prop("checked", true); // 使用 jQuery 设置复选框为选中状态
+			}
+            if($("#check-"+simpleIndex).is(':checked')){
+				 $("#tr-" + simpleIndex).hide();
+			}
+            const $tr = $("#tr-" + simpleIndex);
+const $num = $("#num-" + simpleIndex);
+
+// 先清一下（防止重复渲染时叠加）
+$num.removeClass("isBF isTodo");
+
+if(String($tr.data("test") || "").split(/[,，]/).includes("BF")){
+  $num.addClass("isBF");
+}
+if(String($num.data("done")) === "0"){
+  $num.addClass("isTodo");
+}
+       });
+        // 筛选按钮点击事件
+    $("#filterRows").on("click", function () {
+        container.find("tr").each(function () {
+            const input = $(this).find("input.Fselect");
+            if (input.is(':checked')) {
+                $(this).show(); // 显示符合条件的行
+            } else {
+                $(this).hide(); // 隐藏不符合条件的行
+            }
+        });
+    });
+        }
+</script>
+<!--渲染 XML.attr 数据为层级结构 -->
+<script>
+	var result=null;
+	let Index=null;
+	  // 渲染 XML 数据为层级结构
+    function renderattrData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        container.empty();
+        var attrproceedList=methodProceedList;
+        var attrsimpleList=simpleList;
+   
+
+       
+        simpleList.forEach((simple, simpleIndex) => {
+			 // 只显示 unit 是 selected 的行
+        if (simple.unit !== "selected") {
+            return; // 跳过该行
+        }
+         var proceedLenth=methodProceedList[simpleIndex].length;
+			if(simple.result!=null&&simple.result.includes(">")){
+				result= simple.result.split(">");
+			}else{methodProceedList[simpleIndex].forEach((proceed)=>{
+				result="";
+			})}
+            const row = $(`
+                <tr id="tr-${simpleIndex}" class="tr-glow" data-test="${simple.ifF}" data-attr-result="${result}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num-${simpleIndex}" class="numCell" data-done="${simple.done}" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>   
+                    <td id="text-${simpleIndex}" width="auto" >	
+	 <div class="method-inputs" id="method-${simpleIndex}">
+                    <!-- MethodProceed inputs will be appended here -->
+                   
+                </div>
+	
+	
+	</td>	
+	<td width="120px" class="retestCell">
+	  <input id="check-${simpleIndex}" class="Fselect" data-id="${simple.id}" type="checkbox" name="fsimple" value="${simple.ifF || ''}" hidden>
+	  <label class="retestStateLabel" text="${simple.ifF || ''}">${formatRetestState(simple.ifF)}</label>
+	</td>                                   
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                     <td  text="${simple.company}" width="50px" >${simple.company}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name-${simpleIndex}" class="testItem" name="simpleName" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+             // 动态生成与 Simple 数据对应的 MethodProceed inputs
+        const methodInputsContainer = row.find(`#method-${simpleIndex}`);
+        methodInputsContainer.empty();
+         
+        const groupDiv = $(`<div></div>`);
+        var index=0;
+       
+        methodProceedList[simpleIndex].forEach((Proceed)=>{
+			const proceedDiv = `<div><label id="method-${simpleIndex}-${simpleList[simpleIndex].id}-${index}" data-input-index="${index}" data-input-id="${simpleList[simpleIndex].id}" data-input-proceed-name="${Proceed.methodProceed}" data-input-proceed-length="${proceedLenth}" type="text" name="method-${simpleIndex}" value="${result[index]||" "}" >${result[index]||" "}</label></div>`;
+			 groupDiv.append(proceedDiv);
+			 index++;
+		});
+         
+		 methodInputsContainer.append(groupDiv);
+     
+            container.append(row);
+            if($("#check-"+simpleIndex).val().includes("F")){
+				console.log("selected");
+				 $("#check-"+simpleIndex).prop("checked", true); // 使用 jQuery 设置复选框为选中状态
+			}
+            if($("#check-"+simpleIndex).is(':checked')){
+				 $("#tr-" + simpleIndex).hide();
+			}
+             const $tr = $("#tr-" + simpleIndex);
+const $num = $("#num-" + simpleIndex);
+
+// 先清一下（防止重复渲染时叠加）
+$num.removeClass("isBF isTodo");
+
+if(String($tr.data("test") || "").split(/[,，]/).includes("BF")){
+  $num.addClass("isBF");
+}
+if(String($num.data("done")) === "0"){
+  $num.addClass("isTodo");
+}
+       });
+        // 筛选按钮点击事件
+    $("#filterRows").on("click", function () {
+		const checkedSimple = new Set();
+        container.find("tr").each(function () {
+            const input = $(this).find("input.Fselect");
+            if (input.is(':checked')) {
+                $(this).show(); // 显示符合条件的行
+                const rowId = $(this).attr("id");
+            const simpleIndex = rowId.split("-")[1];
+             checkedSimple.add($("name-"+simpleIndex).val())
+             
+            } else {
+                $(this).hide(); // 隐藏不符合条件的行
+            }
+        });
+        
+    });
+        
+        }
+        
+</script>
+<!--渲染 XML.none 数据为层级结构 -->
+<script>
+	  // 渲染 XML 数据为层级结构
+    function rendernoneData(simpleList,methodProceedList) {
+        const container = $("#dataBody");
+        container.empty();
+        
+
+        simpleList.forEach((simple, simpleIndex) => {
+			
+            const row = $(`
+                <tr id="tr-${simpleIndex}"   onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+                    <td id="num" data-id="${simple.id}" name="simpleNum" text="${simple.number}" value="${simple.number}" style="font-size: 30px;">${simple.number}</td>   
+                    <td id="text-${simpleIndex}" width="100px" ><label >没有标准或检测项目不匹配，添加后再查看</label>
+	
+	</td>	                                   
+                    <td  text="${simple.name}" width="50px" >${simple.name}</td>
+                    <td  text="${simple.unit}" width="50px" >${simple.unit}</td> 
+                    <td id="name" class="testItem" name="simpleName" text="${simple.testItem}" value="${simple.testItem}" style="font-size: 30px;">${simple.testItem}</td>		
+	<td text="${simple.testMethod}" width="400px">${simple.testMethod}</td>              
+                            
+                </tr>
+            `);
+            
+             
+
+            container.append(row);
+       });
+        }
+</script>
+
+<!--下拉菜单-->
+<script>
+	 // 初始化下拉菜单选项
+    function populateFilter(simpleList) {
+        const filterSelect = $("#filterSelect");
+        const testItems = new Set();
+        filterSelect.empty();
+
+        // 提取检测项目列的值
+        simpleList.forEach((simple) => {
+            if (simple.testItem) {
+
+					testItems.add(simple.testItem)
+
+            }
+        });
+
+        // 动态生成下拉菜单选项
+        testItems.forEach((item) => {
+			
+            const option = $(`<option value="${item}">${item}</option>`);
+            filterSelect.append(option);
+        });
+
+        // 添加筛选功能
+        filterSelect.on("click", function () {
+            const selectedValue = $(this).val();
+            filterTable(selectedValue);
+        });
+    }
+
+    // 根据选择值筛选表格
+    function filterTable(selectedValue) {
+        $("#dataBody tr").each(function () {
+            const testItem = $(this).find(".testItem").text();
+             const input = $(this).find("label.recorddatacss");
+            if (testItem.includes(selectedValue)) {
+				
+               
+               $(this).show(); // 显示匹配的行
+            
+              
+            } else {
+                $(this).hide(); // 隐藏不匹配的行
+                console.log(testItem + "已隐藏");
+            }
+        });
+	 }
+	
+	
+	
+</script>
+
+
+<script>
+	 function addF(simpleIndex){
+		  var modeljson={
+            "simpleNum":$("#num-"+simpleIndex).text(),
+             "simpleID":$("#num-"+simpleIndex).data("id"),
+            "simpleName":$("#name-"+simpleIndex).text(),           
+            "table_name":document.getElementById('con').textContent
+            
+        }
+        $.ajax({
+            url:'/b',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+                const checkbox = $("#check-" + simpleIndex);
+                checkbox.prop("checked", true).attr("value", "C");
+                checkbox.closest(".retestCell").find(".retestStateLabel").text(formatRetestState("C"));
+                $("#num-" + simpleIndex).attr("data-test-added", "C");
+               
+            }
+        })
+	 }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+<script th:inline="javascript">
+	
+	var checkbox = document.querySelectorAll('#check');
+	var tdNum = document.querySelectorAll('#num');
+	var tdNam = document.querySelectorAll('#name');
+	var fDatelabel = document.querySelectorAll('#fDatelabel');
+	var donelabeld=document.querySelectorAll('#condonelabel');
+	var tr = document.querySelectorAll('#trid');
+
+	 for(var i=0;i<checkbox.length;i++){
+		   var trid="tr"+i;
+		  var checkboxid="check"+i;
+		  var tdNumid="tdnum"+i;
+		  var tdNamid="tdnam"+i;
+		  var fDatelabelid="fDatelabel"+i;
+		   var donelabelid="donelabeldid"+i;
+		   if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+		  checkbox[i].setAttribute('id',checkboxid);
+		  tr[i].setAttribute('id',trid);
+		  const retestState = checkbox[i].getAttribute('value') || "";
+		  if(retestState.split(/[,，]/).includes("C")){
+			  tdNum[i].style.backgroundColor="blue";
+			  checkbox[i].checked=true;
+		  }
+		   if(retestState.split(/[,，]/).includes("BF") || retestState.split(/[,，]/).includes("RBF")){
+			  tdNum[i].style.backgroundColor="red";
+		  }
+			   tdNum[i].setAttribute('id',tdNumid); 
+			   tdNam[i].setAttribute('id',tdNamid)
+			   fDatelabel[i].setAttribute('id',fDatelabelid)
+			    donelabeld[i].setAttribute('id',donelabelid);
+			     if(donelabeld[i].getAttribute('value')==0){
+			  tdNum[i].style.backgroundColor="yellow";
+		  }
+	  }
+	   
+	 function b1(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+            "table_name":document.getElementById('con').getAttribute('value')
+            
+        }
+        $.ajax({
+            url:'/ajax/b',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	
+	 function todo(id){
+		 for(var i=0;i<checkbox.length;i++){
+		 var checkboxid= checkbox[i].getAttribute('id');
+		  if(checkboxid===id){
+			  trnum=i;			  
+			  break;
+		  }
+		 
+	  }
+
+		var tdNumid="tdnum"+trnum;
+		var tdNamid="tdnam"+trnum;
+		var fDatelabelid="fDatelabel"+trnum;
+		
+		  
+		 b1(tdNumid,tdNamid);
+ 
+       
+    }
+            
+        function focusSelect(id){
+  const tr = document.getElementById(id);
+  if(!tr) return;
+  tr.classList.add('tr-active');
+}
+
+function blurSelect(id){
+  const tr = document.getElementById(id);
+  if(!tr) return;
+  tr.classList.remove('tr-active');
+}
+    function openmanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=false;
+	}
+	function closemanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=true;
+	}
+     
+	 </script>
+	 
+	  <script src="script/plusSelect.js?v=1.0.2" ></script>
+	  <script src="script/queryJs.js?v=1.0.0" ></script>
+	  <script src="script/spotlightMove.js?v=1.0.0" ></script>
+	  
+	  
+	  <script>
+  (function initFilterCollapse(){
+    const topNav = document.querySelector('.topNav');
+    const btn = document.getElementById('filterToggleBtn');
+    if(!topNav || !btn) return;
+
+    function setExpanded(expanded){
+      // expanded=true => 展开 filters
+      topNav.classList.toggle('isCollapsed', !expanded);
+      btn.setAttribute('aria-expanded', String(expanded));
+      btn.textContent = expanded ? 'Filters ▲' : 'Filters ▼';
+    }
+
+    // 小屏默认收起；大屏默认展开
+    const isMobile = window.matchMedia('(max-width: 980px)').matches;
+    setExpanded(!isMobile ? true : false);
+
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      setExpanded(!expanded);
+      // 标记：用户在小屏手动展开状态
+      if(window.matchMedia('(max-width: 980px)').matches){
+        topNav.classList.add('expandedOnMobile');
+      }
+    });
+
+    // 窗口变化时自动适配
+    window.addEventListener('resize', () => {
+      const mobile = window.matchMedia('(max-width: 980px)').matches;
+      // 如果没手动操作过，就按默认策略切换
+      if(!topNav.classList.contains('expandedOnMobile')){
+        setExpanded(!mobile);
+      }
+    });
+  })();
+  
+  
+</script>
+
+<script>
+  (function modernizeGetDataPage() {
+    const state = {
+      date: "",
+      unit: "CFU",
+      pageEnd: 500,
+      activeSimpleList: [],
+      activeMethodProceedList: [],
+      filterOptions: []
+    };
+
+    function toBackendDate(inputDate) {
+    	  if (inputDate === null || inputDate === undefined) return ""
+
+    	  const rawValue = String(inputDate).trim()
+    	  if (rawValue === "") return ""
+
+    	  // 兼容 input type="date" 的值：2026-04-20
+    	  // 保留 04 或 0，不用 parseInt 去掉 0
+    	  return rawValue.replaceAll("-", "/")
+    	}
+
+    function toInputDate(backendDate) {
+      if (!backendDate || !backendDate.includes("/")) return "";
+      const [y, m, d] = backendDate.split("/");
+      return `${y}-${String(parseInt(m, 10)).padStart(2, "0")}-${String(parseInt(d, 10)).padStart(2, "0")}`;
+    }
+
+    function selectedDate() {
+      const picker = document.getElementById("calendarDateInput");
+      return picker ? toBackendDate(picker.value) : "";
+    }
+
+    function updateRangeLabel() {
+      const begin = state.pageEnd - 500;
+      $("#currentValue").text("Rows " + begin + "~" + state.pageEnd);
+      $("#downBtn").prop("disabled", state.pageEnd <= 500);
+    }
+    function pickSimpleList(resp, unit) {
+      if (unit === "MPN") return resp.mpnsimpleList || [];
+      if (unit === "/") return resp.attrsimpleList || [];
+      if (unit === "none") return resp.nonesimpleList || [];
+      return resp.cfusimpleList || [];
+    }
+
+    function pickMethodList(resp, unit) {
+      if (unit === "MPN") return resp.mpnmethodProceedList || [];
+      if (unit === "/") return resp.attrmethodProceedList || [];
+      if (unit === "none") return resp.nonemethodProceedList || [];
+      return resp.cfumethodProceedList || [];
+    }
+
+    function renderByUnit(simpleList, methodList, unit) {
+      if (unit === "MPN") {
+        renderMPNData(simpleList, methodList);
+      } else if (unit === "/") {
+        renderattrData(simpleList, methodList);
+      } else if (unit === "none") {
+        rendernoneData(simpleList, methodList);
+      } else {
+        renderCFUData(simpleList, methodList);
+      }
+      applyMethodCellStrategy();
+      makeRowsDraggableGeneric("#mainTable tbody tr", "main");
+    }
+
+    function requestSamples() {
+      if (!state.date) return $.Deferred().resolve(null).promise();
+      return $.ajax({
+        url: "/record/api/samples",
+        type: "GET",
+        data: { date: state.date, id: String(state.pageEnd), unit: state.unit }
+      });
+    }
+
+    function requestFilterOptions() {
+      if (!state.date) return $.Deferred().resolve([]).promise();
+      return $.ajax({
+        url: "/record/api/test-item-filters",
+        type: "GET",
+        data: { date: state.date, unit: state.unit }
+      });
+    }
+
+    function showTopProgress() {
+    	  const progressBarContainer = $("#progressBarContainer");
+    	  const progressBar = $("#progressBar");
+
+    	  progressBar.stop(true, true);
+    	  progressBar.css({
+    	    width: "0%",
+    	    transition: "none"
+    	  });
+
+    	  progressBarContainer
+    	    .stop(true, true)
+    	    .show();
+
+    	  setTimeout(() => {
+    	    progressBar.css({
+    	      width: "90%",
+    	      transition: "width 0.8s ease-in-out"
+    	    });
+    	  }, 20);
+    	}
+
+    	function finishTopProgress() {
+    	  const progressBarContainer = $("#progressBarContainer");
+    	  const progressBar = $("#progressBar");
+
+    	  progressBar.css({
+    	    width: "100%",
+    	    transition: "width 0.25s ease-in-out"
+    	  });
+
+    	  setTimeout(() => {
+    	    progressBarContainer.fadeOut(200);
+    	  }, 300);
+    	}
+
+    	function failTopProgress() {
+    	  const progressBarContainer = $("#progressBarContainer");
+    	  const progressBar = $("#progressBar");
+
+    	  progressBar.css({
+    	    width: "100%",
+    	    transition: "width 0.2s ease-in-out"
+    	  });
+
+    	  setTimeout(() => {
+    	    progressBarContainer.fadeOut(200);
+    	  }, 300);
+    	}
+
+    	function loadDataAndRender() {
+    	  if (!state.date) return;
+
+    	  $("#con").text(state.date);
+    	  $("#exportTableName").val(state.date);
+
+    	  showTopProgress();
+
+    	  requestSamples()
+    	    .done(function (resp) {
+    	      if (!resp) return;
+
+    	      state.activeSimpleList = pickSimpleList(resp, state.unit);
+    	      state.activeMethodProceedList = pickMethodList(resp, state.unit);
+
+    	      renderByUnit(
+    	        state.activeSimpleList,
+    	        state.activeMethodProceedList,
+    	        state.unit
+    	      );
+
+    	      requestFilterOptions()
+    	        .done(function (opts) {
+    	          state.filterOptions = Array.isArray(opts) ? opts : [];
+    	          populateFilter(state.filterOptions);
+    	        })
+    	        .always(function () {
+    	          finishTopProgress();
+    	        });
+    	    })
+    	    .fail(function () {
+    	      alert("无法加载标准数据");
+    	      failTopProgress();
+    	    });
+    	}
+
+    function installCalendarInput() {
+      const select = document.getElementById("chuselectDate");
+      if (!select || select.tagName !== "SELECT") return;
+      const input = document.createElement("input");
+      input.id = "calendarDateInput";
+      input.type = "date";
+      input.className = select.className;
+      input.style.minWidth = "150px";
+      select.style.display = "none";
+      select.parentNode.insertBefore(input, select.nextSibling);
+      input.addEventListener("change", function () {
+        state.date = selectedDate();
+        state.pageEnd = 500;
+        updateRangeLabel();
+        loadDataAndRender();
+      });
+    }
+
+    function movePagerToFilters() {
+      return;
+    }
+
+    function injectUiStyles() {
+     
+    }
+
+    function applyMethodCellStrategy() {
+    	  $("#mainTable tbody tr").each(function () {
+    	    const methodCell = this.querySelector("td:last-child");
+    	    if (!methodCell) return;
+
+    	    methodCell.classList.add("method-cell");
+    	    methodCell.title = "点击展开/收起";
+
+    	    // 关键：不要让 td 自己 line-clamp，把内容包进 div
+    	    if (!methodCell.querySelector(".methodText")) {
+    	      const text = methodCell.textContent || "";
+    	      methodCell.innerHTML = "";
+
+    	      const div = document.createElement("div");
+    	      div.className = "methodText";
+    	      div.textContent = text;
+
+    	      methodCell.appendChild(div);
+    	    }
+    	  });
+    	}
+
+    function bindEventsOnce() {
+      $("#upBtn").off("click").on("click", function () {
+        if (!state.date) return;
+        state.pageEnd += 500;
+        updateRangeLabel();
+        loadDataAndRender();
+      });
+      $("#downBtn").off("click").on("click", function () {
+        if (!state.date || state.pageEnd <= 500) return;
+        state.pageEnd -= 500;
+        updateRangeLabel();
+        loadDataAndRender();
+      });
+      $("#slectedUnit").off("change").on("change", function () {
+        state.unit = this.value;
+        state.pageEnd = 500;
+        updateRangeLabel();
+        loadDataAndRender();
+      });
+      $("#filterSelect").off("change").on("change", function () {
+        filterTable(this.value);
+      });
+      $("#mainTable").off("click.methodCell").on("click.methodCell", "td.method-cell", function () {
+        this.classList.toggle("expanded");
+      });
+    }
+
+    window.populateFilter = function populateFilter(options) {
+      const filter = document.getElementById("filterSelect");
+      if (!filter) return;
+      filter.innerHTML = '<option value="">全部</option>';
+      (options || []).forEach(function (option) {
+        const op = document.createElement("option");
+        op.value = option.key || option.label || "";
+        const aliases = Array.isArray(option.aliases) ? option.aliases.filter(Boolean) : [];
+        op.textContent = option.label || option.key || "";
+        op.dataset.aliases = aliases.join("|");
+        filter.appendChild(op);
+      });
+    };
+
+    window.filterTable = function filterTable(selectedValue) {
+      if (!selectedValue) {
+        renderByUnit(state.activeSimpleList, state.activeMethodProceedList, state.unit);
+        return;
+      }
+      const selectedOption = $("#filterSelect option:selected");
+      const aliasSet = new Set(
+        (selectedOption.data("aliases") || "")
+          .toString()
+          .split("|")
+          .map(function (s) { return s.trim(); })
+          .filter(Boolean)
+      );
+      aliasSet.add(selectedValue);
+      const filteredSimple = state.activeSimpleList.filter(function (item) {
+        return aliasSet.has((item.testItem || "").trim());
+      });
+      renderByUnit(filteredSimple, state.activeMethodProceedList, state.unit);
+    };
+
+    window.tableDespict = function () {};
+    window.dateLableAjax = function () {};
+    window.fetch500record = function () {};
+
+    injectUiStyles();
+    installCalendarInput();
+    movePagerToFilters();
+    bindEventsOnce();
+    updateRangeLabel();
+
+    const defaultDate = toInputDate(document.getElementById("con") ? document.getElementById("con").textContent : "");
+    if (defaultDate) {
+      const picker = document.getElementById("calendarDateInput");
+      if (picker) {
+        picker.value = defaultDate;
+        state.date = selectedDate();
+        loadDataAndRender();
+      }
+    }
+  })();
+</script>
+
+
+    </main>
+  </div>
+</body>
+</html>

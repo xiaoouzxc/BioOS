@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="script/getDataSelectplus.css"/>
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+<style>
+	/*#home{
+		position:fixed;
+		
+  left: 90%;
+  top:80%;
+ 
+  padding: 20px;
+  margin: 10px;
+  width:100px;
+  height: 100px;
+  z-index: 99;
+  background-color: rgb(255, 255, 255,0);
+	}
+	
+	#backTodataLabel{
+		position:relative;
+		border:2px solid ;
+  padding: 2px;
+  margin: 1px;
+		 background-color: rgb(255, 128, 0);
+	}
+	#backToHomeLabel{
+		position:relative;
+		top: 10px;
+		border:2px solid ;
+  padding: 2px;
+  margin: 1px;
+		 background-color: rgb(255, 128, 0);
+	}*/
+	
+	#mbut{
+	display: inline-block;
+	position:absolute;
+	left: 56%;
+     top:0%;
+	border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+    width:10%;
+  height: 5%;
+    background-color: aqua;	
+	}	
+
+	#manualPanel{
+		position:absolute;
+  left: 25%;
+  top:20%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:800px;
+  height: 100px;
+  z-index: 99;
+  background-color: rgb(255, 255, 255);
+	}
+	#queryTable{
+		border-collapse: collapse;
+		padding: 0px;
+		margin: 0px;
+  
+  z-index: 99;
+  background-color:  rgb(255, 255, 255);
+	}
+	
+	#lclose{
+		position: absolute;
+		left:96%;
+		top: -2px;
+		
+	}
+	
+	#selectDatePanel{
+		position:absolute;
+  left: 20%;
+  top:0%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:10%;
+  height: 5%;
+  z-index: 99;
+  background-color: rgb(255, 255, 128);
+	}
+	
+	#displayTable{
+		position:absolute;
+		left:20%;
+        top:13%;
+        background-color:  rgb(143, 188, 143);
+       border-collapse: collapse;
+	}
+	td{
+		 border:2px solid ;
+	}
+	#selomenlabel{
+		position:absolute;
+		display: inline-block;	
+		left: 32%;
+         top:0%;	 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(0, 255, 0);
+	}
+	#setFlabel{
+		position:absolute;
+		display: inline-block;	
+		left: 44%;
+         top:0%;	 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(255, 128, 0);
+	}
+	#condisplay{
+		position:absolute;		
+		left: 25%;
+        top:8.5%;	 		
+        padding: 20px;
+        margin: 10px;
+        width:30%;
+        height: 0%;
+        z-index: 100;
+        background-color:  rgb(255, 255, 255);
+        font-size: 250%;
+       text-align:center;
+       line-height: 10%;
+	}
+	
+</style>
+</head>
+<body>
+	<div  id="home">
+		<img src="image/Buttonplus.png" id="appselectLabel"  ></img>
+		<div id="selectapp" style="grid-auto-flow: column;" hidden>
+		<label for="backTodata" id="backTodataLabel">返回查询页</label>
+		<button id="backTodata" onclick="window.location.href='/getData'" hidden></button>
+		<label for="backToHome" id="backToHomeLabel">返回主页</label>
+		<button id="backToHome" onclick="window.location.href='/'" hidden></button>
+		<div  class="selectDatePanel" >
+		<form action="#" th:action="@{/getData}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateList" id="questfromDatelabel"   >查询结果<input id="questfromDateList" type="submit"  hidden></label>
+		</form>
+	</div>
+	<div>
+	<form action="#" th:action="@{/loadRecordData}" method="post" enctype="multipart/form-data">
+		<label for="tipLabelc" id="importResultLabel">结果导出</label>
+		<input  id="tipLabelc" name="table_name"  th:value="${tablename}"  type="submit" hidden>
+	</form>
+	</div>
+	<label for="setFdata" class="setFlabel">编辑复测信息</label>
+		<button id="setFdata" onclick="window.location.href='/setFData'" hidden></button>
+		
+		<label for="getselomendata" class="selomenlabel">沙门数据</label>
+		<button id="getselomendata" onclick="window.location.href='/getselomenData'" hidden></button>
+		
+		<label for="manual" class="mbut">查询数据</label>
+	<button id="manual"  onclick="openmanualPanel()" hidden></button>
+		</div>
+	</div>
+	<div id="selectDatePanel" >
+		<form action="#" th:action="@{/getData}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateListheader" id="questfromDatelabelhead"   >查询结果<input id="questfromDateListheader" type="submit"  hidden></label>
+		</form>
+	</div>
+	<!--<form action="#" th:action="@{/getData}" method="get" enctype="text/plain">	
+	<label  id="datalabel">查询<input  type="text" name="date"  /><label for="quest"  >提交</label><input id="quest" type="submit"  hidden></label>
+	</form>-->
+	<label for="setFdata" id="setFlabel">编辑复测信息</label>
+		<button id="setFdata" onclick="window.location.href='/setFData'" hidden></button>
+		<!--<label for="getFdata" id="Flabel">复测数据</label>
+		<button id="getFdata" onclick="window.location.href='/getFData'" hidden></button>-->
+		<label for="getselomendata" id="selomenlabel">沙门数据</label>
+		<button id="getselomendata" onclick="window.location.href='/getselomenData'" hidden></button>
+		<div id="condisplay">
+	<label id="con" name="table_name" th:text="${tablename}" th:value="${tablename}"></label>
+		</div>
+		<label for="manual" id="mbut">查询数据</label>
+	<button id="manual"  onclick="openmanualPanel()" hidden></button>
+	
+	<div id="manualPanel" hidden>
+		<label for="close" id="lclose">X<button id="close" onclick="closemanualPanel()" hidden></button></label>
+		<div><input type="text" value="例如:11223" id="simpleid" name="simpleNum" />
+     <input type="button" id="btn" value="查询近期数据"  onclick="getcontent()" /></div>
+     <div><input type="text" value="例如:汪汪家" id="simplename" name="simpleNam" />
+     <input type="button" id="btnforname" value="按样品名称查询近期数据" onclick="getcontentfromname()" /></div>
+		<div> <input type="text" value="例如:11223" id="oldsimpleid" name="oldsimpleNum" />
+     <input type="button" id="quryoldbtn" value="查询历史数据" onclick="getoldcontent()" /></div>
+     <div><input type="text" value="例如:汪汪家" id="oldsimplename" name="oldsimpleNam" />
+      <input type="button" id="oldbtnforname" value="按样品名称查询历史数据" onclick="getoldcontentfromname()" /></div>
+    
+<table id="queryTable">
+    <tr>
+        <td>样品短号</td>
+        <td>样品名称</td>
+        <td>检测项目</td>
+        <td>检测方法</td>
+        <td>信息</td>
+        <td>结果</td>
+    </tr>
+    <tbody id="context"></tbody>
+
+   
+</table>
+    
+	</div>
+<table id="displayTable" >
+   <tr>
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>检测项目</td>
+		<td>检测方法</td>		
+		<td>复测</td>
+		<td>结果</td>
+   </tr>
+	<tr id="trid" th:each="simple:${simpleList}" onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)">
+		
+		
+		
+		<label id="condonelabel" th:value="${simple.getDone()}"></label>
+	
+	<td id="num" th:dataID="${simple.getId()}" name="simpleNum" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td  th:text="${simple.getName()}" width="50px" ></td>
+	
+	<td id="name" name="simpleName" th:text="${simple.getTestItem()}" th:value="${simple.getTestItem()}" style="font-size: 30px;"></td>
+		
+	<td th:text="${simple.getTestMethod()}" width="400px"></td>	
+	
+		<td   width="120px">是否复测:<input id="check" th:dataID="${simple.getId()}"  type="checkbox" name="fsimple" th:value="${simple.getIfF()}" onchange="todo(this.id)" /> 
+		<label id="fDatelabel" th:text="${simple.getIfF()}"></label>
+		</td>	
+		<td th:text="${simple.getResult()}" width="100px"></td>	
+	</tr>
+	<button hidden></button>
+</table>
+
+
+
+<script>
+	
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script th:inline="javascript">
+	
+	var checkbox = document.querySelectorAll('#check');
+	var tdNum = document.querySelectorAll('#num');
+	var tdNam = document.querySelectorAll('#name');
+	var fDatelabel = document.querySelectorAll('#fDatelabel');
+	var donelabeld=document.querySelectorAll('#condonelabel');
+	var tr = document.querySelectorAll('#trid');
+
+	 for(var i=0;i<checkbox.length;i++){
+		   var trid="tr"+i;
+		  var checkboxid="check"+i;
+		  var tdNumid="tdnum"+i;
+		  var tdNamid="tdnam"+i;
+		  var fDatelabelid="fDatelabel"+i;
+		   var donelabelid="donelabeldid"+i;
+		   if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+		  checkbox[i].setAttribute('id',checkboxid);
+		  tr[i].setAttribute('id',trid);
+		  if(checkbox[i].getAttribute('value').charAt(0)==="F"){
+			  tdNum[i].style.backgroundColor="blue";
+			  checkbox[i].checked=true;
+		  }
+		   if(checkbox[i].getAttribute('value')==="BF"||checkbox[i].getAttribute('value')==="RBF"){
+			  tdNum[i].style.backgroundColor="red";
+		  }
+			   tdNum[i].setAttribute('id',tdNumid); 
+			   tdNam[i].setAttribute('id',tdNamid)
+			   fDatelabel[i].setAttribute('id',fDatelabelid)
+			    donelabeld[i].setAttribute('id',donelabelid);
+			     if(donelabeld[i].getAttribute('value')==0){
+			  tdNum[i].style.backgroundColor="yellow";
+		  }
+	  }
+	   
+	 function b1(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+            "id":document.getElementById(id1).getAttribute('dataID'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+            "table_name":document.getElementById('con').getAttribute('value')
+            
+        }
+        $.ajax({
+            url:'/ajax/b',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)
+               
+            }
+        })
+	 }
+	
+	 function todo(id){
+		 for(var i=0;i<checkbox.length;i++){
+		 var checkboxid= checkbox[i].getAttribute('id');
+		  if(checkboxid===id){
+			  trnum=i;			  
+			  break;
+		  }
+		 
+	  }
+
+		var tdNumid="tdnum"+trnum;
+		var tdNamid="tdnam"+trnum;
+		var fDatelabelid="fDatelabel"+trnum;
+		
+		  
+		 b1(tdNumid,tdNamid);
+ 
+       
+    }
+    function getcontent(){
+		var modeljson={
+            "simpleNum":document.getElementById('simpleid').value 
+            
+        }
+       	
+                $.post({
+                    url: "/ajax/query",
+                    data:modeljson,
+                    success: function (data) {
+                        console.log(data);
+                        var html = "";
+                        var donecontentTransfer="已做";
+                        for (var i = 0; i < data.length; i++) {
+							
+							if(data[i].done===0){
+								donecontentTransfer="未做";
+							
+                            html += "<tr>" +
+                                "<td>" + data[i].number + "</td>" +
+                                "<td width='200px'>" + data[i].name + "</td>" +
+                                "<td width='100px'>" + data[i].testItem + "</td>" +
+                                "<td width='500px'>" + data[i].testMethod + "</td>" +
+                                "<td>" + data[i].ifF + "</td>" +
+                                "<td>" + data[i].result + "</td>" +
+                                 "<td>" + donecontentTransfer + "</td>" +
+                                "</tr>"
+                                console.log(data[i].done+"--"+donecontentTransfer);
+                        }
+                        else{
+							donecontentTransfer="已做";
+							
+                            html += "<tr>" +
+                                "<td>" + data[i].number + "</td>" +
+                                "<td width='200px'>" + data[i].name + "</td>" +
+                                "<td width='100px'>" + data[i].testItem + "</td>" +
+                                "<td width='500px'>" + data[i].testMethod + "</td>" +
+                                "<td>" + data[i].ifF + "</td>" +
+                                "<td>" + data[i].result + "</td>" +
+                                 "<td>" + donecontentTransfer + "</td>" +
+                                "</tr>"
+                                console.log(data[i].done+"--"+donecontentTransfer);
+						}}
+                        $("#context").html(html)
+                    }
+                })
+	}
+	function getcontentfromname(){
+		var modeljson={
+            "simpleNam":document.getElementById('simplename').value 
+            
+        }
+       	
+                $.post({
+                    url: "/ajax/queryfromname",
+                    data:modeljson,
+                    success: function (data) {
+                        console.log(data);
+                        var html = "";
+                        for (var i = 0; i < data.length; i++) {
+                            html += "<tr>" +
+                                "<td>" + data[i].number + "</td>" +
+                                "<td>" + data[i].name + "</td>" +
+                                "<td >" + data[i].testItem + "</td>" +
+                                "<td>" + data[i].testMethod + "</td>" +
+                                "<td>" + data[i].ifF + "</td>" +
+                                "<td>" + data[i].result + "</td>" +
+                                "</tr>"
+                        }
+                        $("#context").html(html)
+                    }
+                })
+	}
+    
+       function getoldcontent(){
+		var modeljson={
+            "oldsimpleNum":document.getElementById('oldsimpleid').value  
+        }
+       	
+                $.post({
+                    url: "/ajax/queryFromYearTable",
+                    data:modeljson,
+                    success: function (data) {
+                        console.log(data);
+                        var html = "";
+                        for (var i = 0; i < data.length; i++) {
+                            html += "<tr>" +
+                                "<td>" + data[i].number + "</td>" +
+                                "<td>" + data[i].name + "</td>" +
+                                "<td>" + data[i].company + "</td>" +
+                                "<td>" + data[i].testItem + "</td>" +                               
+                                "<td>" + data[i].ifF + "</td>" +
+                                "<td>" + data[i].result + "</td>" +
+                                "</tr>"
+                        }
+                        $("#context").html(html)
+                    }
+                })
+	}  
+	function getoldcontentfromname(){
+		var modeljson={
+            "oldsimpleNam":document.getElementById('oldsimplename').value  
+        }
+       	
+                $.post({
+                    url: "/ajax/queryFromYearTableforName",
+                    data:modeljson,
+                    success: function (data) {
+                        console.log(data);
+                        var html = "";
+                        for (var i = 0; i < data.length; i++) {
+                            html += "<tr>" +
+                                "<td>" + data[i].number + "</td>" +
+                                "<td>" + data[i].name + "</td>" +
+                                "<td>" + data[i].company + "</td>" +
+                                "<td>" + data[i].testItem + "</td>" +                               
+                                "<td>" + data[i].ifF + "</td>" +
+                                "<td>" + data[i].result + "</td>" +
+                                "</tr>"
+                        }
+                        $("#context").html(html)
+                    }
+                })
+	}        
+        function focusSelect(id){
+			
+			var selectedtr=document.getElementById(id);
+			 selectedtr.style.backgroundColor = "#e3eee3";
+		}
+		function blurSelect(id){
+			var selectedtr=document.getElementById(id);
+			if(id.charAt(id.length-1)%2==0){
+				
+				selectedtr.style.backgroundColor = "#b9d5b9";
+			}else{
+				selectedtr.style.backgroundColor = "#8fbc8f";
+			}
+			 
+		}
+    function openmanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=false;
+	}
+	function closemanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=true;
+	}
+     function followScroll(){
+		 var scrollTop=$(window).scrollTop;
+		 var elementTop=$("#home").offset().top;
+		 var distance=scrollTop-elementTop;
+		 $("#home").css("top",distance+"px");
+	 }
+	 $(window).scroll(followScroll);
+	 $(document).ready(function(){
+		 followScroll();
+	 });
+	 </script>
+	  <script src="script/plusSelect.js?v1.0.1" ></script>
+<script>initDraggable('home','appselectLabel');</script>
+</body>
+</html>

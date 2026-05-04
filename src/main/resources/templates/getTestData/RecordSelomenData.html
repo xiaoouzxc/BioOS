@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+<style>
+	#manualPanel{
+		position: absolute;
+		width: 500px;		
+		height: 80%;
+		top:0%;
+		left: 70%;
+		background-color: aliceblue;
+	}
+	#selectSelmonfram{
+		width: 500px;		
+		height: 100%;
+	}
+	#lclose{
+		position: absolute;
+		
+		top:0%;
+		left: 90%;
+	}
+	#setFDataLabel{
+		
+		display: inline-block;	
+			 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(0, 255, 0);
+	}
+	#setDataLabel{
+		
+		display: inline-block;	
+			 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(0, 128, 255);
+	}
+	#mbut{
+		
+		display: inline-block;	
+			 
+		border:2px solid ;
+        padding: 20px;
+        margin: 10px;
+          width:10%;
+  height: 5%;
+        background-color:  rgb(255, 128, 0);
+	}
+</style>
+</head>
+<body>
+	<label for="setFdata" id="setFDataLabel">记录复测沙门数据</label>
+		<button id="setFdata" onclick="window.location.href='/recordFselData'" hidden></button>
+		<label for="setdata" id="setDataLabel">记录初测沙门数据</label>
+		<button id="setdata" onclick="window.location.href='/recordselData'" hidden></button>
+		<label id="con" name="table_name" th:text="${tablename}" th:value="${tablename}" hidden></label>
+		<label for="manual" id="mbut">当天数据</label>
+	<button id="manual"  onclick="openmanualPanel()" hidden></button>
+	
+<table  bgcolor="#8fbc8f"  border="1">
+   <tr>
+		<td>样品短号</td>
+		<td>样品名称</td>
+		<td>日期</td>		
+		<td>过程1</td>
+		<td>过程2</td>
+		<td>过程3</td>
+		<td>结果</td>
+   </tr>
+	<tr id="trid" th:each="simple:${simpleList}" onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)">
+	
+	<td id="num" name="simpleNum" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td id="name" name="simpleName" th:text="${simple.getName()}" width="50px" ></td>
+	
+	<td  th:text="${simple.getDate()}" th:value="${simple.getDate()}" ></td>
+		<label id="result" th:value="${simple.getSelomenResult()}"></label>	
+	<td id="resultfirst"  >
+		
+	DHL<select  id="d1" name="dhl" onchange="todofors1(this.id)"><option value="n"></option><option value="a">RV,SC</option><option value="b">RV</option><option value="c">SC</option></select>
+	XLD<select  id="x2" name="xld" onchange="todofors2(this.id)"><option value="n"></option><option value="a">RV,SC</option><option value="b">RV</option><option value="c">SC</option></select>	
+	<div>	
+	</td>
+	<td id="resultsecond" width="200px">
+		<div>
+			TSI<select  id="t3" name="tsi"><option value="n"></option><option value="a">K,A,H2S,GAS</option><option value="b">K,H2S,GAS</option><option value="c">A,H2S,GAS</option></select>
+	BUN<select  id="gb4" name="gbun" onchange="todofors3(this.id)"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	O<select  id="o5" name="O"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	H<select  id="h6" name="H" onchange="todofors4(this.id)"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+		</div>	
+	</td>
+	<td id="resultthird" width="400px">
+		<div>
+			
+	LYS<select  id="l7" name="lys"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	
+	KCN<select  id="k8" name="kcn"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	靛基质<select  id="d9" name="cas"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	BUN<select  id="hb10" name="hbun"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	甘露醇<select  id="m11" name="man"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	山梨醇<select  id="s12" name="sor"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+	ONPG<select  id="on13" name="onpg" onchange="todofors5(this.id)"><option value="n"></option><option value="+">+</option><option value="-">-</option></select>
+		</div>		
+	</td>
+	<td ><select  id="res14" name="result" onchange="todofors6(this.id)"><option value="n"></option><option value="r">检出</option><option value="e">排除</option><option value="l">没样</option></select></td>			
+		<!--<td  width="100px"><label for="recorddata" ></label><input type="text" id="recorddata" name="data" th:value="${simple.getResult()}" onblur="todo(this.id)"/></td>	-->
+	</tr>
+	
+	<button hidden></button>
+</table>
+
+<div id="manualPanel" hidden>
+	<label for="close" id="lclose">X<button id="close" onclick="closemanualPanel()" hidden></button></label>
+	<iframe id="selectSelmonfram" src="/recordingSuspectionSelomen" ></iframe>
+</div>
+<script>
+	var tr = document.querySelectorAll('#trid');
+	var result=document.querySelectorAll('#result');
+	var tdNum = document.querySelectorAll('#num');
+	var tdNam = document.querySelectorAll('#name');
+	var d1 = document.querySelectorAll('#d1');
+	var x2 = document.querySelectorAll('#x2');
+	var t3 = document.querySelectorAll('#t3');
+	var gb4 = document.querySelectorAll('#gb4');
+	var o5 = document.querySelectorAll('#o5');
+	var h6 = document.querySelectorAll('#h6');
+	var l7 = document.querySelectorAll('#l7');
+	var k8 = document.querySelectorAll('#k8');
+	var d9 = document.querySelectorAll('#d9');
+	var hb10 = document.querySelectorAll('#hb10');
+	var m11 = document.querySelectorAll('#m11');
+	var s12 = document.querySelectorAll('#s12');
+	var on13 = document.querySelectorAll('#on13');
+	var res14 = document.querySelectorAll('#res14');		
+	
+	 var trid
+	var resultid
+    var tdNumid
+    var tdNamid
+    var d1id
+    var x2id
+    var t3id
+    var gb4id
+    var o5id
+    var h6id
+    var l7id
+    var k8id
+    var d9id
+    var hb10id
+    var m11id
+    var s12id
+    var on13id
+    var res14id
+
+	 for(var i=0;i<tdNum.length;i++){
+		  
+		   trid="tr"+i;
+		 resultid="result"+i
+		   tdNumid="tdnum"+i;
+		   tdNamid="tdnam"+i;
+		   d1id="d1"+i;
+		   x2id="x2"+i;
+		   t3id="t3"+i;
+		   gb4id="gb4"+i;
+		   o5id="o5"+i;
+		   h6id="h6"+i;
+		   l7id="l7"+i;
+		   k8id="k8"+i;
+		   d9id="d9"+i;
+		   hb10id="hb10"+i;
+		   m11id="m11"+i;
+		   s12id="s12"+i;
+		   on13id="on13"+i;
+		   res14id="s14"+i;		  
+		   
+		    tr[i].setAttribute('id',trid);
+		   result[i].setAttribute('id',resultid);
+			   tdNum[i].setAttribute('id',tdNumid); 
+			   tdNam[i].setAttribute('id',tdNamid);
+			  d1[i].setAttribute('id',d1id);
+			   d1[i].value = result[i].getAttribute('value').charAt(0);
+			   x2[i].setAttribute('id',x2id);
+			   x2[i].value = result[i].getAttribute('value').charAt(1);
+			   t3[i].setAttribute('id',t3id);
+			    t3[i].value = result[i].getAttribute('value').charAt(2);
+			   gb4[i].setAttribute('id',gb4id);
+			   gb4[i].value = result[i].getAttribute('value').charAt(3);
+			   o5[i].setAttribute('id',o5id);
+			    o5[i].value = result[i].getAttribute('value').charAt(4);
+			   h6[i].setAttribute('id',h6id);
+			    h6[i].value = result[i].getAttribute('value').charAt(5);
+			   l7[i].setAttribute('id',l7id);
+			    l7[i].value = result[i].getAttribute('value').charAt(6);
+			   k8[i].setAttribute('id',k8id);
+			    k8[i].value = result[i].getAttribute('value').charAt(7);
+			   d9[i].setAttribute('id',d9id);
+			    d9[i].value = result[i].getAttribute('value').charAt(8);
+			   hb10[i].setAttribute('id',hb10id);
+			    hb10[i].value = result[i].getAttribute('value').charAt(9);
+			   m11[i].setAttribute('id',m11id);
+			    m11[i].value = result[i].getAttribute('value').charAt(10);
+			   s12[i].setAttribute('id',s12id);
+			    s12[i].value = result[i].getAttribute('value').charAt(11);			    
+			   on13[i].setAttribute('id',on13id);
+			    on13[i].value = result[i].getAttribute('value').charAt(12);
+			     res14[i].setAttribute('id',res14id);
+			     res14[i].value = result[i].getAttribute('value').charAt(13);
+			       if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+			    
+	  }
+	   var tablename=document.getElementById('con').getAttribute('value');
+	 function g1(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),          
+             "dhl":document.getElementById(id2).value,
+             "table_name":tablename
+        }
+        $.ajax({
+            url:'/ajax/g1',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)              
+            }
+        })
+	 }
+	
+	 function todofors1(id){
+		 var index;
+		 var d1index
+		 for(var i=0;i<tdNum.length;i++){
+		 d1index= d1[i].getAttribute('id');
+		  if(d1index===id){
+			  index=i;			  
+			  break;
+		  }		 
+	  }
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;	
+		
+		 g1(tdNumid,d1index,);     
+    }
+    function g2(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),          
+             "xld":document.getElementById(id2).value,
+             "table_name":tablename   
+        }
+        $.ajax({
+            url:'/ajax/g2',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)              
+            }
+        })
+	 }
+	
+	 function todofors2(id){
+		 var index;
+		 var x2index
+		 for(var i=0;i<tdNum.length;i++){
+		 x2index= x2[i].getAttribute('id');
+		  if(x2index===id){
+			  index=i;			  
+			  break;
+		  }		 
+	  }
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;		 
+		 g2(tdNumid,x2index);     
+    }
+     function g3(id1,id2,id3){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),          
+             "tsi":document.getElementById(id2).value,
+              "gbun":document.getElementById(id3).value,
+             "table_name":tablename   
+        }
+        $.ajax({
+            url:'/ajax/g3',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)              
+            }
+        })
+	 }
+	
+	 function todofors3(id){
+		 var index;
+		 var gb4index
+		 for(var i=0;i<tdNum.length;i++){
+		 gb4index= gb4[i].getAttribute('id');
+		  if(gb4index===id){
+			  index=i;			  
+			  break;
+		  }		 
+	  }
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;	
+		var t3index="t3"+index;	 
+		 g3(tdNumid,t3index,gb4index);     
+    }
+     function g4(id1,id2,id3){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),          
+             "O":document.getElementById(id2).value,
+              "H":document.getElementById(id3).value,
+             "table_name":tablename   
+        }
+        $.ajax({
+            url:'/ajax/g4',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)              
+            }
+        })
+	 }
+	
+	 function todofors4(id){
+		 var index;
+		 var h6index
+		 for(var i=0;i<tdNum.length;i++){
+		 h6index= h6[i].getAttribute('id');
+		  if(h6index===id){
+			  index=i;			  
+			  break;
+		  }		 
+	  }
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;	
+		var o5index="o5"+index;	 
+		 g4(tdNumid,o5index,h6index);     
+    }
+     function g5(id1,id2,id3,id4,id5,id6,id7,id8){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),                     
+              "lys":document.getElementById(id2).value,             
+              "kcn":document.getElementById(id3).value,
+              "cas":document.getElementById(id4).value,
+              "hbun":document.getElementById(id5).value,
+              "man":document.getElementById(id6).value,
+              "sor":document.getElementById(id7).value,
+              "onpg":document.getElementById(id8).value,
+             "table_name":tablename   
+        }
+        $.ajax({
+            url:'/ajax/g5',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)              
+            }
+        })
+	 }
+	
+	 function todofors5(id){
+		 var index;
+		 var on13index
+		 for(var i=0;i<tdNum.length;i++){
+		 on13index= on13[i].getAttribute('id');
+		  if(on13index===id){
+			  index=i;			  
+			  break;
+		  }		 
+	  }
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;	
+		var l7index="l7"+index;
+		var k8index="k8"+index;
+		var d9index="d9"+index;
+		var hb10index="hb10"+index;
+		var m11index="m11"+index;
+		var s12index="s12"+index;
+			 
+		 g5(tdNumid,l7index,k8index,d9index,hb10index,m11index,s12index,on13index);     
+    }
+     function g6(id1,id2){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),          
+             "result":document.getElementById(id2).value,
+             "table_name":tablename
+        }
+        $.ajax({
+            url:'/ajax/g6',
+            data:modeljson,
+            success:function (data,status){
+                console.log(data)
+                console.log(status)              
+            }
+        })
+	 }
+	
+	 function todofors6(id){
+		 var index;
+		 var res14index
+		 for(var i=0;i<tdNum.length;i++){
+		 res14index= res14[i].getAttribute('id');
+		  if(res14index===id){
+			  index=i;			  
+			  break;
+		  }		 
+	  }
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;	
+		
+		 g6(tdNumid,res14index);     
+    }
+     function focusSelect(id){
+			
+			var selectedtr=document.getElementById(id);
+			 selectedtr.style.backgroundColor = "#e3eee3";
+		}
+		function blurSelect(id){
+			var selectedtr=document.getElementById(id);
+			if(id.charAt(id.length-1)%2==0){
+				
+				selectedtr.style.backgroundColor = "#b9d5b9";
+			}else{
+				selectedtr.style.backgroundColor = "#8fbc8f";
+			}
+			 
+		}
+		 function openmanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=false;
+	}
+	function closemanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=true;
+	}
+	 </script>
+</body>
+</html>

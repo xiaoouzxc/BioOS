@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>touch start on Android</title>
+  <style type="text/css">
+  #touch, #click {
+    position: relative;
+    left: 100px;
+    top: 100px;
+    width: 200px;
+    height: 200px;
+    border: solid 1px black;
+  }
+  </style>
+</head>
+<body>
+  <div id="touch">Touch</div>
+  <div id="click">Click</div>
+  <script type="text/javascript">
+  document.getElementById('touch').addEventListener('touchstart', function () { alert ('touch'); } , false);
+  document.getElementById('click').addEventListener('click', function () { alert('click'); } , false);
+  <!--box.touchstart=function(e){
+            CursorBoxDistanceleft=e.touches[0].pageX-box.getBoundingClientRect().left;
+            CursorBoxDistancetop=e.touches[0].pageY-box.getBoundingClientRect().top;
+           
+            move(CursorBoxDistanceleft,CursorBoxDistancetop);
+            }
+ 
+           function move(CursorBoxDistanceleft,CursorBoxDistancetop){
+			   box.ontouchmove=function(ev){
+				   let setValueX=Math.floor(ev.touches[0].pageX-CursorBoxDistanceleft);
+				   let setValueY=Math.floor(ev.touches[0].pageY-CursorBoxDistancetop);
+				   box.style.transform='translate(${setValueX}px,${setValueY}px)'
+			   }
+		   }-->
+  </script>
+</body>
+</html>

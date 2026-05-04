@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name='viewport' content='width=device-width, initial-scale=1.0,minmum-scale=1,maxmum-scale=1,user-scalable=no'>
+
+    <title>Document</title>
+    <style>
+        #box{
+            width: 500px;
+            height: 100px;
+            background-color: aquamarine;
+            border-radius: 14px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,.3);
+ 
+          
+            position:absolute;
+            transform:translate(100px,200px);
+        }
+        .boarder{
+			 width: 100px;
+            height: 100px;
+            background-color: rgb(255, 0, 0);
+            border-radius: 14px;
+            box-shadow: 2px 2px 6px rgba(0,0,0,.3);
+            position:absolute;
+		}
+    </style>
+</head>
+<body>
+	<table bgcolor="#8fbc8f" border="1">
+    <tr>
+        <td>place:</td>
+        <td>123</td> </td>
+    </tr>
+    <tr>
+        <td>feeling:</td>
+        <td >123</td>
+    </tr>
+</table>
+    <div id="box"></div>
+    <div class="boarder"></div>
+    <script>
+        let box=document.querySelector("#box");
+        let board=document.querySelector(".boarder")
+        let CursorBoxDistanceleft;
+        let CursorBoxDistancetop;
+         console.log(CursorBoxDistanceleft+","+CursorBoxDistancetop);
+         //box.addEventListener('touchstart', getMoveStart , false);
+        
+     // function getMoveStart(e){
+           // CursorBoxDistanceleft=e.touches[0].pageX-box.getBoundingClientRect().left;
+           // CursorBoxDistancetop=e.touches[0].pageY-box.getBoundingClientRect().top;
+           
+            //alert ('touch'+":"+CursorBoxDistanceleft+","+CursorBoxDistancetop); 
+            //}
+          box.ontouchstart=function(e){
+            CursorBoxDistanceleft=e.touches[0].pageX-box.getBoundingClientRect().left;
+            CursorBoxDistancetop=e.touches[0].pageY-box.getBoundingClientRect().top;
+           //alert(CursorBoxDistanceleft+","+CursorBoxDistancetop);
+            move(CursorBoxDistanceleft);
+            }
+ 
+           function move(CursorBoxDistanceleft){
+			   box.ontouchmove=function(ev){
+				   let setValueX=Math.floor(ev.touches[0].pageX-CursorBoxDistanceleft);
+				   let setValueY=Math.floor(ev.touches[0].pageY-CursorBoxDistancetop);
+				   //alert(setValueX+","+setValueY);
+				  
+					
+					   
+				   
+				   box.style.transform=`translate(${setValueX}px,${setValueY}px)`
+				      box.ontouchend=function(event){
+						   //if(setValueX<=board.getBoundingClientRect().left){
+						   //box.remove();
+					   }
+						    			   
+				   
+				   box.innerText=setValueX+","+board.getBoundingClientRect().left;
+				   
+			   }
+		   }
+         
+    </script>
+</body>
+</html>

@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" href="script/recordSelectplus.css"/>
+<title th:text="${tablename}"></title>
+<script th:src="@{script/jQuery3.7.1.js}"></script>
+
+<style>
+	/*#home{
+		position:fixed;
+		
+  left: 90%;
+  top:80%;
+ 
+  padding: 20px;
+  margin: 10px;
+  width:100px;
+  height: 100px;
+  z-index: 99;
+  background-color: rgb(255, 255, 255,0);
+	}*/
+	
+	
+
+	
+	
+	
+	
+	
+	#selectDatePanelSel{
+		position:absolute;
+  left: 44%;
+  top:0%;
+  border:2px solid ;
+  padding: 20px;
+  margin: 10px;
+  width:10%;
+  height: 5%;
+  z-index: 99;
+  background-color: rgb(255, 128, 255);
+	}
+	
+	
+	#condisplay{
+		position:relative;		
+		left: 25%;
+        	 		
+        padding: 20px;
+        margin: 10px;
+        border:2px solid ;
+        width:30%;
+        height: 0%;
+        z-index: 100;
+        background-color:  rgb(255, 255, 255);
+        font-size: 250%;
+       text-align:center;
+       line-height: 10%;
+	}
+	#displayTable{
+		
+		position:absolute;
+		left:20%;
+        background-color:  rgb(143, 188, 143);
+        border-collapse: collapse;
+       
+	}
+	
+	td{
+		
+		 border:2px solid ;
+	}
+	
+	.recorddatacss{
+		-webkit-appearance: none;
+		-moz-appearance:none;
+		font-size: 1.4em;
+		height: 1.7em;
+		border-radius: 50px;
+		border:5px solid rgb(0, 255, 0);
+		color: rgb(219, 0, 0);
+		outline: 0;
+		margin: 5px;
+	}
+	
+</style>
+
+</head>
+<body>
+	<!--<form action="#" th:action="@{/recording}" method="get" enctype="text/plain">	
+	<label  id="datalabel">查询<input  type="text" name="date"  /><label for="quest"  >初测</label><input id="quest" type="submit"  hidden></label>
+	</form>
+	<form action="#" th:action="@{/Frecording}" method="get" enctype="text/plain">	
+	<label  id="Fdatalabel">查询<input  type="text" name="date"  /><label for="Fquest"  >复测</label><input id="Fquest" type="submit"  hidden></label>
+	</form>
+	<form action="#" th:action="@{/recordingSelomen}" method="get" enctype="text/plain">	
+	<label  id="queryselomen">查询<input  type="text" name="date"  /><label for="selomen"  >可疑沙门</label><input id="selomen" type="submit"  hidden></label>
+	</form>-->
+	<div id="imageSelector">
+		<select id="imageurl" onchange="change()" >
+			<option id="delectedImage" selected>更换背景</option>
+			<option  value="url('image/230.jpg')" >yellow</option>
+			<option  value="url('image/alishan-2136879_640.jpg')" >red</option>
+			
+		</select>
+	</div>
+	<div  id="home">
+		<img src="image/Buttonplus.png" id="appselectLabel"  ></img>
+		<div id="selectapp" style="grid-auto-flow: column;" hidden>
+		<label for="backTodata" id="backTodataLabel">返回记录页</label>
+		<button id="backTodata" onclick="window.location.href='/recording'" hidden></button>
+		<label for="backToHome" id="backToHomeLabel">返回主页</label>
+		<button id="backToHome" onclick="window.location.href='/'" hidden></button>
+		<div id="selectDatePanel" >
+		<form action="#" th:action="@{/recording}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" class="chuselectcss" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateList" id="questfromDatelabel"   >查询初测<input id="questfromDateList" type="submit"  hidden></label>
+		</form>
+	</div>
+	<div id="selectDatePanelRecorded" >
+	<form action="#" th:action="@{/haverecorded}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" class="recordedselectcss" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateListforrecorded" id="questfromrecordedlabel" >已记结果</label><input id="questfromDateListforrecorded" type="submit"  hidden></label>
+		</form>
+	</div>
+	<div id="selectDatePanelF" >
+		<form action="#" th:action="@{/Frecording}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" class="fuselectcss" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateListforF" id="questfromDateFlabel" >查询复测</label><input id="questfromDateListforF" type="submit"  hidden></label>
+		</form>
+	</div>
+	<form action="#" th:action="@{/recordselData}" target="_blank" method="get" enctype="text/plain">	
+	<label for="selomenresult" id="selectSelresult" >可疑沙门结果</label><input id="selomenresult" type="submit"  hidden></label>
+	</form>
+	
+	<label for="manual" id="mbut">手动添加数据</label>
+	<button id="manual"  onclick="openmanualPanel()" hidden></button>
+	
+	<!--<label for="done" id="donelabel">查看已记结果</label>
+		<button id="done" onclick="window.location.href='/haverecorded'" hidden></button>-->
+		</div>
+	</div>
+	
+		<!--<div id="selectDatePanelSel" >
+		<form action="#" th:action="@{/recordingSelomen}" target="_blank" method="get" enctype="text/plain">
+		<select name="date" >
+			<option value=" " selected>选择日期</option>
+			<option  th:each="dateTable:${nameList}" th:value="${dateTable.toString()}" th:text="${dateTable.toString()}" ></option>
+		</select>
+		<label for="questfromDateListforSel" id="questfromDateSellabel"  >查询沙门</label><input id="questfromDateListforSel" type="submit"  hidden></label>
+		</form>
+	</div>-->
+	
+	<div id="manualPanel" hidden>
+		<label for="close" id="lclose">X<button id="close" onclick="closemanualPanel()" hidden></button></label>
+	<form action="#" th:action="@{/manualAddData}" target="_blank" method="get" enctype="text/plain">					
+	<label for="input1" id="l1">样品短号<input id="input1" type="text" name="simpleNum"  /></label>
+	<label for="input2" id="l2">样品名称<input id="input2" type="text" name="simpleName" value="/"/></label>
+	<label for="input3" id="l3">检测项目<input id="input3" type="text" name="simpleItem" value="m"/></label>
+	<label for="input4" id="l4">检测方法<input id="input4" type="text" name="testMethord" value="/" /></label>
+	<label for="input5" id="l5" hidden>检测方法<input id="input5" type="text" name="table_name" th:value="${tablename}" hidden/></label>
+	<label for="addData" id="input5" >提交</label><input id="addData" type="submit"  hidden></label>	
+	</form>
+	</div>
+	
+			
+<table id="displayTable"  >
+	<div id="condisplay">
+		<label id="con" name="table_name" th:text="${tablename}" th:value="${tablename}" ></label>
+	</div>
+   <tr>
+		<td>样品短号</td>
+		<td>结果</td>
+		<td>样品名称</td>
+		<td>检测项目</td>	
+		<td>检测方法	</td>
+   </tr>
+	<tr id="tr"  th:each="simple:${simpleList}" onmouseover="focusSelect(this.id)" onmouseleave="blurSelect(this.id)" >
+		
+				
+	<label id="fDatelabel" th:value="${simple.getIfF()}"></label>
+	<label id="condonelabel" th:value="${simple.getDone()}"></label>
+	
+	<td id="num" th:data-id="${simple.getId()}" name="simpleNum" th:text="${simple.getNumber()}" th:value="${simple.getNumber()}" style="font-size: 30px;"></td>
+	<td  width="100px" ><label for="recorddata" ></label><select id="T" onchange="partten(this.id)">
+		<option value="n">-1~-3</option>
+		<option value="MPN">MPN</option>
+		<option value="-1">-1</option>
+		<option value="-2">-2</option>
+		<option value="-3">-3</option>			
+	</select>
+	<select id="Y" onchange="partten(this.id)">
+		<option value="n">-1~-6</option>
+		<option value="MPN">MPN</option>
+		<option value="-1">-1</option>
+		<option value="-2">-2</option>
+		<option value="-3">-3</option>
+		<option value="-4">-4</option>
+		<option value="-5">-5</option>
+		<option value="-6">-6</option>	
+	</select>
+	<select id="U" onchange="partten(this.id)">
+		<option value="n">-1~-9</option>
+		<option value="MPN">MPN</option>
+		<option value="-1">-1</option>
+		<option value="-2">-2</option>
+		<option value="-3">-3</option>
+		<option value="-4">-4</option>
+		<option value="-5">-5</option>
+		<option value="-6">-6</option>
+		<option value="-7">-7</option>
+		<option value="-8">-8</option>
+		<option value="-9 ">-9</option>		
+	</select>
+	<button id="sub" onclick="todo(this.id)">提交</button>
+	<!--th:value="${simple.getResult()}" -->
+	<input type="text" id="recorddata" class="recorddatacss" name="data"  value="," />
+	
+	</td>	
+	<td  th:text="${simple.getName()}" width="50px" ></td>
+	<td id="name" name="simpleName" th:text="${simple.getTestItem()}" th:value="${simple.getTestItem()}" style="font-size: 30px;"></td>		
+	<td th:text="${simple.getTestMethod()}" width="400px"></td>	
+
+	</tr>
+	<button hidden></button>
+</table>
+
+<script>
+	 
+	//onkeyup="value=value.replace(/[^\d,]/g,'')"
+	var recorddata = document.querySelectorAll('#recorddata');
+	var recordT = document.querySelectorAll('#T');
+	var recordY = document.querySelectorAll('#Y');
+	var recordU = document.querySelectorAll('#U');
+	var subbutton = document.querySelectorAll('#sub');
+	var tdNum = document.querySelectorAll('#num');
+	var tdNam = document.querySelectorAll('#name');
+	var tr = document.querySelectorAll('#tr');
+	var flabeld=document.querySelectorAll('#fDatelabel');
+	var donelabeld=document.querySelectorAll('#condonelabel');
+	
+   var recorddataid
+   var recordTid
+   var recordYid
+   var recordUid
+   var subbuttonid
+    var tdNumid
+    var tdNamid
+     var trid
+     var flabeldid
+     var donelabelid
+	 for(var i=0;i<recorddata.length;i++){
+		   recorddataid="record"+i;
+		   recordTid="T"+i;
+		   recordYid="Y"+i;
+		   recordUid="U"+i;
+		   subbuttonid="sub"+i;
+		   tdNumid="tdnum"+i;
+		   tdNamid="tdnam"+i;
+		    trid="trid"+i;
+		    flabeldid="flabeldid"+i;
+		    donelabelid="donelabeldid"+i;
+		 		 recorddata[i].setAttribute('id',recorddataid);
+		 		 recordT[i].setAttribute('id',recordTid);
+		 		  recordY[i].setAttribute('id',recordYid);
+		 		   recordU[i].setAttribute('id',recordUid);
+		 		  subbutton[i].setAttribute('id',subbuttonid);
+			   tdNum[i].setAttribute('id',tdNumid); 
+			   tdNam[i].setAttribute('id',tdNamid);
+			   tr[i].setAttribute('id',trid);
+			   flabeld[i].setAttribute('id',flabeldid);
+			   donelabeld[i].setAttribute('id',donelabelid);
+			    if(i%2==0){
+				   tr[i].style.backgroundColor = "#b9d5b9";
+			  }
+			  if(flabeld[i].getAttribute('value')==="BF"||flabeld[i].getAttribute('value')==="RBF"){
+			  tdNum[i].style.backgroundColor="red";
+		  }
+		 // console.log(donelabeld[i].getAttribute('value'));
+		  if(donelabeld[i].getAttribute('value')==0){
+			  tdNum[i].style.backgroundColor="yellow";
+		  }
+	  }
+	   
+	 function d1(id1,id2,id3){
+		  var modeljson={
+            "simpleNum":document.getElementById(id1).getAttribute('value'),
+             "simpleID":document.getElementById(id1).getAttribute('data-id'),
+            "simpleName":document.getElementById(id2).getAttribute('value'),
+             "data":document.getElementById(id3).value,
+            "table_name":document.getElementById('con').getAttribute('value')
+            
+        }
+        $.ajax({
+            url:'/ajax/d',
+            data:modeljson,
+           
+            success:function (data,status){
+				 
+                console.log(data);
+                console.log(status);
+               
+            }
+        })
+	 }
+	
+	 function todo(id){
+		 recorddataid="record"+id.substring(3);
+		
+			  var index;
+		 var checkboxid
+		 for(var i=0;i<recorddata.length;i++){
+		 checkboxid= recorddata[i].getAttribute('id');
+		  if(checkboxid===recorddataid){
+			  index=i;			  
+			  break;
+		  }
+		
+	  }
+	  
+	   var redata=document.getElementById(recorddataid).value;
+
+		var tdNumid="tdnum"+index;
+		var tdNamid="tdnam"+index;
+		var trid="tr"+index;
+		 var  recorddataid="record"+index;
+		  var  Tid="T"+index;
+		  var  Yid="Y"+index;
+		  var  Uid="U"+index;
+		  var isnotString=document.getElementById(recorddataid).value;
+		  var dilutionT=document.getElementById(Tid).value;
+		   var dilutionY=document.getElementById(Yid).value;
+		    var dilutionU=document.getElementById(Uid).value;
+		    var criticalUnionDilution=dilutionT+dilutionY+dilutionU;
+		  if(criticalUnionDilution==="nnn"){
+			  alert("稀释度未选择");
+		  }else if(dilutionT==="MPN"||dilutionY==="MPN"||dilutionU==="MPN"){
+			// parttnResult(redata);
+			   d1(tdNumid,tdNamid,recorddataid);
+			 tr[index].parentNode.removeChild(tr[index]);
+		  }else {
+			  if(typeof isnotString=="string"&&isnotString.length>0){
+			 if(!isnotString.includes(",")){
+			 alert("格式输入错误:需要,");
+			  
+		  }else{
+			  
+			  //parttnResult(redata);
+			
+			   d1(tdNumid,tdNamid,recorddataid);
+			 tr[index].parentNode.removeChild(tr[index]);
+		  }
+			
+		 }
+		  }
+		 	
+    }
+   function parttnResult(s) {
+		var resultSpliteQurry=s.split("-");
+		
+		for(var i=0;i<resultSpliteQurry.length;i++){
+			var result=resultSpliteQurry[i].substring(2, s.length-1);
+			
+			if(!result.contains(",")&&result.split(",").length!=2){
+				alert("老铁，您可能输错了，再检查检查")
+			}
+		}
+		
+		return requary;
+		
+	}
+    function GetRandomNum(min,max){
+		var Range=max-min;
+		var Rand=Math.random();
+		return (min+Math.floor(Rand*Range));
+	}
+    function randomLoop(average){
+		var integer=Math.floor(average);
+		var baseInteger=Math.floor(integer/10);
+		var indexQuary=[1,2,3,4,5,6,7,8,9,10,20,30,40];
+		if(baseInteger===0){
+				return 0;
+				
+			}else{
+				
+			
+				return GetRandomNum(baseInteger-1,baseInteger+2);
+			
+		
+			}
+		
+	}
+    function partten(id){
+		dilution=document.getElementById(id).value;
+		redata=document.getElementById("record"+id.substring(1)).value;
+		let data=redata.split(',');
+		let ldata=data[0];
+		let rdata=data[1];
+		let average=Math.floor(((ldata/1)+(rdata/1))/2);
+		console.log(average);
+		if(dilution==="-1"){
+			
+			if(randomLoop(average)===0){
+				redata=dilution+"("+redata+")-2(0,0)-3(0,0)";
+			document.getElementById("record"+id.substring(1)).value=redata;
+			}else{
+			rdata2=randomLoop(average);
+			ldata2=randomLoop(average);
+			data2=	rdata2	+","+	ldata2;
+			data3=randomLoop((rdata2+ldata2)/2)+","+randomLoop((rdata2+ldata2)/2);
+			redata=dilution+"("+redata+")-2("+data2+")-3("+data3+")";
+			document.getElementById("record"+id.substring(1)).value=redata;
+			}
+			
+			return redata;
+		}else if(average<=40){
+			if((id.includes("T")&&dilution==="-3")||(id.includes("Y")&&dilution==="-6")||(id.includes("U")&&dilution==="-9")){				
+				lresultdata=average*10+randomLoop(average)*2;
+			rresultdata=average*10+randomLoop(average)*2;
+			resultdata=lresultdata+","+rresultdata;
+				redata=((dilution*1)+2)+"(T,T)"+((dilution*1)+1)+"("+resultdata+")"+dilution+"("+redata+")";
+				document.getElementById("record"+id.substring(1)).value=redata;
+			}else{
+				lresultdata=average*10+randomLoop(average)*2;
+			rresultdata=average*10+randomLoop(average)*2;
+			resultdata=lresultdata+","+rresultdata;
+			lresultdata2=randomLoop(average);
+			rresultdata2=randomLoop(average);
+			resultdata2=lresultdata2+","+rresultdata2;
+			redata=((dilution*1)+1)+"("+resultdata+")"+dilution+"("+redata+")"+((dilution*1)-1)+"("+resultdata2+")";
+			document.getElementById("record"+id.substring(1)).value=redata;
+			return redata;
+			}
+			
+		}else if(average>40){
+			
+				ldata=randomLoop(average);
+			rdata=randomLoop(average);
+			data=ldata+","+rdata;
+	
+			
+			redata=((dilution*1)+1)+"(T,T)"+dilution+"("+redata+")"+((dilution*1)-1)+"("+data+")";
+			
+			
+			document.getElementById("record"+id.substring(1)).value=redata;
+			return redata;
+		}
+	}
+	
+     function focusSelect(id){
+			
+			var selectedtr=document.getElementById(id);
+			 selectedtr.style.backgroundColor = "#e3eee3";
+		}
+		function blurSelect(id){
+			var selectedtr=document.getElementById(id);
+			if(id.charAt(id.length-1)%2==0){
+				
+				selectedtr.style.backgroundColor = "#b9d5b9";
+			}else{
+				selectedtr.style.backgroundColor = "#8fbc8f";
+			}
+			 
+		}
+     function openmanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=false;
+	}
+	function closemanualPanel(){
+		var d =document.getElementById("manualPanel");
+	   d.hidden=true;
+	}
+	 async function getUserIp() {
+      let ip = '';
+      const RTCPeerConnection =
+        window.RTCPeerConnection ||
+        window.mozRTCPeerConnection ||
+        window.webkitRTCPeerConnection;
+      if (RTCPeerConnection) {
+        const rtc = new RTCPeerConnection();
+        await rtc.createDataChannel(''); //创建一个可以发送任意数据的数据通道
+        await rtc.createOffer(
+          async (offerDesc) => {
+            //创建并存储一个sdp数据
+            await rtc.setLocalDescription(offerDesc);
+          },
+          (e) => {
+            console.log(e);
+          }
+        );
+        return new Promise((resolve) => {
+          rtc.onicecandidate = (evt) => {
+            //监听candidate事件
+            if (evt.candidate) {
+              console.log('evt:', evt.candidate);
+              const ip_rule =
+                /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/;
+              const ip_addr = ip_rule.exec(evt.candidate.candidate)[1];
+              console.log('ip_addr:', ip_addr); //打印获取的IP地址
+              resolve(ip_addr || '');
+            }
+          };
+        });
+      }
+      return "asd";
+    }
+    function followScroll(){
+		 var scrollTop=$(window).scrollTop;
+		 var elementTop=$("#home").offset().top;
+		 var distance=scrollTop-elementTop;
+		 $("#home").css("top",distance+"px");
+	 }
+	 $(window).scroll(followScroll);
+	 $(document).ready(function(){
+		 followScroll();
+	 });
+
+	function validateInput(event) {
+  var regex = /^(\d+)?(\.\d+)?$/;
+  var key = String.fromCharCode(!event.charCode ? event.which : event.charCode);
+  if (!regex.test(event.target.value + key)) {
+    event.preventDefault();
+    return false;
+  }
+}
+
+	 </script>
+	  <script src="script/plusSelect.js?v1.0.1" ></script>
+<script>initDraggable('home','appselectLabel');</script>
+	
+	
+	 <script src="script/changeBackgroundImage.js"></script>
+</body>
+</html>

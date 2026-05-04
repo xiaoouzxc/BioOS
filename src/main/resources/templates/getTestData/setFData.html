@@ -1,0 +1,1204 @@
+<!DOCTYPE html><html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="script/getDataSelectplus.css"/>
+<title>复测信息维护</title>
+<script th:src="@{script/jQuery3.7.1.js}"></script><style>
+  :root {
+    --page-bg: #eef1f4;
+    --card-bg: rgba(255, 255, 255, 0.72);
+    --panel-bg: #ffffff;
+    --text-main: #1f2937;
+    --text-sub: #6b7280;
+    --line-dark: #2f3a46;
+    --line-soft: rgba(47, 58, 70, 0.32);
+    --table-head: #aeb4ba;
+    --table-row: #d7dbdf;
+    --table-row-alt: #e1e4e7;
+    --primary: #256f87;
+    --primary-light: #e7f6fa;
+    --danger: #e05252;
+    --warning: #fff5c4;
+    --shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top left, rgba(126, 196, 216, 0.22), transparent 32%),
+      linear-gradient(135deg, #f5f7f9 0%, var(--page-bg) 100%);
+    font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+    color: var(--text-main);
+  }
+
+  button,
+  input,
+  select {
+    font-family: inherit;
+  }
+
+  .page-shell {
+    width: min(1600px, calc(100vw - 28px));
+    margin: 0 auto;
+    padding: 22px 0 28px;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .page-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 26px;
+    line-height: 1.2;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+  }
+
+  .page-desc {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .action-btn,
+  .nav-btn,
+  .submit-label,
+  .query-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border: 1px solid rgba(37, 111, 135, 0.2);
+    border-radius: 999px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    user-select: none;
+    transition: 0.18s ease;
+    white-space: nowrap;
+  }
+
+  .action-btn.primary,
+  .submit-label.primary {
+    background: linear-gradient(135deg, #2d829b, #58aac2);
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(37, 111, 135, 0.24);
+  }
+
+  .action-btn:hover,
+  .nav-btn:hover,
+  .submit-label:hover,
+  .query-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.10);
+  }
+
+  #home {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 30;
+  }
+
+  #appselectLabel {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    filter: drop-shadow(0 8px 14px rgba(15, 23, 42, 0.2));
+  }
+
+  #selectapp {
+    position: absolute;
+    right: 0;
+    bottom: 58px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 150px;
+    padding: 10px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+  }
+
+  #backTodataLabel,
+  #backToHomeLabel,
+  .setFlabel,
+  .mbut {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #f3f7fa;
+    color: #1f2937;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+  }
+
+  .main-card {
+    border-radius: 22px;
+    background: var(--card-bg);
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+
+  .card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: rgba(255, 255, 255, 0.34);
+    border-bottom: 1px solid rgba(47, 58, 70, 0.18);
+  }
+
+  .card-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+  }
+
+  .card-title::before {
+    content: "";
+    width: 8px;
+    height: 18px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #2d829b, #9ccfdd);
+  }
+
+  #con {
+    font-size: 13px;
+    color: var(--text-sub);
+  }
+
+  .table-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .fdata-table {
+    width: 100%;
+    min-width: 1100px;
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    background: #d9dde1;
+  }
+
+  .fdata-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px 10px;
+    text-align: left;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 800;
+    background: linear-gradient(180deg, #aeb4ba 0%, #a6acb2 100%);
+    border-right: 2px solid var(--line-dark);
+    border-bottom: 2px solid var(--line-dark);
+  }
+
+  .fdata-table tbody td {
+    padding: 10px 10px;
+    min-height: 44px;
+    color: #23303d;
+    font-size: 14px;
+    line-height: 1.45;
+    vertical-align: middle;
+    word-break: break-word;
+    white-space: pre-line;
+    background: var(--table-row);
+    border-right: 2px solid var(--line-dark);
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .fdata-table tbody tr:nth-child(even) td {
+    background: var(--table-row-alt);
+  }
+
+  .fdata-table tbody tr:hover td {
+    background: #edf3f6;
+  }
+
+  .fdata-table th:last-child,
+  .fdata-table td:last-child {
+    border-right: none;
+  }
+
+  .fdata-table th:nth-child(1),
+  .fdata-table td:nth-child(1) {
+    width: 72px;
+    text-align: center;
+  }
+
+  .fdata-table th:nth-child(2),
+  .fdata-table td:nth-child(2) {
+    width: 130px;
+    font-size: 18px;
+    font-weight: 800;
+  }
+
+  .fdata-table th:nth-child(3),
+  .fdata-table td:nth-child(3) {
+    width: 190px;
+  }
+
+  .fdata-table th:nth-child(4),
+  .fdata-table td:nth-child(4) {
+    width: 190px;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  .fdata-table th:nth-child(5),
+  .fdata-table td:nth-child(5) {
+    width: 330px;
+  }
+
+  .fdata-table th:nth-child(6),
+  .fdata-table td:nth-child(6) {
+    width: 310px;
+  }
+
+  .delete-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(224, 82, 82, 0.14);
+    color: var(--danger);
+    font-size: 20px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: 0.18s ease;
+  }
+
+  .delete-btn:hover {
+    background: var(--danger);
+    color: #fff;
+  }
+
+  .method-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .method-label {
+    display: block;
+    width: 100%;
+    min-height: 34px;
+    padding: 7px 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: #1f2937;
+  }
+
+  .method-edit-box {
+    position: relative;
+    width: 100%;
+    min-height: 46px;
+    padding: 18px 8px 8px;
+    border: 1px dashed rgba(37, 111, 135, 0.55);
+    border-radius: 14px;
+    background: rgba(231, 246, 250, 0.72);
+    transition: 0.18s ease;
+  }
+
+  .method-edit-box:hover {
+    background: rgba(231, 246, 250, 1);
+    border-color: #2d829b;
+    box-shadow: 0 0 0 3px rgba(45, 130, 155, 0.10);
+  }
+
+  .method-edit-hint {
+    position: absolute;
+    top: 5px;
+    right: 8px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #256f87;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid rgba(37, 111, 135, 0.18);
+  }
+
+  .method-input {
+    display: none;
+    width: 100%;
+    min-height: 36px;
+    border: 1px solid rgba(148, 163, 184, 0.65);
+    border-radius: 10px;
+    padding: 7px 10px;
+    background: #fff;
+    color: #1f2937;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.45;
+  }
+
+  .method-edit-box.editing .method-label {
+    display: none;
+  }
+
+  .method-edit-box.editing .method-input {
+    display: block;
+  }
+
+  .control-cell {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tip-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+  }
+
+  .control-cell select,
+  .form-grid select,
+  .form-grid input,
+  .query-grid input {
+    height: 34px;
+    border: 1px solid rgba(148, 163, 184, 0.65);
+    border-radius: 10px;
+    padding: 0 10px;
+    background: #fff;
+    color: #1f2937;
+    outline: none;
+  }
+
+  .control-cell select:focus,
+  .form-grid select:focus,
+  .form-grid input:focus,
+  .query-grid input:focus,
+  .method-input:focus {
+    border-color: #2d829b;
+    box-shadow: 0 0 0 3px rgba(45, 130, 155, 0.12);
+  }
+
+  .modal-panel {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(720px, calc(100vw - 28px));
+    max-height: min(760px, calc(100vh - 40px));
+    overflow: auto;
+    z-index: 99;
+    border-radius: 22px;
+    background: var(--panel-bg);
+    border: 1px solid rgba(148, 163, 184, 0.35);
+    box-shadow: 0 24px 64px rgba(15, 23, 42, 0.26);
+  }
+
+  /* 手动添加复测弹窗：单独加大，避免被旧 CSS 的 #manualPanel 高度/绝对定位影响 */
+  #manualPanel.modal-panel {
+    position: fixed !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    width: min(760px, calc(100vw - 32px));
+    min-height: 360px;
+    height: auto !important;
+    max-height: calc(100vh - 56px);
+    overflow: visible;
+  }
+
+  #manualPanel .panel-body {
+    display: block;
+    padding: 20px;
+    overflow: visible;
+  }
+
+  .panel-head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #fff;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.28);
+  }
+
+  .panel-title {
+    font-size: 17px;
+    font-weight: 800;
+  }
+
+  .close-label {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    color: #6b7280;
+    background: #f3f4f6;
+    cursor: pointer;
+    font-weight: 900;
+  }
+
+  .close-label:hover {
+    color: #fff;
+    background: var(--danger);
+  }
+
+  .panel-body {
+    padding: 16px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .field-label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 800;
+    color: #374151;
+  }
+
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+  }
+
+  .query-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .query-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .query-row input[type="text"] {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #queryTable {
+    width: 100%;
+    min-width: 860px;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+  }
+
+  #queryTable th,
+  #queryTable td {
+    border: 1px solid rgba(47, 58, 70, 0.28);
+    padding: 9px 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+    white-space: pre-line;
+  }
+
+  #queryTable th {
+    background: #d6dbe0;
+    color: #111827;
+    font-weight: 800;
+  }
+
+  .hidden-button {
+    display: none;
+  }
+
+  @media (max-width: 860px) {
+    .page-shell {
+      width: min(100vw - 16px, 1600px);
+      padding-top: 12px;
+    }
+
+    .top-bar,
+    .card-head {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+
+    .toolbar {
+      justify-content: flex-start;
+    }
+
+    .page-title {
+      font-size: 22px;
+    }
+
+    .form-grid,
+    .query-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .fdata-table {
+      min-width: 980px;
+    }
+  }
+</style></head><body>
+  <div id="home">
+    <img src="image/Buttonplus.png" id="appselectLabel" alt="应用菜单">
+    <div id="selectapp" style="grid-auto-flow: column;" hidden>
+      <label for="backTodata" id="backTodataLabel">返回查询页</label>
+      <button id="backTodata" onclick="window.location.href='/getData'" hidden></button><label for="backToHome" id="backToHomeLabel">返回主页</label>
+  <button id="backToHome" onclick="window.location.href='/'" hidden></button>
+
+  <label for="setFdata" class="setFlabel">编辑复测信息</label>
+  <button id="setFdata" onclick="window.location.href='/setFData'" hidden></button>
+
+  <!--<label for="getselomendata" class="selomenlabel">沙门数据</label>
+  <button id="getselomendata" onclick="window.location.href='/getselomenData'" hidden></button>-->
+
+  <label for="manualQuery" class="mbut">查询数据</label>
+  <button id="manualQuery" onclick="openmanualQueryPanel()" hidden></button>
+</div>
+
+  </div>  <div class="page-shell">
+    <div class="top-bar">
+      <div class="page-title-block">
+        <h1 class="page-title">复测信息维护</h1>
+        <p class="page-desc">统一维护样品复测梯度、检测方法变更和历史数据查询。</p>
+      </div><div class="toolbar">
+    <label for="manual" id="mbut" class="action-btn primary">手动添加复测</label>
+    <button id="manual" onclick="openmanualPanel()" hidden></button>
+
+    <label for="manualQueryTop" class="action-btn">查询数据</label>
+    <button id="manualQueryTop" onclick="openmanualQueryPanel()" hidden></button>
+  </div>
+</div>
+
+<div id="manualPanel" class="modal-panel" hidden>
+  <div class="panel-head">
+    <div class="panel-title">手动添加复测</div>
+    <label for="close" id="lclose" class="close-label">×</label>
+    <button id="close" onclick="closemanualPanel()" hidden></button>
+  </div>
+
+  <div class="panel-body">
+    <form action="#" th:action="@{/manualAddFData}" method="get" enctype="text/plain">
+      <div class="form-grid">
+        <label for="input1" id="l1" class="field-label">
+          样品短号
+          <input id="input1" type="text" name="simpleNum" placeholder="请输入样品短号">
+        </label>
+
+        <label for="input2" id="l2" class="field-label">
+          选择标准
+          <select id="input2" name="standardNumber">
+            <option value="">-- 请选择检测标准 --</option>
+          </select>
+        </label>
+
+        <label for="input3" id="l3" class="field-label">
+          检测项目
+          <select id="input3" name="simpleItem">
+            <option value="">-- 请选择检测项目 --</option>
+          </select>
+        </label>
+
+        <label for="input4" id="l4" class="field-label">
+          检测方法
+          <select id="input4" name="testMethord">
+            <option value="">-- 请选择检测方法 --</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="form-actions">
+        <label for="quest" id="input5" class="submit-label primary">提交</label>
+        <input id="quest" type="submit" hidden>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="manualQueryPanel" class="modal-panel" hidden>
+  <div class="panel-head">
+    <div class="panel-title">查询近期 / 历史数据</div>
+    <label for="closeQuery" id="lcloseQuery" class="close-label">×</label>
+    <button id="closeQuery" onclick="closemanualQueryPanel()" hidden></button>
+  </div>
+
+  <div class="panel-body">
+    <div class="query-grid">
+      <div class="query-row">
+        <input type="text" placeholder="例如：11223" id="simpleid" name="simpleNum">
+        <input type="button" id="btn" class="query-btn" value="查询近期数据" onclick="getcontent()">
+      </div>
+
+      <div class="query-row">
+        <input type="text" placeholder="例如：汪汪家" id="simplename" name="simpleNam">
+        <input type="button" id="btnforname" class="query-btn" value="按名称查询近期" onclick="getcontentfromname()">
+      </div>
+
+      <div class="query-row">
+        <input type="text" placeholder="例如：11223" id="oldsimpleid" name="oldsimpleNum">
+        <input type="button" id="quryoldbtn" class="query-btn" value="查询历史数据" onclick="getoldcontent()">
+      </div>
+
+      <div class="query-row">
+        <input type="text" placeholder="例如：汪汪家" id="oldsimplename" name="oldsimpleNam">
+        <input type="button" id="oldbtnforname" class="query-btn" value="按名称查询历史" onclick="getoldcontentfromname()">
+      </div>
+    </div>
+
+    <div class="table-scroll">
+      <table id="queryTable">
+        <thead>
+          <tr>
+            <th>样品短号</th>
+            <th>样品名称</th>
+            <th>检测项目 / 报告抬头</th>
+            <th>检测方法 / 检测项目</th>
+            <th>信息</th>
+            <th>结果</th>
+          </tr>
+        </thead>
+        <tbody id="context"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="main-card">
+  <div class="card-head">
+    <div class="card-title">当前复测列表</div>
+    <label id="con" name="table_name"></label>
+  </div>
+
+  <div class="table-scroll">
+    <table class="fdata-table">
+      <thead>
+        <tr>
+          <th>删除</th>
+          <th>样品短号</th>
+          <th>样品名称</th>
+          <th>检测项目</th>
+          <th>检测方法</th>
+          <th>复测信息</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr th:each="simple:${simpleList}">
+          <td>
+            <form action="#" th:action="@{/deleteDuo}" method="get" enctype="text/plain">
+              <input type="text" name="num" th:value="${simple.getNumber()}" hidden>
+              <input type="text" name="nam" th:value="${simple.getTestItem()}" hidden>
+              <button class="delete-btn" type="submit" title="删除">×</button>
+            </form>
+          </td>
+
+          <td class="num-cell" name="simpleNum" th:text="${simple.getNumber()}" th:attr="data-value=${simple.getNumber()}"></td>
+          <td th:text="${simple.getName()}"></td>
+          <td class="item-cell" name="simpleName" th:text="${simple.getTestItem()}" th:attr="data-value=${simple.getTestItem()}"></td>
+
+          <td>
+            <div class="method-cell">
+              <div class="method-edit-box" title="点击检测方法可编辑，失焦或按 Enter 提交">
+                <span class="method-edit-hint">点击编辑</span>
+                <label class="method-label" th:text="${simple.getTestMethod()}" onclick="startEditMethod(this)"></label>
+                <input class="addMethod method-input" type="text" onblur="finishEditMethod(this)" onkeydown="handleMethodInputKeydown(event, this)">
+              </div>
+            </div>
+          </td>
+
+          <td class="control-cell-td">
+            <div class="control-cell">
+              <label th:attr="data-tip=${simple.getTip()}" class="tip-label">选择梯度</label>
+
+              <select class="tie1" name="firstTie">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+              </select>
+
+              <span>~</span>
+
+              <select class="tie2" name="lastTie" onchange="todo(this.id)">
+                <option value="">选择梯度</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+              </select>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+  </div>  <script src="script/plusSelect.js"></script>  <script>
+    var datetime = new Date();
+    var year = datetime.getFullYear();
+    var month = datetime.getMonth() + 1 < 10 ? "0" + (datetime.getMonth() + 1) : datetime.getMonth() + 1;
+    var date = datetime.getDate() < 10 ? "0" + datetime.getDate() : datetime.getDate();
+    var starttime = year + "/" + month + "/" + date;
+
+    var datelabel = document.getElementById('con');
+    datelabel.setAttribute('value', starttime);
+    datelabel.innerText = "日期：" + starttime;
+
+    var select1 = document.querySelectorAll('.tie1');
+    var select2 = document.querySelectorAll('.tie2');
+    var addMethod = document.querySelectorAll('.addMethod');
+    var tdNum = document.querySelectorAll('.num-cell');
+    var tdNam = document.querySelectorAll('.item-cell');
+    var tlabel = document.querySelectorAll('.tip-label');
+    var method = document.querySelectorAll('.method-label');
+
+    var select1id;
+    var select2id;
+    var addMethodid;
+    var tdNumid;
+    var tdNamid;
+    var tlid;
+    var methodid;
+
+    for (var i = 0; i < select1.length; i++) {
+      select1id = "tie1" + i;
+      select2id = "tie2" + i;
+      addMethodid = "addMethod" + i;
+      tdNumid = "tdnum" + i;
+      tdNamid = "tdnam" + i;
+      tlid = "tl" + i;
+      methodid = "m" + i;
+
+      tlabel[i].setAttribute('id', tlid);
+      select1[i].setAttribute('id', select1id);
+      select2[i].setAttribute('id', select2id);
+      addMethod[i].setAttribute('id', addMethodid);
+      tdNum[i].setAttribute('id', tdNumid);
+      tdNam[i].setAttribute('id', tdNamid);
+      method[i].setAttribute('id', methodid);
+
+      var tipValue = tlabel[i].getAttribute('data-tip') || '';
+      var firstTieValue = tipValue.charAt(2);
+      var lastTieValue = tipValue.charAt(5);
+
+      if (firstTieValue) {
+        select1[i].value = firstTieValue;
+      }
+      if (lastTieValue) {
+        select2[i].value = lastTieValue;
+      }
+    }
+
+    function getCellValueById(id) {
+      var el = document.getElementById(id);
+      if (!el) return '';
+      return el.getAttribute('data-value') || el.getAttribute('value') || el.innerText || '';
+    }
+
+    function c1(id1, id2, id3, id4, id5) {
+      var select1 = document.getElementById(id3);
+      var select2 = document.getElementById(id4);
+
+      var modeljson = {
+        "simpleNum": getCellValueById(id1),
+        "simpleName": getCellValueById(id2),
+        "firstTie": select1.options[select1.selectedIndex].value,
+        "lastTie": select2.options[select2.selectedIndex].value
+      };
+
+      $.ajax({
+        url: '/ajax/c',
+        data: modeljson,
+        success: function (data, status) {
+          console.log(data);
+          console.log(status);
+        }
+      });
+    }
+
+    function todo(id) {
+      var index;
+      var select2id;
+
+      for (var i = 0; i < select2.length; i++) {
+        select2id = select2[i].getAttribute('id');
+        if (select2id === id) {
+          index = i;
+          break;
+        }
+      }
+
+      var tdNumid = "tdnum" + index;
+      var tdNamid = "tdnam" + index;
+      var select1id = "tie1" + index;
+
+      c1(tdNumid, tdNamid, select1id, select2id);
+    }
+
+    function c_addFmet(id1, id2, id3, id4) {
+      var newValue = document.getElementById(id3).value;
+
+      var modeljson = {
+        "simpleNum": getCellValueById(id1),
+        "simpleName": getCellValueById(id2),
+        "Fmethod": newValue + "!!!!" + document.getElementById(id4).innerText
+      };
+
+      $.ajax({
+        url: '/ajax/c_addFmet',
+        data: modeljson,
+        success: function (data, status) {
+          console.log(data);
+          console.log(status);
+        }
+      });
+    }
+
+    function todo_addmet(id) {
+      var index;
+
+      for (var i = 0; i < addMethod.length; i++) {
+        addMethodid = addMethod[i].getAttribute('id');
+        if (addMethodid === id) {
+          index = i;
+          break;
+        }
+      }
+
+      var tdNumid = "tdnum" + index;
+      var tdNamid = "tdnam" + index;
+      var fmethodid = "addMethod" + index;
+      var methodid = "m" + index;
+
+      c_addFmet(tdNumid, tdNamid, fmethodid, methodid);
+    }
+
+    function startEditMethod(labelEl) {
+      var box = labelEl.closest('.method-edit-box');
+      var input = box.querySelector('.method-input');
+
+      input.value = labelEl.innerText.trim();
+      input.setAttribute('data-old-value', labelEl.innerText.trim());
+      box.classList.add('editing');
+
+      setTimeout(function () {
+        input.focus();
+        input.select();
+      }, 0);
+    }
+
+    function finishEditMethod(inputEl) {
+      var box = inputEl.closest('.method-edit-box');
+      var label = box.querySelector('.method-label');
+      var newValue = inputEl.value.trim();
+      var oldValue = inputEl.getAttribute('data-old-value') || '';
+
+      box.classList.remove('editing');
+
+      if (!newValue || newValue === oldValue) {
+        inputEl.value = oldValue;
+        return;
+      }
+
+      label.innerText = newValue;
+      todo_addmet(inputEl.id);
+    }
+
+    function handleMethodInputKeydown(event, inputEl) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        inputEl.blur();
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        var box = inputEl.closest('.method-edit-box');
+        var oldValue = inputEl.getAttribute('data-old-value') || '';
+        inputEl.value = oldValue;
+        box.classList.remove('editing');
+      }
+    }
+
+    function getcontent() {
+      var modeljson = {
+        "simpleNum": document.getElementById('simpleid').value
+      };
+
+      $.post({
+        url: "/ajax/query",
+        data: modeljson,
+        success: function (data) {
+          console.log(data);
+          var html = "";
+          for (var i = 0; i < data.length; i++) {
+            html += "<tr>" +
+              "<td>" + data[i].number + "</td>" +
+              "<td>" + data[i].name + "</td>" +
+              "<td>" + data[i].testItem + "</td>" +
+              "<td>" + data[i].testMethod + "</td>" +
+              "<td>" + data[i].ifF + "</td>" +
+              "<td>" + data[i].result + "</td>" +
+              "</tr>";
+          }
+          $("#context").html(html);
+        }
+      });
+    }
+
+    function getcontentfromname() {
+      var modeljson = {
+        "simpleNam": document.getElementById('simplename').value
+      };
+
+      $.post({
+        url: "/ajax/queryfromname",
+        data: modeljson,
+        success: function (data) {
+          console.log(data);
+          var html = "";
+          for (var i = 0; i < data.length; i++) {
+            html += "<tr>" +
+              "<td>" + data[i].number + "</td>" +
+              "<td>" + data[i].name + "</td>" +
+              "<td>" + data[i].testItem + "</td>" +
+              "<td>" + data[i].testMethod + "</td>" +
+              "<td>" + data[i].ifF + "</td>" +
+              "<td>" + data[i].result + "</td>" +
+              "</tr>";
+          }
+          $("#context").html(html);
+        }
+      });
+    }
+
+    function getoldcontent() {
+      var modeljson = {
+        "oldsimpleNum": document.getElementById('oldsimpleid').value
+      };
+
+      $.post({
+        url: "/ajax/queryFromYearTable",
+        data: modeljson,
+        success: function (data) {
+          console.log(data);
+          var html = "";
+          for (var i = 0; i < data.length; i++) {
+            html += "<tr>" +
+              "<td>" + data[i].number + "</td>" +
+              "<td>" + data[i].name + "</td>" +
+              "<td>" + data[i].company + "</td>" +
+              "<td>" + data[i].testItem + "</td>" +
+              "<td>" + data[i].ifF + "</td>" +
+              "<td>" + data[i].result + "</td>" +
+              "</tr>";
+          }
+          $("#context").html(html);
+        }
+      });
+    }
+
+    function getoldcontentfromname() {
+      var modeljson = {
+        "oldsimpleNam": document.getElementById('oldsimplename').value
+      };
+
+      $.post({
+        url: "/ajax/queryFromYearTableforName",
+        data: modeljson,
+        success: function (data) {
+          console.log(data);
+          var html = "";
+          for (var i = 0; i < data.length; i++) {
+            html += "<tr>" +
+              "<td>" + data[i].number + "</td>" +
+              "<td>" + data[i].name + "</td>" +
+              "<td>" + data[i].company + "</td>" +
+              "<td>" + data[i].testItem + "</td>" +
+              "<td>" + data[i].ifF + "</td>" +
+              "<td>" + data[i].result + "</td>" +
+              "</tr>";
+          }
+          $("#context").html(html);
+        }
+      });
+    }
+
+    function openmanualPanel() {
+      var d = document.getElementById("manualPanel");
+      d.hidden = false;
+    }
+
+    function closemanualPanel() {
+      var d = document.getElementById("manualPanel");
+      d.hidden = true;
+    }
+
+    function openmanualQueryPanel() {
+      var d = document.getElementById("manualQueryPanel");
+      d.hidden = false;
+    }
+
+    function closemanualQueryPanel() {
+      var d = document.getElementById("manualQueryPanel");
+      d.hidden = true;
+    }
+  </script>  <script src="script/plusSelect.js?v1.0.1"></script>  <script>initDraggable('home', 'appselectLabel');</script>  <script>
+    $(document).ready(function () {
+      $('#mbut').click(function () {
+        $.ajax({
+          url: '/getStandard',
+          type: 'GET',
+          data: {},
+          success: function (response) {
+            const testStandardSelect = $('#input2');
+            testStandardSelect.empty();
+            testStandardSelect.append('<option value="">-- 请选择检测标准 --</option>');
+            response.forEach(function (item) {
+              testStandardSelect.append(
+                $('<option>').val(item).text(item)
+              );
+            });
+          },
+          error: function () {
+            alert('无法加载检测标准，请稍后再试！');
+          }
+        });
+      });
+
+      $('#input2').change(function () {
+        const selectedMethod = $(this).val();
+
+        if (selectedMethod) {
+          $.ajax({
+            url: '/getTestItems',
+            type: 'GET',
+            data: { method: selectedMethod },
+            success: function (response) {
+              const testItemSelect = $('#input3');
+              testItemSelect.empty();
+              testItemSelect.append('<option value="">-- 请选择检测项目 --</option>');
+              response.forEach(function (item) {
+                testItemSelect.append(
+                  $('<option>').val(item).text(item)
+                );
+              });
+            },
+            error: function () {
+              alert('无法加载检测项目，请稍后再试！');
+            }
+          });
+        } else {
+          $('#input3').empty().append('<option value="">-- 请选择检测项目 --</option>');
+          $('#input4').empty().append('<option value="">-- 请选择检测方法 --</option>');
+        }
+      });
+
+      $('#input3').change(function () {
+        const selectedMethod = $('#input2').val();
+        const selectedItem = $(this).val();
+
+        if (selectedItem) {
+          $.ajax({
+            url: '/getTestMethod',
+            type: 'GET',
+            data: {
+              method: selectedMethod,
+              testItem: selectedItem
+            },
+            success: function (response) {
+              const testMethodSelect = $('#input4');
+              testMethodSelect.empty();
+              testMethodSelect.append('<option value="">-- 请选择检测方法 --</option>');
+              response.forEach(function (item) {
+                testMethodSelect.append(
+                  $('<option>').val(item).text(item)
+                );
+              });
+            },
+            error: function () {
+              alert('无法加载检测方法，请稍后再试！');
+            }
+          });
+        } else {
+          $('#input4').empty().append('<option value="">-- 请选择检测方法 --</option>');
+        }
+      });
+    });
+  </script></body>
+</html>

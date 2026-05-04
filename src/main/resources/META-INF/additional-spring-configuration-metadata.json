@@ -1,0 +1,17 @@
+{"properties": [
+  {
+    "name": "file.path",
+    "type": "java.lang.String",
+    "description": "A description for 'file.path'"
+  },
+  {
+    "name": "--add-opens",
+    "type": "java.lang.String",
+    "description": "A description for '--add-opens'"
+  },
+  {
+    "name": "file_path_secondary",
+    "type": "java.lang.String",
+    "description": "A description for 'file_path_secondary'"
+  }
+]}

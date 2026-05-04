@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF 温度生成器</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+</head>
+<body>
+    <h1>编辑 PDF 文件并生成温度记录</h1>
+   <!-- 下拉菜单选择PDF文件 -->
+    <label for="fileSelect">选择PDF文件：</label>
+    <select id="fileSelect">
+        <option value="">请选择文件</option>
+    </select>
+    <!-- 展示PDF -->
+    <div>
+        <canvas id="pdfCanvas"></canvas>
+    </div>
+
+    <h2>选择不写入温度的天数</h2>
+
+    <!-- 复选框：31天 -->
+    <form id="daysForm">
+        <div id="checkbox-container">
+            <!-- 使用 JavaScript 动态生成31个复选框 -->
+        </div>
+    </form>
+
+    <!-- 按钮生成和下载 -->
+    <button id="generatePdfBtn">生成 PDF</button>
+    <button id="downloadPdfBtn">下载 PDF</button>
+
+    <script>
+		// 获取PDF文件列表并填充到下拉菜单中
+		 fetch('/list-files')
+                .then(response => response.json())
+                .then(fileList => {
+                    const fileSelect = document.getElementById('fileSelect');
+                    
+                    // 填充文件选项到下拉菜单
+                    fileList.forEach(file => {
+                        const option = document.createElement('option');
+                        option.value = file;
+                        option.text = file;
+                        fileSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching file list:', error));
+
+            // 监听文件选择事件
+            document.getElementById('fileSelect').addEventListener('change', function() {
+                const selectedFile = this.value;
+                if (selectedFile) {
+                    loadPdf(`/record/${selectedFile}`);
+                }
+            });
+        
+        // PDF.js 加载 PDF
+        function loadPdf(url) {
+			 // PDF 加载和展示
+        const canvas = document.getElementById('pdfCanvas');
+        const context = canvas.getContext('2d');
+
+        pdfjsLib.getDocument(url).promise.then(function(pdf) {
+            pdf.getPage(1).then(function(page) {
+                const viewport = page.getViewport({scale: 1.5});
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+
+                page.render({
+                    canvasContext: context,
+                    viewport: viewport
+                });
+            });
+        });
+		}
+
+       
+
+        // 动态生成复选框
+         // 确保页面加载完成后运行此代码
+        window.onload = function() {
+            // 找到复选框容器
+            const checkboxContainer = document.getElementById('checkbox-container');
+
+            // 循环生成31个复选框
+            for (let i = 1; i <= 31; i++) {
+                const checkbox = document.createElement('input');  // 创建 <input> 元素
+                checkbox.type = 'checkbox';                       // 设置为复选框类型
+                checkbox.id = `day-${i}`;                         // 为每个复选框设置唯一 ID
+                checkbox.value = i;                               // 复选框的值为天数
+
+                const label = document.createElement('label');    // 创建 <label> 元素
+                label.htmlFor = checkbox.id;                      // 为 label 设置目标复选框
+                label.innerText = `Day ${i}`;                     // 显示 "Day x" 的文字
+
+                // 将复选框和 label 添加到容器中
+                checkboxContainer.appendChild(checkbox);
+                checkboxContainer.appendChild(label);
+                checkboxContainer.appendChild(document.createElement('br'));  // 换行
+            }
+        };
+
+        // 监听 "生成 PDF" 按钮
+        document.getElementById('generatePdfBtn').addEventListener('click', function() {
+            const selectedDays = Array.from(document.querySelectorAll('#daysForm input:checked'))
+                                      .map(checkbox => checkbox.value);
+            console.log('选中的天数:', selectedDays);
+             const fileSelect = document.getElementById('fileSelect');
+             const filename=fileSelect.value;
+            
+            // 发送选中天数到后端，生成新的 PDF
+            fetch('/generate-pdf', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({selectedDays: selectedDays,filename: filename})
+            })
+            .then(response => response.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                window.location.href = url;
+            })
+            .catch(error => console.error('生成PDF出错:', error));
+        });
+
+        // "下载 PDF" 按钮
+        document.getElementById('downloadPdfBtn').addEventListener('click', function() {
+            window.location.href = '/download-pdf';  // 后端提供的PDF下载路径
+        });
+    </script>
+</body>
+</html>
